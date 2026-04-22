@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary palette
-  static const Color primary = Color(0xFF4F6AF5);
-  static const Color primaryLight = Color(0xFF7B93F8);
-  static const Color primaryDark = Color(0xFF2D4AE8);
+  // Primary palette — oranye Hajato
+  static const Color primary = Color(0xFFFF6B2C);
+  static const Color primaryLight = Color(0xFFFF9A5C);
+  static const Color primaryDark = Color(0xFFD94F10);
 
   // Secondary / accent
   static const Color secondary = Color(0xFFFF8A65);
@@ -14,12 +14,12 @@ class AppColors {
   // Neutral
   static const Color background = Color(0xFFF8F9FE);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF0F3FF);
+  static const Color surfaceVariant = Color(0xFFFFF4EF); // was F0F3FF, kini warm tint
 
   // Text
-  static const Color textPrimary = Color(0xFF1A1D2E);
+  static const Color textPrimary = Color(0xFF18130A);   // warm near-black (dari RegisterView)
   static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textHint = Color(0xFFB0BAC7);
+  static const Color textHint = Color(0xFFB5B0A8);      // dari RegisterView
 
   // Status
   static const Color success = Color(0xFF34D399);
@@ -29,29 +29,29 @@ class AppColors {
 
   // Gradient
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF4F6AF5), Color(0xFF7B4FBA)],
+    colors: [Color(0xFFFF9A5C), Color(0xFFD94F10)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF4F6AF5), Color(0xFF6A82FB)],
+    colors: [Color(0xFFFF6B2C), Color(0xFFFF9A5C)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   static const LinearGradient warmGradient = LinearGradient(
-    colors: [Color(0xFFFF8A65), Color(0xFFFFB347)],
+    colors: [Color(0xFFFF9A5C), Color(0xFFD94F10)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   // Category colors
   static const List<Color> categoryColors = [
-    Color(0xFF4F6AF5),
+    Color(0xFFFF6B2C),
     Color(0xFFFF8A65),
     Color(0xFF34D399),
     Color(0xFFFBBF24),
     Color(0xFFEC4899),
-    Color(0xFF7B4FBA),
+    Color(0xFFD94F10),
   ];
 }
 
@@ -106,11 +106,11 @@ class AppTheme {
           contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
