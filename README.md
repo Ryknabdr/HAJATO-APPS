@@ -186,4 +186,4 @@ flutter build apk --release
 - Semua teks UI menggunakan **Bahasa Indonesia**
 - Orientasi dikunci ke **portrait mode**
 - Mendukung Android & iOS
-- update by rofiq
+
