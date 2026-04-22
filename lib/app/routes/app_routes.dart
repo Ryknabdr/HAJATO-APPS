@@ -25,4 +25,5 @@ abstract class AppRoutes {
   static const profileNotifications = '/profile/notifications';
   static const promo               = '/promo';
   static const payment             = '/payment';
+  
 }

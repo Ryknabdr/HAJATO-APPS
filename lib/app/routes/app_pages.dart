@@ -38,6 +38,8 @@ import '../modules/promo/bindings/promo_binding.dart';
 import '../modules/promo/views/promo_view.dart';
 import '../modules/payment/bindings/payment_binding.dart';
 import '../modules/payment/views/payment_view.dart';
+import '../modules/register/bindings/register_binding.dart';
+import '../modules/register/views/register_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -182,6 +184,12 @@ class AppPages {
   name: AppRoutes.payment,
   page: () => const PaymentView(),
   binding: PaymentBinding(),
+),
+GetPage(
+  name: AppRoutes.register,
+  page: () => const RegisterView(),
+  binding: RegisterBinding(),
+  transition: Transition.rightToLeft,
 ),
   ];
 }
