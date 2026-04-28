@@ -61,7 +61,7 @@ class AppTheme {
         colorScheme: ColorScheme.light(
           primary: AppColors.primary,
           secondary: AppColors.secondary,
-          surface: AppColors.surface,
+          surface: AppColors.surface,   
           background: AppColors.background,
           error: AppColors.error,
         ),

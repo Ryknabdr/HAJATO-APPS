@@ -1,6 +1,6 @@
 // Data Models for HAJATO
 
-// ─── Vendor Model ───────────────────────────────────────────────────────────────
+// ─── Vendor Model ─────────────────────────────────────────────────────────────
 class VendorModel {
   final String id;
   final String name;
@@ -67,7 +67,7 @@ class ReviewModel {
   });
 }
 
-// ─── Event Model ─────────────────────────────────────────────────────────────
+// ─── Event Model ──────────────────────────────────────────────────────────────
 class EventModel {
   final String id;
   String namaAcara;
@@ -84,7 +84,7 @@ class EventModel {
   });
 }
 
-// ─── Guest Model ─────────────────────────────────────────────────────────────
+// ─── Guest Model ──────────────────────────────────────────────────────────────
 class GuestModel {
   final String id;
   final String nama;
@@ -103,7 +103,7 @@ class GuestModel {
   });
 }
 
-// ─── Booking Model ───────────────────────────────────────────────────────────
+// ─── Booking Model ────────────────────────────────────────────────────────────
 class BookingModel {
   final String id;
   final String vendorId;
@@ -111,7 +111,7 @@ class BookingModel {
   final String packageId;
   final String packageName;
   DateTime bookingDate;
-  String status; // pending, confirmed, cancelled
+  String status;
   final int totalPrice;
 
   BookingModel({
@@ -146,3 +146,42 @@ class MessageModel {
 }
 
 enum MessageType { text, image, system }
+
+// ─── Vendor Registration Model ────────────────────────────────────────────────
+enum VendorStatus { idle, pending, verified, rejected }
+
+class VendorRegistrationModel {
+  String businessName;
+  String businessCategory;
+  String businessDescription;
+  String businessLocation;
+  String businessPhone;
+  String ownerName;
+  String ownerNik;
+  String? ktpImagePath;
+  String? selfieImagePath;
+  String? npwp;
+  String? businessLicensePath;
+  VendorStatus status;
+  String? rejectionReason;
+  DateTime? submittedAt;
+  DateTime? verifiedAt;
+
+  VendorRegistrationModel({
+    this.businessName = '',
+    this.businessCategory = '',
+    this.businessDescription = '',
+    this.businessLocation = '',
+    this.businessPhone = '',
+    this.ownerName = '',
+    this.ownerNik = '',
+    this.ktpImagePath,
+    this.selfieImagePath,
+    this.npwp,
+    this.businessLicensePath,
+    this.status = VendorStatus.idle,
+    this.rejectionReason,
+    this.submittedAt,
+    this.verifiedAt,
+  });
+}
