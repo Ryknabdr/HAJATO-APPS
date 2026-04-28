@@ -34,12 +34,20 @@ import '../modules/profile/views/profile_view.dart';
 import '../modules/profile/views/edit_profile_view.dart';
 import '../modules/profile/views/change_password_view.dart';
 import '../modules/profile/views/notification_setting_view.dart';
+import '../modules/profile/views/about_view.dart';
+import '../modules/profile/views/help_view.dart';
+import '../modules/profile/views/privacy_view.dart';
+import '../modules/profile/views/terms_view.dart';
 import '../modules/promo/bindings/promo_binding.dart';
 import '../modules/promo/views/promo_view.dart';
 import '../modules/payment/bindings/payment_binding.dart';
 import '../modules/payment/views/payment_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/vendor_registration/bindings/vendor_registration_binding.dart';
+import '../modules/vendor_registration/views/vendor_registration_view.dart';
+import '../modules/notifikasi/bindings/notifikasi_binding.dart';
+import '../modules/notifikasi/views/notifikasi_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -53,6 +61,12 @@ class AppPages {
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: LoginBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => const RegisterView(),
+      binding: RegisterBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -175,21 +189,57 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: AppRoutes.profileHelp,
+      page: () => const HelpView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profilePrivacy,
+      page: () => const PrivacyView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profileTerms,
+      page: () => const TermsView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profileAbout,
+      page: () => const AboutView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: AppRoutes.promo,
       page: () => const PromoView(),
       binding: PromoBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
-  name: AppRoutes.payment,
-  page: () => const PaymentView(),
-  binding: PaymentBinding(),
-),
-GetPage(
-  name: AppRoutes.register,
-  page: () => const RegisterView(),
-  binding: RegisterBinding(),
-  transition: Transition.rightToLeft,
-),
+      name: AppRoutes.payment,
+      page: () => const PaymentView(),
+      binding: PaymentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.vendorRegistration,
+      page: () => const VendorRegistrationView(),
+      binding: VendorRegistrationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.vendorRegistrationStatus,
+      page: () => const VendorRegistrationStatusView(),
+      transition: Transition.rightToLeft,
+    ),
+    // ✅ Notifikasi — binding terpasang, route konsisten
+    GetPage(
+      name: AppRoutes.notifikasi,
+      page: () => const NotificationView(),
+      binding: NotifikasiBinding(),
+      transition: Transition.rightToLeft,
+    ),
   ];
 }
