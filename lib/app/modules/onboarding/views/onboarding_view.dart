@@ -3,10 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/onboarding_controller.dart';
 
-const _kOrange = Color(0xFFFF6B2C);
-const _kOrangeDark = Color(0xFFD94F10);
-const _kOrangeLight = Color(0xFFFF9A5C);
-const _kOrangeBg = Color(0xFFFF8C42);
+const _kTeal = Color(0xFF0D9488);
+const _kTealDark = Color(0xFF0F766E);
+const _kTealLight = Color(0xFF14B8A6);
+const _kTealBg = Color(0xFF0D9488);
+const _kGold = Color(0xFFD97706);
+const _kGoldLight = Color(0xFFFBBF24);
 
 class OnboardingView extends GetView<OnboardingController> {
   const OnboardingView({super.key});
@@ -14,7 +16,7 @@ class OnboardingView extends GetView<OnboardingController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kOrange,
+      backgroundColor: _kTeal,
       body: Stack(
         children: [
           const _BackgroundArt(),
@@ -80,25 +82,32 @@ class _BgPainter extends CustomPainter {
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFFFF8C42), Color(0xFFFF6B2C), Color(0xFFD94F10)],
+        colors: [
+          Color(0xFF14B8A6), // teal-500
+          Color(0xFF0D9488), // teal-600
+          Color(0xFF0F766E), // teal-700
+        ],
         stops: [0, 0.5, 1],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
+    canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
+    // Orb gold accent — subtle shimmer
     final scale1 = 1.0 + 0.15 * t;
     _drawOrb(
       canvas,
       center: const Offset(-60, -80),
       radius: 280 * scale1,
-      color: Colors.white.withOpacity(0.15),
+      color: Colors.white.withOpacity(0.12),
     );
 
+    // Gold orb top-right
     final scale2 = 1.0 - 0.12 * t;
     _drawOrb(
       canvas,
       center: Offset(size.width + 40, 80),
       radius: 200 * scale2,
-      color: Colors.white.withOpacity(0.10),
+      color: const Color(0xFFFBBF24).withOpacity(0.08),
     );
 
     final scale3 = 1.0 + 0.1 * (1 - t);
@@ -106,7 +115,7 @@ class _BgPainter extends CustomPainter {
       canvas,
       center: Offset(20, size.height * 0.35),
       radius: 160 * scale3,
-      color: Colors.white.withOpacity(0.07),
+      color: Colors.white.withOpacity(0.06),
     );
 
     _drawGrid(canvas, size);
@@ -127,7 +136,7 @@ class _BgPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.08)
+      ..color = Colors.white.withOpacity(0.07)
       ..strokeWidth = 0.5;
     const step = 40.0;
     final maxY = size.height * 0.55;
@@ -184,7 +193,7 @@ class _TopSectionState extends State<_TopSection>
           const SizedBox(height: 24),
           ShaderMask(
             shaderCallback: (bounds) => const LinearGradient(
-              colors: [Colors.white, Color(0xFFFFF0E8)],
+              colors: [Colors.white, Color(0xFFCCFBF1)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ).createShader(bounds),
@@ -204,7 +213,7 @@ class _TopSectionState extends State<_TopSection>
             style: GoogleFonts.dmSans(
               fontSize: 10,
               letterSpacing: 4,
-              color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.6),
+              color: Colors.black.withOpacity(0.5),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -225,7 +234,7 @@ class _TopSectionState extends State<_TopSection>
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
               fontSize: 12,
-              color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.55),
+              color: Colors.black.withOpacity(0.45),
               height: 1.6,
             ),
           ),
@@ -290,7 +299,7 @@ class _IconFrameState extends State<_IconFrame>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _kOrangeDark.withOpacity(0.4),
+                  color: _kTealDark.withOpacity(0.4),
                   blurRadius: 40,
                   spreadRadius: 8,
                 ),
@@ -309,11 +318,16 @@ class _IconFrameState extends State<_IconFrame>
             animation: _blink,
             builder: (_, __) => Stack(
               children: [
-                Positioned(top: 2, left: 2, child: _Dot(opacity: _blink.value)),
+                // Gold accent dots
+                Positioned(
+                  top: 2,
+                  left: 2,
+                  child: _Dot(opacity: _blink.value, gold: true),
+                ),
                 Positioned(
                   bottom: 2,
                   right: 2,
-                  child: _Dot(opacity: 1 - _blink.value),
+                  child: _Dot(opacity: 1 - _blink.value, gold: false),
                 ),
               ],
             ),
@@ -326,17 +340,22 @@ class _IconFrameState extends State<_IconFrame>
 
 class _Dot extends StatelessWidget {
   final double opacity;
-  const _Dot({required this.opacity});
+  final bool gold;
+  const _Dot({required this.opacity, required this.gold});
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 10,
-    height: 10,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: Color.lerp(Colors.white.withOpacity(0.3), Colors.white, opacity),
-    ),
-  );
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: gold
+              ? Color.lerp(
+                  _kGoldLight.withOpacity(0.4), _kGoldLight, opacity)
+              : Color.lerp(
+                  Colors.white.withOpacity(0.3), Colors.white, opacity),
+        ),
+      );
 }
 
 class _FeatureBadge extends StatelessWidget {
@@ -346,28 +365,30 @@ class _FeatureBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-    decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(100),
-      border: Border.all(color: Colors.white.withOpacity(0.3)),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(icon, style: const TextStyle(fontSize: 13)),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: GoogleFonts.dmSans(
-            fontSize: 11,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(100),
+          border:
+              Border.all(color: Colors.white.withOpacity(0.3)),
         ),
-      ],
-    ),
-  );
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 13)),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.dmSans(
+                fontSize: 11,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class _BottomPanel extends GetView<OnboardingController> {
@@ -399,7 +420,7 @@ class _BottomPanel extends GetView<OnboardingController> {
               height: 3,
               margin: const EdgeInsets.only(bottom: 28),
               decoration: BoxDecoration(
-                color: _kOrange.withOpacity(0.3),
+                color: _kTeal.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -409,7 +430,7 @@ class _BottomPanel extends GetView<OnboardingController> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF18100A),
+                color: const Color(0xFF0F2724),
                 height: 1.25,
                 letterSpacing: -0.5,
               ),
@@ -417,7 +438,7 @@ class _BottomPanel extends GetView<OnboardingController> {
                 TextSpan(text: 'Selamat Datang di\n'),
                 TextSpan(
                   text: 'Hajato',
-                  style: TextStyle(color: _kOrange),
+                  style: TextStyle(color: _kTeal),
                 ),
               ],
             ),
@@ -427,7 +448,7 @@ class _BottomPanel extends GetView<OnboardingController> {
             'Platform terlengkap untuk merencanakan acara Anda. Cari vendor, kelola tamu, dan buat undangan digital.',
             style: GoogleFonts.dmSans(
               fontSize: 13,
-              color: const Color(0xFF8A7A72),
+              color: const Color(0xFF4B7A76),
               height: 1.65,
             ),
           ),
@@ -435,7 +456,7 @@ class _BottomPanel extends GetView<OnboardingController> {
           Row(
             children: [
               Expanded(
-                child: _OrangeButton(
+                child: _TealButton(
                   label: 'Masuk',
                   onTap: controller.goToLogin,
                 ),
@@ -452,19 +473,19 @@ class _BottomPanel extends GetView<OnboardingController> {
           const SizedBox(height: 18),
           Row(
             children: [
-              const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+              const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   'atau',
                   style: GoogleFonts.dmSans(
                     fontSize: 11,
-                    color: const Color(0xFFB5A89E),
+                    color: const Color(0xFFA8C5C2),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+              const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
             ],
           ),
           const SizedBox(height: 18),
@@ -473,9 +494,10 @@ class _BottomPanel extends GetView<OnboardingController> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: _kOrange.withOpacity(0.06),
+                color: _kGold.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _kOrange.withOpacity(0.2)),
+                border:
+                    Border.all(color: _kGold.withOpacity(0.25)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -486,13 +508,14 @@ class _BottomPanel extends GetView<OnboardingController> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(7),
                       gradient: const LinearGradient(
-                        colors: [_kOrangeLight, _kOrangeDark],
+                        colors: [_kGoldLight, _kGold],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
                     child: const Center(
-                      child: Text('🏪', style: TextStyle(fontSize: 13)),
+                      child:
+                          Text('🏪', style: TextStyle(fontSize: 13)),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -500,7 +523,7 @@ class _BottomPanel extends GetView<OnboardingController> {
                     'Bergabung sebagai ',
                     style: GoogleFonts.dmSans(
                       fontSize: 13,
-                      color: const Color(0xFF6B5A52),
+                      color: const Color(0xFF4B5563),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -508,7 +531,7 @@ class _BottomPanel extends GetView<OnboardingController> {
                     'Vendor →',
                     style: GoogleFonts.dmSans(
                       fontSize: 13,
-                      color: _kOrange,
+                      color: _kGold,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -522,16 +545,16 @@ class _BottomPanel extends GetView<OnboardingController> {
   }
 }
 
-class _OrangeButton extends StatefulWidget {
+class _TealButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
-  const _OrangeButton({required this.label, required this.onTap});
+  const _TealButton({required this.label, required this.onTap});
 
   @override
-  State<_OrangeButton> createState() => _OrangeButtonState();
+  State<_TealButton> createState() => _TealButtonState();
 }
 
-class _OrangeButtonState extends State<_OrangeButton> {
+class _TealButtonState extends State<_TealButton> {
   bool _pressed = false;
 
   @override
@@ -551,13 +574,13 @@ class _OrangeButtonState extends State<_OrangeButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             gradient: const LinearGradient(
-              colors: [_kOrangeLight, _kOrangeDark],
+              colors: [_kTealLight, _kTealDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: _kOrange.withOpacity(0.4),
+                color: _kTeal.withOpacity(0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -609,7 +632,8 @@ class _OutlineButtonState extends State<_OutlineButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             color: Colors.transparent,
-            border: Border.all(color: _kOrange.withOpacity(0.4), width: 1.5),
+            border:
+                Border.all(color: _kTeal.withOpacity(0.4), width: 1.5),
           ),
           child: Center(
             child: Text(
@@ -617,7 +641,7 @@ class _OutlineButtonState extends State<_OutlineButton> {
               style: GoogleFonts.dmSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: _kOrange,
+                color: _kTeal,
               ),
             ),
           ),

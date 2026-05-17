@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_theme.dart';
 import '../controllers/promo_controller.dart';
 
 class PromoView extends GetView<PromoController> {
@@ -9,23 +10,26 @@ class PromoView extends GetView<PromoController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F2EE),
+      backgroundColor: const Color(0xFFF9F9F9),
       body: Column(
         children: [
           _buildHeader(),
-          _buildCategoryFilter(),
+          _buildTabs(),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFFD4AF37)),
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 2,
+                  ),
                 );
               }
               if (controller.filteredPromos.isEmpty) {
                 return _buildEmpty();
               }
               return ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 itemCount: controller.filteredPromos.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (_, i) {
@@ -43,71 +47,47 @@ class PromoView extends GetView<PromoController> {
     );
   }
 
+  // ── HEADER ───────────────────────────────────────────────
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A1108), Color(0xFF2D1F00)],
-        ),
-      ),
-      child: Stack(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(20, 56, 20, 16),
+      child: Row(
         children: [
-          Positioned(
-            top: -40,
-            right: -20,
+          GestureDetector(
+            onTap: () => Get.back(),
             child: Container(
-              width: 160,
-              height: 160,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFFD4AF37).withOpacity(0.2),
-                    Colors.transparent,
-                  ],
-                ),
+                color: const Color(0xFFF4F4F4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 16,
+                color: Color(0xFF1A1A2E),
               ),
             ),
           ),
-          Row(
+          const SizedBox(width: 14),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () => Get.back(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white.withOpacity(0.1),
-                    border: Border.all(color: Colors.white.withOpacity(0.15)),
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white70, size: 18),
+              Text(
+                'Promo & Penawaran',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1A2E),
                 ),
               ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Promo & Penawaran',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    'Hemat lebih banyak untuk hajatanmu',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.4),
-                    ),
-                  ),
-                ],
+              Text(
+                'Hemat lebih banyak untuk hajatanmu',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: AppColors.textHint,
+                ),
               ),
             ],
           ),
@@ -116,86 +96,76 @@ class PromoView extends GetView<PromoController> {
     );
   }
 
-  Widget _buildCategoryFilter() {
+  // ── TABS ─────────────────────────────────────────────────
+  Widget _buildTabs() {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SizedBox(
-        height: 36,
-        child: Obx(() => ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: controller.categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (_, i) {
-                final cat = controller.categories[i];
-                final isSelected = controller.selectedCategory.value == cat;
-                return GestureDetector(
-                  onTap: () => controller.filterByCategory(cat),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: isSelected
-                          ? const Color(0xFF1A1108)
-                          : const Color(0xFFF5F0E8),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFFD4AF37)
-                            : Colors.transparent,
+      child: Column(
+        children: [
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
+          Obx(() => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: Row(
+                  children: controller.categories.map((cat) {
+                    final isSelected =
+                        controller.selectedCategory.value == cat;
+                    return GestureDetector(
+                      onTap: () => controller.filterByCategory(cat),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary
+                              : const Color(0xFFF4F4F4),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          cat,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textSecondary,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      cat,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? const Color(0xFFD4AF37)
-                            : const Color(0xFF8A8278),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )),
+                    );
+                  }).toList(),
+                ),
+              )),
+        ],
       ),
     );
   }
 
+  // ── EMPTY ─────────────────────────────────────────────────
   Widget _buildEmpty() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F0E8),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Icon(Icons.local_offer_outlined,
-                color: Color(0xFFD4AF37), size: 36),
-          ),
-          const SizedBox(height: 16),
+          Icon(Icons.local_offer_outlined,
+              size: 48, color: AppColors.textHint),
+          const SizedBox(height: 12),
           Text(
             'Belum ada promo',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF18130A),
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'Promo untuk kategori ini\nbelum tersedia saat ini',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
+            'Promo kategori ini belum tersedia',
+            style: GoogleFonts.poppins(
               fontSize: 13,
-              color: const Color(0xFF8A8278),
+              color: AppColors.textHint,
             ),
           ),
         ],
@@ -204,7 +174,9 @@ class PromoView extends GetView<PromoController> {
   }
 }
 
-// ─── PROMO CARD ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// PROMO CARD
+// ─────────────────────────────────────────────────────────────
 
 class _PromoCard extends StatelessWidget {
   final PromoModel promo;
@@ -216,209 +188,114 @@ class _PromoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Banner atas
+          _buildBanner(),
+          _buildTicketDivider(),
+          _buildBottom(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: promo.color.withOpacity(0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon kategori
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF1A1108),
-                  promo.color.withOpacity(0.8),
-                ],
-              ),
+              color: promo.color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Icon(promo.icon, color: promo.color, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (promo.isNew)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF37),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            'BARU',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ),
-                      Text(
-                        promo.title,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
+                if (promo.isNew)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'BARU',
+                      style: GoogleFonts.poppins(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 1,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        promo.subtitle,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 11,
-                          color: Colors.white.withOpacity(0.6),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                    ),
+                  ),
+                Text(
+                  promo.title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1A1A2E),
                   ),
                 ),
-                const SizedBox(width: 12),
-                // Discount badge
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                const SizedBox(height: 3),
+                Text(
+                  promo.subtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        promo.discount,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFD4AF37),
-                        ),
-                      ),
-                      Text(
-                        'OFF',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white.withOpacity(0.7),
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-
-          // ── Garis putus-putus
-          Row(
-            children: [
-              _SemiCircle(isLeft: true),
-              Expanded(
-                child: LayoutBuilder(builder: (_, c) {
-                  return Flex(
-                    direction: Axis.horizontal,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(
-                      (c.maxWidth / 8).floor(),
-                      (_) => Container(
-                        width: 4,
-                        height: 1,
-                        color: const Color(0xFFEDE9E1),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-              _SemiCircle(isLeft: false),
-            ],
-          ),
-
-          // ── Bagian bawah
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(width: 12),
+          // Diskon badge
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: promo.color,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(promo.icon, color: promo.color, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          promo.category,
-                          style: GoogleFonts.dmSans(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: promo.color,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time_rounded,
-                            color: Color(0xFFB5B0A8), size: 12),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Berlaku s/d ${promo.validUntil}',
-                          style: GoogleFonts.dmSans(
-                            fontSize: 11,
-                            color: const Color(0xFF8A8278),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  promo.discount,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    height: 1,
+                  ),
                 ),
-                GestureDetector(
-                  onTap: onClaim,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFD4AF37), Color(0xFFA07800)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFA07800).withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      'Klaim',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
+                Text(
+                  'OFF',
+                  style: GoogleFonts.poppins(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withOpacity(0.8),
+                    letterSpacing: 1,
                   ),
                 ),
               ],
@@ -428,27 +305,118 @@ class _PromoCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _SemiCircle extends StatelessWidget {
-  final bool isLeft;
-  const _SemiCircle({required this.isLeft});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRect(
-      child: Align(
-        alignment: isLeft ? Alignment.centerRight : Alignment.centerLeft,
-        widthFactor: 0.5,
-        child: Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF4F2EE),
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFEDE9E1)),
+  Widget _buildTicketDivider() {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF9F9F9),
+            borderRadius:
+                BorderRadius.horizontal(right: Radius.circular(12)),
+            border: Border(
+              top: BorderSide(color: Color(0xFFEEEEEE)),
+              right: BorderSide(color: Color(0xFFEEEEEE)),
+              bottom: BorderSide(color: Color(0xFFEEEEEE)),
+            ),
           ),
         ),
+        Expanded(
+          child: LayoutBuilder(builder: (_, c) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(
+                (c.maxWidth / 10).floor(),
+                (_) => Container(
+                  width: 5,
+                  height: 1,
+                  color: const Color(0xFFDDDDDD),
+                ),
+              ),
+            );
+          }),
+        ),
+        Container(
+          width: 12,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF9F9F9),
+            borderRadius:
+                BorderRadius.horizontal(left: Radius.circular(12)),
+            border: Border(
+              top: BorderSide(color: Color(0xFFEEEEEE)),
+              left: BorderSide(color: Color(0xFFEEEEEE)),
+              bottom: BorderSide(color: Color(0xFFEEEEEE)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottom() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(promo.icon, color: promo.color, size: 13),
+                    const SizedBox(width: 4),
+                    Text(
+                      promo.category,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: promo.color,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.access_time_rounded,
+                        size: 12, color: AppColors.textHint),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Berlaku s/d ${promo.validUntil}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: onClaim,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'Klaim Promo',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,10 +5,7 @@ import '../controllers/home_controller.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../data/models/models.dart';
 import '../../../routes/app_routes.dart';
-
-const _kOrange = Color(0xFFFF6B2C);
-const _kOrangeDark = Color(0xFFD94F10);
-const _kOrangeLight = Color(0xFFFF9A5C);
+import '../../../core/theme/app_theme.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -16,20 +13,13 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F2EE),
-      body: Stack(
-        children: [
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _Header()),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
-              SliverToBoxAdapter(child: _SearchFloat()),
-              const SliverToBoxAdapter(child: SizedBox(height: 8)),
-              SliverToBoxAdapter(child: _Body()),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
-          ),
-          const _FloatingChatBtn(),
+      backgroundColor: const Color(0xFFF9F9F9),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _buildHeader()),
+          SliverToBoxAdapter(child: _buildSearch()),
+          SliverToBoxAdapter(child: _buildBody()),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
       bottomNavigationBar: Obx(
@@ -40,287 +30,177 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
-}
 
-// ─── HEADER ──────────────────────────────────────────────────────────────────
-
-class _Header extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  // ── HEADER ───────────────────────────────────────────────
+  Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFF8C42), Color(0xFFD94F10)],
-        ),
-      ),
-      child: Stack(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Positioned.fill(child: CustomPaint(painter: _GridPainter())),
-          Positioned(
-            top: -60,
-            right: -40,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [Colors.white.withOpacity(0.2), Colors.transparent],
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Obx(() => Text(
+                    'Halo, ${controller.userName.value} 👋',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: AppColors.textHint,
+                    ),
+                  )),
+              const SizedBox(height: 2),
+              Text(
+                'Rencanakan Acaramu',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1A2E),
+                  letterSpacing: -0.3,
                 ),
               ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Halo, Pengguna! 👋',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Rencanakan Acaramu',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Temukan vendor terbaik untuk hajatanmu',
-                    style: GoogleFonts.dmSans(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  _HeaderIconBtn(
-                    icon: Icons.notifications_outlined,
-                    onTap: () {},
-                  ),
-                  // const SizedBox(width: 8),
-                  // _HeaderIconBtn(
-                  //   icon: Icons.person_outline_rounded,
-                  //   onTap: () => Get.toNamed(AppRoutes.profile),
-                  // ),
-                ],
-              ),
             ],
+          ),
+          GestureDetector(
+            onTap: controller.goToNotification,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF4F4F4),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Icon(
+                Icons.notifications_outlined,
+                size: 20,
+                color: Color(0xFF1A1A2E),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = Colors.white.withOpacity(0.07)
-      ..strokeWidth = 0.5;
-    for (double x = 0; x < size.width; x += 28) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
-    }
-    for (double y = 0; y < size.height; y += 28) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_) => false;
-}
-
-class _HeaderIconBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  const _HeaderIconBtn({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withOpacity(0.2),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: const Icon(
-        Icons.notifications_outlined,
-        color: Colors.white,
-        size: 20,
-      ),
-    ),
-  );
-}
-
-// ─── SEARCH FLOAT ─────────────────────────────────────────────────────────────
-
-class _SearchFloat extends GetView<HomeController> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+  // ── SEARCH ───────────────────────────────────────────────
+  Widget _buildSearch() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          color: const Color(0xFFF4F4F4),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: TextField(
           onChanged: controller.onSearch,
-          style: GoogleFonts.dmSans(
+          style: GoogleFonts.poppins(
             fontSize: 13,
-            color: const Color(0xFF18130A),
+            color: const Color(0xFF1A1A2E),
           ),
           decoration: InputDecoration(
             hintText: 'Cari vendor hajatan...',
-            hintStyle: GoogleFonts.dmSans(
+            hintStyle: GoogleFonts.poppins(
               fontSize: 13,
-              color: const Color(0xFFB5B0A8),
+              color: AppColors.textHint,
             ),
-            prefixIcon: Container(
-              margin: const EdgeInsets.all(10),
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                gradient: const LinearGradient(
-                  colors: [_kOrangeLight, _kOrangeDark],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(13),
+              child: Icon(
+                Icons.search_rounded,
+                size: 20,
+                color: AppColors.textHint,
+              ),
+            ),
+            suffixIcon: GestureDetector(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.all(13),
+                child: Icon(
+                  Icons.tune_rounded,
+                  size: 20,
+                  color: AppColors.primary,
                 ),
               ),
-              child: const Icon(
-                Icons.search_rounded,
-                color: Colors.white,
-                size: 17,
-              ),
-            ),
-            suffixIcon: Container(
-              margin: const EdgeInsets.all(10),
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: _kOrange.withOpacity(0.08),
-              ),
-              child: Icon(Icons.tune_rounded, color: _kOrange, size: 17),
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
           ),
         ),
       ),
     );
   }
-}
 
-// ─── BODY ─────────────────────────────────────────────────────────────────────
-
-class _Body extends GetView<HomeController> {
-  @override
-  Widget build(BuildContext context) {
+  // ── BODY ─────────────────────────────────────────────────
+  Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionTitle('Kategori'),
-          const SizedBox(height: 14),
+          _SectionLabel('Kategori'),
+          const SizedBox(height: 12),
           _Categories(),
-          const SizedBox(height: 24),
-          _PromoCard(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          _PromoBanner(),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _SectionTitle('Vendor Unggulan'),
+              _SectionLabel('Vendor Unggulan'),
               GestureDetector(
-                onTap: () => Get.find<HomeController>().goToVendorList(null),
+                onTap: () => controller.goToVendorList(null),
                 child: Text(
-                  'Lihat Semua →',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 11,
-                    color: _kOrange,
+                  'Lihat Semua',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Obx(() {
-            final ctrl = Get.find<HomeController>();
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: ctrl.featuredVendors.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _VendorCard(
-                vendor: ctrl.featuredVendors[i],
-                onTap: () => ctrl.goToVendorDetail(ctrl.featuredVendors[i]),
-              ),
-            );
-          }),
+          const SizedBox(height: 12),
+          Obx(() => ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.featuredVendors.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (_, i) => _VendorCard(
+                  vendor: controller.featuredVendors[i],
+                  onTap: () => controller
+                      .goToVendorDetail(controller.featuredVendors[i]),
+                ),
+              )),
         ],
       ),
     );
   }
 }
 
-class _SectionTitle extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────
+// SECTION LABEL
+// ─────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
   final String text;
-  const _SectionTitle(this.text);
+  const _SectionLabel(this.text);
 
   @override
   Widget build(BuildContext context) => Text(
-    text,
-    style: GoogleFonts.playfairDisplay(
-      fontSize: 18,
-      fontWeight: FontWeight.w700,
-      color: const Color(0xFF18130A),
-      letterSpacing: -0.3,
-    ),
-  );
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF1A1A2E),
+        ),
+      );
 }
 
-// ─── CATEGORIES ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// CATEGORIES
+// ─────────────────────────────────────────────────────────────
 
 class _Categories extends GetView<HomeController> {
   final _icons = [
@@ -332,77 +212,60 @@ class _Categories extends GetView<HomeController> {
     Icons.favorite_rounded,
   ];
 
-  final _colors = [
-    _kOrange,
-    const Color(0xFF2ECC71),
-    const Color(0xFF5B8FF9),
-    const Color(0xFFFF6B9D),
-    const Color(0xFF9B59B6),
-    _kOrangeDark,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 86,
+      height: 82,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: controller.categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (_, i) {
           final cat = controller.categories[i];
-          final color = _colors[i % _colors.length];
+          final color =
+              AppColors.categoryColors[i % AppColors.categoryColors.length];
           return Obx(() {
             final isSelected =
                 controller.selectedCategory.value == cat['label'];
             return GestureDetector(
               onTap: () => controller.selectCategory(cat['label']!),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 56,
-                    height: 56,
+                    duration: const Duration(milliseconds: 180),
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? color.withOpacity(0.15)
+                          ? color.withOpacity(0.12)
                           : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: isSelected ? color : const Color(0xFFEDE9E1),
+                        color: isSelected
+                            ? color
+                            : const Color(0xFFEEEEEE),
                         width: isSelected ? 1.5 : 1,
                       ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: color.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                     ),
                     child: Icon(
-                      _icons[i],
-                      color: isSelected ? color : const Color(0xFF8A8278),
-                      size: 24,
+                      _icons[i % _icons.length],
+                      color: isSelected ? color : AppColors.textSecondary,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 5),
                   Text(
                     cat['label']!.length > 8
                         ? '${cat['label']!.substring(0, 7)}…'
                         : cat['label']!,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? color : const Color(0xFF8A8278),
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color:
+                          isSelected ? color : AppColors.textSecondary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -416,149 +279,95 @@ class _Categories extends GetView<HomeController> {
   }
 }
 
-// ─── PROMO CARD ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// PROMO BANNER
+// ─────────────────────────────────────────────────────────────
 
-class _PromoCard extends StatelessWidget {
+class _PromoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFF8C42), Color(0xFFD94F10)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _kOrange.withOpacity(0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(18),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Positioned(
-            top: -40,
-            right: -20,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [Colors.white.withOpacity(0.2), Colors.transparent],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -30,
-            left: -20,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [Colors.white.withOpacity(0.1), Colors.transparent],
-                ),
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'Penawaran Spesial ✨',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Diskon 20%\nVendor Pilihan',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Berlaku hingga akhir bulan ini',
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.65),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GestureDetector(
+                  onTap: () => Get.toNamed(AppRoutes.promo),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white.withOpacity(0.2),
-                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '✨  Penawaran Spesial',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                      'Lihat Promo →',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Diskon 20%\nVendor Pilihan',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Berlaku hingga akhir bulan ini',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 11,
-                      color: Colors.white.withOpacity(0.6),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () => Get.toNamed(AppRoutes.promo),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Lihat Promo →',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: _kOrange,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: Colors.white.withOpacity(0.2),
-                  border: Border.all(color: Colors.white.withOpacity(0.4)),
                 ),
-                child: const Icon(
-                  Icons.celebration_rounded,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
-            ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.celebration_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
           ),
         ],
       ),
@@ -566,7 +375,9 @@ class _PromoCard extends StatelessWidget {
   }
 }
 
-// ─── VENDOR CARD ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// VENDOR CARD
+// ─────────────────────────────────────────────────────────────
 
 class _VendorCard extends StatefulWidget {
   final VendorModel vendor;
@@ -596,88 +407,77 @@ class _VendorCardState extends State<_VendorCard> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            border: Border.all(color: const Color(0xFFEEEEEE)),
           ),
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(16),
-                ),
-                child: Image.network(
+                    left: Radius.circular(15)),
+                child: Image.asset(
                   widget.vendor.imageUrl,
-                  width: 110,
-                  height: 110,
+                  width: 100,
+                  height: 100,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    width: 110,
-                    height: 110,
-                    color: _kOrange.withOpacity(0.08),
+                    width: 100,
+                    height: 100,
+                    color: AppColors.primary.withOpacity(0.06),
                     child: Icon(
                       Icons.image_outlined,
-                      color: _kOrange.withOpacity(0.4),
-                      size: 32,
+                      color: AppColors.primary.withOpacity(0.3),
+                      size: 28,
                     ),
                   ),
                 ),
+                
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
+                            horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _kOrange.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(6),
+                          color: AppColors.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
                           widget.vendor.category.toUpperCase(),
-                          style: GoogleFonts.dmSans(
+                          style: GoogleFonts.poppins(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: _kOrangeDark,
+                            color: AppColors.primary,
                             letterSpacing: 0.5,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 7),
+                      const SizedBox(height: 5),
                       Text(
                         widget.vendor.name,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 15,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF18130A),
+                          color: const Color(0xFF1A1A2E),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Row(
                         children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            size: 11,
-                            color: Color(0xFFB5B0A8),
-                          ),
+                          Icon(Icons.location_on_rounded,
+                              size: 11, color: AppColors.textHint),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               widget.vendor.location,
-                              style: GoogleFonts.dmSans(
+                              style: GoogleFonts.poppins(
                                 fontSize: 11,
-                                color: const Color(0xFF8A8278),
+                                color: AppColors.textSecondary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -685,41 +485,38 @@ class _VendorCardState extends State<_VendorCard> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.star_rounded,
-                                color: _kOrange,
-                                size: 14,
-                              ),
+                              Icon(Icons.star_rounded,
+                                  color: AppColors.warning, size: 13),
                               const SizedBox(width: 3),
                               Text(
                                 '${widget.vendor.rating}',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF18130A),
+                                  color: const Color(0xFF1A1A2E),
                                 ),
                               ),
                               Text(
                                 ' (${widget.vendor.reviewCount})',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 10,
-                                  color: const Color(0xFF8A8278),
+                                  color: AppColors.textHint,
                                 ),
                               ),
                             ],
                           ),
                           Text(
                             formatRupiah(widget.vendor.startingPrice),
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.poppins(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: _kOrange,
+                              color: AppColors.primary,
                             ),
                           ),
                         ],
@@ -736,48 +533,9 @@ class _VendorCardState extends State<_VendorCard> {
   }
 }
 
-// ─── FLOATING CHATBOT BUTTON ──────────────────────────────────────────────────
-
-class _FloatingChatBtn extends StatelessWidget {
-  const _FloatingChatBtn();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 80,
-      right: 16,
-      child: GestureDetector(
-        onTap: () => Get.toNamed(AppRoutes.chatbot),
-        child: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(
-              colors: [_kOrangeLight, _kOrangeDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _kOrange.withOpacity(0.45),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.auto_awesome_rounded,
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── BOTTOM NAV ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// BOTTOM NAV
+// ─────────────────────────────────────────────────────────────
 
 class _BottomNav extends StatelessWidget {
   final int currentIndex;
@@ -794,17 +552,11 @@ class _BottomNav extends StatelessWidget {
     ];
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        border: Border(top: BorderSide(color: Color(0xFFF0F0F0))),
       ),
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 24),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 28),
       child: Row(
         children: List.generate(items.length, (i) {
           final isActive = currentIndex == i;
@@ -815,41 +567,34 @@ class _BottomNav extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 180),
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColors.primary.withOpacity(0.1)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
-                      gradient: isActive
-                          ? const LinearGradient(
-                              colors: [_kOrangeLight, _kOrangeDark],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : null,
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: _kOrange.withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : null,
                     ),
                     child: Icon(
                       items[i]['icon'] as IconData,
-                      color: isActive ? Colors.white : const Color(0xFFB5B0A8),
+                      color: isActive
+                          ? AppColors.primary
+                          : AppColors.textHint,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     items[i]['label'] as String,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: isActive ? _kOrange : const Color(0xFFB5B0A8),
+                      fontWeight: isActive
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isActive
+                          ? AppColors.primary
+                          : AppColors.textHint,
                     ),
                   ),
                 ],

@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../routes/app_routes.dart';
 
 class LoginController extends GetxController {
@@ -10,6 +15,9 @@ class LoginController extends GetxController {
   final isPasswordVisible = false.obs;
   final isLoading = false.obs;
 
+  static const String baseUrl =
+      'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/auth';
+
   @override
   void onClose() {
     emailController.dispose();
@@ -17,20 +25,89 @@ class LoginController extends GetxController {
     super.onClose();
   }
 
-  void togglePasswordVisibility() =>
-      isPasswordVisible.value = !isPasswordVisible.value;
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
 
   Future<void> login() async {
     if (!formKey.currentState!.validate()) return;
 
     isLoading.value = true;
+
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      Get.offAllNamed(AppRoutes.home, arguments: 'pengguna');
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
+        }),
+      );
+
+      print("STATUS : ${response.statusCode}");
+      print("BODY : ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final token = data['token'] ?? '';
+        final name = data['name'] ?? '';
+        final email = data['email'] ?? '';
+        final role = data['role'] ?? '';
+        final phone = data['phone'] ?? '';
+        final vendorStatus = data['vendor_status'] ?? '';
+
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.clear();
+        await prefs.setString('token', token);
+        await prefs.setString('name', name);
+        await prefs.setString('email', email);
+        await prefs.setString('phone', phone);
+        await prefs.setString('role', role);
+        await prefs.setString('vendor_status', vendorStatus);
+
+        print("TOKEN : $token");
+        print("ROLE : $role");
+        print("VENDOR STATUS : $vendorStatus");
+
+        Get.snackbar(
+          'Berhasil',
+          'Login berhasil',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        if (role == 'admin') {
+          Get.offAllNamed(AppRoutes.dashboard);
+        } else if (role == 'vendor' && vendorStatus == 'approved') {
+          Get.offAllNamed(AppRoutes.vendorDashboard);
+        } else if (role == 'vendor_pending' || vendorStatus == 'pending') {
+          Get.offAllNamed(AppRoutes.vendorDashboard);
+        } else {
+          Get.offAllNamed(
+            AppRoutes.home,
+            arguments: data,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Login Gagal',
+          data['message'] ?? 'Email atau password salah',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFFEDED),
+          colorText: const Color(0xFF991F1F),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+        );
+      }
     } catch (e) {
+      print(e);
+
       Get.snackbar(
-        'Gagal Masuk',
-        'Email atau kata sandi salah.',
+        'Error',
+        'Tidak dapat terhubung ke server',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFFFEDED),
         colorText: const Color(0xFF991F1F),
@@ -42,18 +119,10 @@ class LoginController extends GetxController {
     }
   }
 
-  // Sementara pakai snackbar sampai halaman register dibuat
   void goToRegister() {
-    Get.snackbar(
-      'Segera Hadir',
-      'Halaman daftar akun segera tersedia.',
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
-  }
+  Get.offNamed(AppRoutes.register);
+}
 
-  // Sementara pakai snackbar sampai halaman forgot password dibuat
   void goToForgotPassword() {
     Get.snackbar(
       'Segera Hadir',
@@ -74,10 +143,10 @@ class LoginController extends GetxController {
     );
   }
 
-  void loginWithFacebook() {
+  void loginWithFaceId() {
     Get.snackbar(
-      'Facebook',
-      'Login Facebook belum tersedia.',
+      'Segera Hadir',
+      'Fitur Face ID sedang dalam pengembangan.',
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
@@ -85,16 +154,26 @@ class LoginController extends GetxController {
   }
 
   String? validateEmail(String? val) {
-    if (val == null || val.isEmpty) return 'Email tidak boleh kosong';
-    if (!GetUtils.isEmail(val) && !GetUtils.isPhoneNumber(val)) {
-      return 'Masukkan email atau nomor HP yang valid';
+    if (val == null || val.isEmpty) {
+      return 'Email tidak boleh kosong';
     }
+
+    if (!GetUtils.isEmail(val)) {
+      return 'Masukkan email valid';
+    }
+
     return null;
   }
 
   String? validatePassword(String? val) {
-    if (val == null || val.isEmpty) return 'Kata sandi tidak boleh kosong';
-    if (val.length < 6) return 'Minimal 6 karakter';
+    if (val == null || val.isEmpty) {
+      return 'Kata sandi tidak boleh kosong';
+    }
+
+    if (val.length < 6) {
+      return 'Minimal 6 karakter';
+    }
+
     return null;
   }
 }

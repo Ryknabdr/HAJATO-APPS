@@ -124,7 +124,7 @@ class EventView extends GetView<EventController> {
               ],
             ),
           ),
-          const FloatingChatbotButton(),
+          // 
         ],
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../controllers/vendor_dashboard_controller.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
+import '../../../routes/app_routes.dart';
 
 class VendorDashboardView extends GetView<VendorDashboardController> {
   const VendorDashboardView({super.key});
@@ -32,7 +34,6 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
     );
   }
 
-  // ── HEADER ───────────────────────────────────────────────
   Widget _buildHeader() {
     return Container(
       color: Colors.white,
@@ -42,7 +43,6 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
         children: [
           Row(
             children: [
-              // Avatar
               Container(
                 width: 44,
                 height: 44,
@@ -86,48 +86,50 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                   ],
                 ),
               ),
-              // Notif
+
               GestureDetector(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F4F4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.notifications_outlined,
-                      size: 20, color: AppColors.textPrimary),
+                child: _HeaderIcon(
+                  icon: Icons.notifications_outlined,
                 ),
               ),
+
               const SizedBox(width: 8),
+
               GestureDetector(
                 onTap: controller.goToVendorChat,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F4F4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.chat_bubble_outline_rounded,
-                      size: 20, color: AppColors.textPrimary),
+                child: _HeaderIcon(
+                  icon: Icons.chat_bubble_outline_rounded,
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              GestureDetector(
+                onTap: () => Get.toNamed(AppRoutes.vendorProfile),
+                child: _HeaderIcon(
+                  icon: Icons.person_outline_rounded,
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 16),
-          // Status badges — ramping
+
           Row(
             children: [
               _Chip(label: '⭐ 4.9', color: AppColors.warning),
               const SizedBox(width: 6),
-              Obx(() => _Chip(
-                    label: controller.isVerified.value
-                        ? '✓ Terverifikasi'
-                        : '⏳ Menunggu',
-                    color: controller.isVerified.value
-                        ? AppColors.success
-                        : AppColors.warning,
-                  )),
+              Obx(
+                () => _Chip(
+                  label: controller.isVerified.value
+                      ? '✓ Terverifikasi'
+                      : '⏳ Menunggu',
+                  color: controller.isVerified.value
+                      ? AppColors.success
+                      : AppColors.warning,
+                ),
+              ),
               const SizedBox(width: 6),
               _Chip(label: '● Aktif', color: AppColors.success),
             ],
@@ -137,7 +139,6 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
     );
   }
 
-  // ── STATS ────────────────────────────────────────────────
   Widget _buildStats() {
     return Container(
       color: Colors.white,
@@ -151,27 +152,32 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Obx(() => _StatCol(
-                  value: '${controller.totalBooking.value}',
-                  label: 'Pesanan',
-                )),
+            Obx(
+              () => _StatCol(
+                value: '${controller.totalBooking.value}',
+                label: 'Pesanan',
+              ),
+            ),
             _VertDivider(),
-            Obx(() => _StatCol(
-                  value: formatRupiah(controller.totalPendapatan.value),
-                  label: 'Pendapatan',
-                )),
+            Obx(
+              () => _StatCol(
+                value: formatRupiah(controller.totalPendapatan.value),
+                label: 'Pendapatan',
+              ),
+            ),
             _VertDivider(),
-            Obx(() => _StatCol(
-                  value: '${controller.services.length}',
-                  label: 'Layanan',
-                )),
+            Obx(
+              () => _StatCol(
+                value: '${controller.services.length}',
+                label: 'Layanan',
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ── QUICK ACTIONS ─────────────────────────────────────────
   Widget _buildQuickActions() {
     return _Section(
       title: 'Aksi Cepat',
@@ -190,69 +196,80 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
           _QuickAction(
             icon: Icons.calendar_today_outlined,
             label: 'Jadwal\nAcara',
-            onTap: () {},
+            onTap: controller.goToSchedule,
           ),
           _QuickAction(
             icon: Icons.bar_chart_rounded,
             label: 'Statistik',
-            onTap: () {},
+            onTap: controller.goToStatistic,
           ),
         ],
       ),
     );
   }
 
-  // ── SERVICES ─────────────────────────────────────────────
   Widget _buildServices() {
     return _Section(
       title: 'Paket Layanan',
       action: '+ Tambah',
       onAction: controller.goToNewService,
-      child: Obx(() => controller.services.isEmpty
-          ? _EmptyState(
-              icon: Icons.design_services_outlined,
-              message: 'Belum ada layanan',
-            )
-          : SizedBox(
-              height: 120,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: controller.services.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
-                itemBuilder: (_, i) {
-                  final s = controller.services[i];
-                  return _ServiceCard(
-                    name: s.name,
-                    price: formatRupiah(s.price),
-                    onEdit: () => controller.editService(s),
-                    onDelete: () => controller.deleteService(s.id),
-                  );
-                },
+      child: Obx(
+        () => controller.services.isEmpty
+            ? const _EmptyState(
+                icon: Icons.design_services_outlined,
+                message: 'Belum ada layanan',
+              )
+            : SizedBox(
+                height: 120,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: controller.services.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (_, i) {
+                    final s = controller.services[i];
+
+                    return _ServiceCard(
+                      name: s.name,
+                      price: formatRupiah(s.price),
+                      onEdit: () => controller.editService(s),
+                      onDelete: () => controller.deleteService(s.id),
+                    );
+                  },
+                ),
               ),
-            )),
+      ),
     );
   }
 
-  // ── BOOKINGS ──────────────────────────────────────────────
   Widget _buildBookings() {
     return _Section(
       title: 'Pesanan Terbaru',
-      child: Obx(() => ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.bookings.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (_, i) => _BookingCard(booking: controller.bookings[i]),
-          )),
+      child: Obx(
+        () => ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: controller.bookings.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (_, i) {
+            final booking = controller.bookings[i];
+
+            return _BookingCard(
+              booking: booking,
+              onConfirm: () => controller.confirmBooking(
+                booking['id'],
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
-  // ── REVIEWS ───────────────────────────────────────────────
   Widget _buildReviews() {
     return _Section(
       title: 'Ulasan Terbaru',
       child: Column(
-        children: [
+        children: const [
           _ReviewCard(
             name: 'Siti Rahayu',
             rating: 5,
@@ -260,11 +277,12 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                 'Pelayanannya sangat memuaskan! Dekorasi sesuai ekspektasi dan tim sangat profesional.',
             date: '15 Mei 2025',
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _ReviewCard(
             name: 'Ahmad Fauzi',
             rating: 4,
-            comment: 'Koordinasi acara berjalan lancar. Sangat direkomendasikan.',
+            comment:
+                'Koordinasi acara berjalan lancar. Sangat direkomendasikan.',
             date: '2 Apr 2025',
           ),
         ],
@@ -273,9 +291,29 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// SHARED LAYOUT WIDGET
-// ─────────────────────────────────────────────────────────────
+class _HeaderIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _HeaderIcon({
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F4F4),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        icon,
+        size: 20,
+        color: AppColors.textPrimary,
+      ),
+    );
+  }
+}
 
 class _Section extends StatelessWidget {
   final String title;
@@ -332,14 +370,14 @@ class _Section extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// SMALL COMPONENTS
-// ─────────────────────────────────────────────────────────────
-
 class _Chip extends StatelessWidget {
   final String label;
   final Color color;
-  const _Chip({required this.label, required this.color});
+
+  const _Chip({
+    required this.label,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +402,11 @@ class _Chip extends StatelessWidget {
 class _StatCol extends StatelessWidget {
   final String value;
   final String label;
-  const _StatCol({required this.value, required this.label});
+
+  const _StatCol({
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -395,15 +437,25 @@ class _StatCol extends StatelessWidget {
 
 class _VertDivider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) =>
-      Container(width: 1, height: 32, color: Colors.white24);
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 32,
+      color: Colors.white24,
+    );
+  }
 }
 
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
+
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -419,7 +471,11 @@ class _QuickAction extends StatelessWidget {
                 color: const Color(0xFFF4F4F4),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, size: 22, color: AppColors.primary),
+              child: Icon(
+                icon,
+                size: 22,
+                color: AppColors.primary,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
@@ -444,6 +500,7 @@ class _ServiceCard extends StatelessWidget {
   final String price;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+
   const _ServiceCard({
     required this.name,
     required this.price,
@@ -519,7 +576,12 @@ class _ServiceCard extends StatelessWidget {
 
 class _BookingCard extends StatelessWidget {
   final Map<String, dynamic> booking;
-  const _BookingCard({required this.booking});
+  final VoidCallback onConfirm;
+
+  const _BookingCard({
+    required this.booking,
+    required this.onConfirm,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -536,7 +598,6 @@ class _BookingCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Avatar inisial
           Container(
             width: 40,
             height: 40,
@@ -609,7 +670,7 @@ class _BookingCard extends StatelessWidget {
               if (!isConfirmed) ...[
                 const SizedBox(height: 4),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: onConfirm,
                   child: Text(
                     'Konfirmasi →',
                     style: GoogleFonts.poppins(
@@ -633,6 +694,7 @@ class _ReviewCard extends StatelessWidget {
   final int rating;
   final String comment;
   final String date;
+
   const _ReviewCard({
     required this.name,
     required this.rating,
@@ -699,7 +761,9 @@ class _ReviewCard extends StatelessWidget {
                 children: List.generate(
                   5,
                   (i) => Icon(
-                    i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                    i < rating
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
                     color: AppColors.warning,
                     size: 14,
                   ),
@@ -725,7 +789,11 @@ class _ReviewCard extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
-  const _EmptyState({required this.icon, required this.message});
+
+  const _EmptyState({
+    required this.icon,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -734,7 +802,11 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            Icon(icon, size: 36, color: AppColors.textHint),
+            Icon(
+              icon,
+              size: 36,
+              color: AppColors.textHint,
+            ),
             const SizedBox(height: 8),
             Text(
               message,

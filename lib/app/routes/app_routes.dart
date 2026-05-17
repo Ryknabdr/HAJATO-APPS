@@ -29,4 +29,7 @@ abstract class AppRoutes {
   static const profilePrivacy = '/profile/privacy';
   static const profileTerms = '/profile/terms';
   static const profileAbout = '/profile/about';
+  static const vendorRegistration = '/vendor-registration';
+  static const notification = '/notification';
+  static const vendorProfile = '/vendor-profile';
 }

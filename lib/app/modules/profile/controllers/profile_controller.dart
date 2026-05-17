@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajato/app/core/theme/app_theme.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileController extends GetxController {
@@ -11,7 +14,9 @@ class ProfileController extends GetxController {
   final avatarUrl = ''.obs;
   final isLoading = false.obs;
 
-  // notifikasi toggle
+  static const String baseUrl =
+      'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/auth';
+
   final notifPromo = true.obs;
   final notifBooking = true.obs;
   final notifChat = false.obs;
@@ -23,45 +28,97 @@ class ProfileController extends GetxController {
   }
 
   Future<void> fetchProfile() async {
-  isLoading.value = true;
+    isLoading.value = true;
 
-  try {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final prefs = await SharedPreferences.getInstance();
 
-    name.value = prefs.getString('name') ?? 'Pengguna';
-    email.value = prefs.getString('email') ?? '-';
+      name.value = prefs.getString('name') ?? 'Pengguna';
+      email.value = prefs.getString('email') ?? '-';
+      phone.value = prefs.getString('phone') ?? '';
+      bio.value = prefs.getString('bio') ?? '';
 
-    // optional
-    phone.value = prefs.getString('phone') ?? '08123456789';
-    bio.value = prefs.getString('bio') ?? 'Pengguna HajatKu';
-
-    print('NAME LOGIN: ${name.value}');
-    print('EMAIL LOGIN: ${email.value}');
-
-  } finally {
-    isLoading.value = false;
+      print('NAME LOGIN: ${name.value}');
+      print('EMAIL LOGIN: ${email.value}');
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
-  void updateProfile({
+  Future<void> updateProfile({
     required String newName,
     required String newPhone,
     required String newBio,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      isLoading.value = true;
 
-    // UPDATE LOCAL STORAGE
-    await prefs.setString('name', newName);
-    await prefs.setString('phone', newPhone);
-    await prefs.setString('bio', newBio);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
 
-    name.value = newName;
-    phone.value = newPhone;
-    bio.value = newBio;
+      if (token == null || token.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Token tidak ditemukan, silakan login ulang',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
 
-    Get.back();
+      final response = await http.put(
+        Uri.parse('$baseUrl/update-profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'name': newName,
+          'phone': newPhone,
+          'bio': newBio,
+        }),
+      );
 
-    _showSnackbar('Profil berhasil diperbarui');
+      print('UPDATE PROFILE STATUS: ${response.statusCode}');
+      print('UPDATE PROFILE BODY: ${response.body}');
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final profileData = data['data'] ?? {};
+
+        final updatedName = profileData['name'] ?? newName;
+        final updatedPhone = profileData['phone'] ?? newPhone;
+        final updatedBio = profileData['bio'] ?? newBio;
+
+        await prefs.setString('name', updatedName);
+        await prefs.setString('phone', updatedPhone);
+        await prefs.setString('bio', updatedBio);
+
+        name.value = updatedName;
+        phone.value = updatedPhone;
+        bio.value = updatedBio;
+
+        Get.back();
+
+        _showSnackbar('Profil berhasil diperbarui');
+      } else {
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Profil gagal diperbarui',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      print('UPDATE PROFILE ERROR: $e');
+
+      Get.snackbar(
+        'Error',
+        'Tidak dapat terhubung ke server',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void changePassword({
@@ -100,10 +157,7 @@ class ProfileController extends GetxController {
           ),
           ElevatedButton(
             onPressed: () async {
-
-              // HAPUS SESSION LOGIN
               await prefs.clear();
-
               Get.offAllNamed('/login');
             },
             style: ElevatedButton.styleFrom(

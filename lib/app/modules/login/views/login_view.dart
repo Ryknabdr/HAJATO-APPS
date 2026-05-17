@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../controllers/login_controller.dart';
+import 'package:hajato/app/core/theme/app_theme.dart';
 
-const _kOrange = Color(0xFFFF6B2C);
-const _kOrangeDark = Color(0xFFD94F10);
-const _kOrangeLight = Color(0xFFFF9A5C);
+import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
@@ -13,7 +11,7 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kOrange,
+      backgroundColor: AppColors.primary,
       body: Stack(
         children: [
           const _BackgroundArt(),
@@ -21,9 +19,9 @@ class LoginView extends GetView<LoginController> {
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: Column(
-                children: [
-                  const _Header(),
-                  const _FormPanel(),
+                children: const [
+                  _Header(),
+                  _FormPanel(),
                 ],
               ),
             ),
@@ -34,13 +32,17 @@ class LoginView extends GetView<LoginController> {
   }
 }
 
+// ─────────────────────────────────────────────
+// Background
+// ─────────────────────────────────────────────
+
 class _BackgroundArt extends StatelessWidget {
   const _BackgroundArt();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 280,
+      height: 320,
       width: double.infinity,
       child: CustomPaint(painter: _BgPainter()),
     );
@@ -50,21 +52,26 @@ class _BackgroundArt extends StatelessWidget {
 class _BgPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    // Gradient background
     final bg = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFFFF8C42), Color(0xFFD94F10)],
+        colors: [AppColors.primaryLight, AppColors.primaryDark],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
 
-    _orb(canvas, Offset(size.width + 40, -60), 200,
-        Colors.white.withOpacity(0.15));
-    _orb(canvas, Offset(-30, size.height - 20), 140,
-        Colors.white.withOpacity(0.10));
+    // Orbs dekoratif
+    _orb(canvas, Offset(size.width * 0.85, -30), 180,
+        Colors.white.withOpacity(0.13));
+    _orb(canvas, Offset(-20, size.height * 0.75), 130,
+        Colors.white.withOpacity(0.09));
+    _orb(canvas, Offset(size.width * 0.5, size.height * 0.3), 80,
+        Colors.white.withOpacity(0.06));
 
+    // Grid halus
     final grid = Paint()
-      ..color = Colors.white.withOpacity(0.07)
+      ..color = Colors.white.withOpacity(0.06)
       ..strokeWidth = 0.5;
     for (double x = 0; x < size.width; x += 36) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
@@ -72,21 +79,41 @@ class _BgPainter extends CustomPainter {
     for (double y = 0; y < size.height; y += 36) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
     }
+
+    // Garis dekoratif diagonal
+    final line = Paint()
+      ..color = Colors.white.withOpacity(0.08)
+      ..strokeWidth = 1.2;
+    canvas.drawLine(
+      Offset(size.width * 0.6, 0),
+      Offset(size.width, size.height * 0.4),
+      line,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.75, 0),
+      Offset(size.width, size.height * 0.2),
+      line,
+    );
   }
 
   void _orb(Canvas canvas, Offset c, double r, Color color) {
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [color, Colors.transparent],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [color, Colors.transparent],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
   }
 
   @override
   bool shouldRepaint(_) => false;
 }
+
+// ─────────────────────────────────────────────
+// Header — tanpa back button, estetik
+// ─────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
   const _Header();
@@ -94,59 +121,113 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+      padding: const EdgeInsets.fromLTRB(28, 36, 28, 36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(11),
-                color: Colors.white.withOpacity(0.2),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
-              ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white, size: 16),
-            ),
-          ),
-          const SizedBox(height: 24),
+          // Brand row: logo + nama
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  color: Colors.white.withOpacity(0.2),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.white.withOpacity(0.18),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.35),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Center(
-                  child: Text('🎊', style: TextStyle(fontSize: 18)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(13),
+                  child: Image.asset(
+                    'assets/images/hajato.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Text(
-                'HAJATO',
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 1,
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'HAJATO',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  Text(
+                    'Platform Hajatan Digital',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      color: Colors.white.withOpacity(0.6),
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+
+              const Spacer(),
+
+              // Badge estetik di kanan
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withOpacity(0.15),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF7FFFD4),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Masuk',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 10,
+                        color: Colors.white.withOpacity(0.85),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 32),
+
+          // Welcome text
           RichText(
             text: TextSpan(
               style: GoogleFonts.playfairDisplay(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
+                fontSize: 34,
+                fontWeight: FontWeight.w700, 
                 color: Colors.white,
-                height: 1.2,
+                height: 1.15,
                 letterSpacing: -0.5,
               ),
               children: [
@@ -157,24 +238,26 @@ class _Header extends StatelessWidget {
                     color: Colors.white,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withOpacity(0.15),
-                        offset: const Offset(1, 1),
-                        blurRadius: 4,
+                        color: Colors.black.withOpacity(0.2),
+                        offset: const Offset(2, 2),
+                        blurRadius: 6,
                       ),
                     ],
-                    fontStyle: FontStyle.italic,
                   ),
                 ),
+                const TextSpan(text: ' 👋'),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+
+          const SizedBox(height: 10),
+
           Text(
             'Masuk untuk melanjutkan persiapan hajatan Anda',
             style: GoogleFonts.dmSans(
               fontSize: 13,
-              color: Colors.white.withOpacity(0.7),
-              height: 1.5,
+              color: Colors.white.withOpacity(0.68),
+              height: 1.55,
             ),
           ),
         ],
@@ -182,6 +265,10 @@ class _Header extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────
+// Form Panel
+// ─────────────────────────────────────────────
 
 class _FormPanel extends GetView<LoginController> {
   const _FormPanel();
@@ -192,7 +279,7 @@ class _FormPanel extends GetView<LoginController> {
       width: double.infinity,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -207,19 +294,21 @@ class _FormPanel extends GetView<LoginController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Drag indicator
             Center(
               child: Container(
-                width: 36,
-                height: 3,
+                width: 40,
+                height: 4,
                 margin: const EdgeInsets.only(bottom: 28),
                 decoration: BoxDecoration(
-                  color: _kOrange.withOpacity(0.3),
+                  color: AppColors.primary.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
 
-            const _FieldLabel('Email / No. HP'),
+            // Email
+            const _FieldLabel('Email'),
             const SizedBox(height: 8),
             _InputField(
               controller: controller.emailController,
@@ -231,26 +320,30 @@ class _FormPanel extends GetView<LoginController> {
 
             const SizedBox(height: 16),
 
+            // Password
             const _FieldLabel('Kata Sandi'),
             const SizedBox(height: 8),
-            Obx(() => _InputField(
-                  controller: controller.passwordController,
-                  hint: 'Masukkan kata sandi',
-                  icon: Icons.lock_outline_rounded,
-                  obscureText: !controller.isPasswordVisible.value,
-                  validator: controller.validatePassword,
-                  suffix: GestureDetector(
-                    onTap: controller.togglePasswordVisibility,
-                    child: Icon(
-                      controller.isPasswordVisible.value
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: const Color(0xFFB5B0A8),
-                      size: 20,
-                    ),
+            Obx(
+              () => _InputField(
+                controller: controller.passwordController,
+                hint: 'Masukkan kata sandi',
+                icon: Icons.lock_outline_rounded,
+                obscureText: !controller.isPasswordVisible.value,
+                validator: controller.validatePassword,
+                suffix: GestureDetector(
+                  onTap: controller.togglePasswordVisibility,
+                  child: Icon(
+                    controller.isPasswordVisible.value
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: AppColors.textHint,
+                    size: 20,
                   ),
-                )),
+                ),
+              ),
+            ),
 
+            // Forgot password
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -262,7 +355,7 @@ class _FormPanel extends GetView<LoginController> {
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: _kOrange,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -271,53 +364,55 @@ class _FormPanel extends GetView<LoginController> {
 
             const SizedBox(height: 4),
 
-            Obx(() => _OrangeButton(
-                  label: 'Masuk',
-                  isLoading: controller.isLoading.value,
-                  onTap: controller.login,
-                )),
+            // Masuk button
+            Obx(
+              () => _PrimaryButton(
+                label: 'Masuk',
+                isLoading: controller.isLoading.value,
+                onTap: controller.login,
+              ),
+            ),
 
             const SizedBox(height: 20),
 
+            // Divider
             Row(
               children: [
-                const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'atau masuk dengan',
                     style: GoogleFonts.dmSans(
                       fontSize: 11,
-                      color: const Color(0xFFB5B0A8),
+                      color: AppColors.textHint,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
+            // Google + Face ID side by side
             Row(
               children: [
                 Expanded(
-                  child: _SocialButton(
+                  child: _SocialImageButton(
                     label: 'Google',
-                    color: const Color(0xFFFFF0F0),
-                    initial: 'G',
-                    initialColor: const Color(0xFFDB4437),
+                    imagePath: 'assets/images/google.png',
                     onTap: controller.loginWithGoogle,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _SocialButton(
-                    label: 'Facebook',
-                    color: const Color(0xFFE8F0FE),
-                    initial: 'f',
-                    initialColor: const Color(0xFF1877F2),
-                    onTap: controller.loginWithFacebook,
+                  child: _SocialIconButton(
+                    label: 'Face ID',
+                    icon: Icons.face_retouching_natural_rounded,
+                    iconColor: AppColors.primary,
+                    onTap: controller.loginWithFaceId,
                   ),
                 ),
               ],
@@ -325,6 +420,7 @@ class _FormPanel extends GetView<LoginController> {
 
             const SizedBox(height: 24),
 
+            // Register link
             Center(
               child: GestureDetector(
                 onTap: controller.goToRegister,
@@ -332,14 +428,14 @@ class _FormPanel extends GetView<LoginController> {
                   TextSpan(
                     style: GoogleFonts.dmSans(fontSize: 13),
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Belum punya akun? ',
-                        style: TextStyle(color: Color(0xFF8A8278)),
+                        style: TextStyle(color: AppColors.textSecondary),
                       ),
                       TextSpan(
                         text: 'Daftar Sekarang →',
                         style: GoogleFonts.dmSans(
-                          color: _kOrange,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -351,16 +447,22 @@ class _FormPanel extends GetView<LoginController> {
 
             const SizedBox(height: 16),
 
+            // SSL badge
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.lock_outline_rounded,
-                    size: 13, color: _kOrange.withOpacity(0.5)),
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 13,
+                  color: AppColors.primary.withOpacity(0.5),
+                ),
                 const SizedBox(width: 5),
                 Text(
                   'Terenkripsi & aman dengan SSL 256-bit',
                   style: GoogleFonts.dmSans(
-                      fontSize: 11, color: const Color(0xFFB5B0A8)),
+                    fontSize: 11,
+                    color: AppColors.textHint,
+                  ),
                 ),
               ],
             ),
@@ -371,20 +473,26 @@ class _FormPanel extends GetView<LoginController> {
   }
 }
 
+// ─────────────────────────────────────────────
+// Reusable Widgets
+// ─────────────────────────────────────────────
+
 class _FieldLabel extends StatelessWidget {
   final String text;
   const _FieldLabel(this.text);
 
   @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: GoogleFonts.dmSans(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.8,
-          color: const Color(0xFF8A8278),
-        ),
-      );
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: GoogleFonts.dmSans(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
 }
 
 class _InputField extends StatelessWidget {
@@ -413,54 +521,69 @@ class _InputField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
-      style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF18130A)),
+      style: GoogleFonts.dmSans(
+        fontSize: 14,
+        color: AppColors.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFFC0BBB5)),
-        prefixIcon: Icon(icon, size: 18, color: _kOrange.withOpacity(0.6)),
+        hintStyle: GoogleFonts.dmSans(
+          fontSize: 14,
+          color: AppColors.textHint,
+        ),
+        prefixIcon: Icon(
+          icon,
+          size: 18,
+          color: AppColors.primary.withOpacity(0.6),
+        ),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 15,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: _kOrange, width: 1.5),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.5),
+          borderSide: BorderSide(color: AppColors.error, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.5),
+          borderSide: BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
     );
   }
 }
 
-class _OrangeButton extends StatefulWidget {
+class _PrimaryButton extends StatefulWidget {
   final String label;
   final bool isLoading;
   final VoidCallback onTap;
-  const _OrangeButton(
-      {required this.label, required this.isLoading, required this.onTap});
+
+  const _PrimaryButton({
+    required this.label,
+    required this.isLoading,
+    required this.onTap,
+  });
 
   @override
-  State<_OrangeButton> createState() => _OrangeButtonState();
+  State<_PrimaryButton> createState() => _PrimaryButtonState();
 }
 
-class _OrangeButtonState extends State<_OrangeButton> {
+class _PrimaryButtonState extends State<_PrimaryButton> {
   bool _pressed = false;
 
   @override
@@ -480,14 +603,10 @@ class _OrangeButtonState extends State<_OrangeButton> {
           height: 52,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            gradient: const LinearGradient(
-              colors: [_kOrangeLight, _kOrangeDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppColors.primaryGradient,
             boxShadow: [
               BoxShadow(
-                color: _kOrange.withOpacity(0.4),
+                color: AppColors.primary.withOpacity(0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -519,25 +638,23 @@ class _OrangeButtonState extends State<_OrangeButton> {
   }
 }
 
-class _SocialButton extends StatefulWidget {
+// Tombol social dengan Image.asset (Google)
+class _SocialImageButton extends StatefulWidget {
   final String label;
-  final Color color;
-  final String initial;
-  final Color initialColor;
+  final String imagePath;
   final VoidCallback onTap;
-  const _SocialButton({
+
+  const _SocialImageButton({
     required this.label,
-    required this.color,
-    required this.initial,
-    required this.initialColor,
+    required this.imagePath,
     required this.onTap,
   });
 
   @override
-  State<_SocialButton> createState() => _SocialButtonState();
+  State<_SocialImageButton> createState() => _SocialImageButtonState();
 }
 
-class _SocialButtonState extends State<_SocialButton> {
+class _SocialImageButtonState extends State<_SocialImageButton> {
   bool _pressed = false;
 
   @override
@@ -556,31 +673,19 @@ class _SocialButtonState extends State<_SocialButton> {
           height: 48,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
+            color: AppColors.surface,
             border: const Border.fromBorderSide(
-              BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+              BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: widget.color,
-                ),
-                child: Center(
-                  child: Text(
-                    widget.initial,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: widget.initialColor,
-                    ),
-                  ),
-                ),
+              Image.asset(
+                widget.imagePath,
+                width: 20,
+                height: 20,
+                fit: BoxFit.contain,
               ),
               const SizedBox(width: 8),
               Text(
@@ -588,7 +693,74 @@ class _SocialButtonState extends State<_SocialButton> {
                 style: GoogleFonts.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF4A4440),
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Tombol social dengan Icon Flutter (Face ID)
+class _SocialIconButton extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _SocialIconButton({
+    required this.label,
+    required this.icon,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_SocialIconButton> createState() => _SocialIconButtonState();
+}
+
+class _SocialIconButtonState extends State<_SocialIconButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: AppColors.surface,
+            border: const Border.fromBorderSide(
+              BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                widget.icon,
+                size: 20,
+                color: widget.iconColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],

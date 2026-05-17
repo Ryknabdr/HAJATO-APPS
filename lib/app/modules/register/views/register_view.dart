@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/register_controller.dart';
-
-const _kOrange = Color(0xFFFF6B2C);
-const _kOrangeDark = Color(0xFFD94F10);
-const _kOrangeLight = Color(0xFFFF9A5C);
+import '../../../core/theme/app_theme.dart';
 
 class RegisterView extends GetView<RegisterController> {
   const RegisterView({super.key});
@@ -13,7 +10,7 @@ class RegisterView extends GetView<RegisterController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kOrange,
+      backgroundColor: AppColors.primary,
       body: Stack(
         children: [
           const _BackgroundArt(),
@@ -34,7 +31,7 @@ class RegisterView extends GetView<RegisterController> {
   }
 }
 
-// ─── Background (sama persis dengan LoginView) ───────────────────────────────
+// ─── Background ───────────────────────────────────────────────────────────────
 
 class _BackgroundArt extends StatelessWidget {
   const _BackgroundArt();
@@ -53,11 +50,8 @@ class _BgPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final bg = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFFFF8C42), Color(0xFFD94F10)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+      ..shader = AppColors.primaryGradient
+          .createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
 
     _orb(canvas, Offset(size.width + 40, -60), 200,
@@ -175,7 +169,7 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Daftar sekarang dan mulai rencanakan hajatan impian Anda',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.poppins(
               fontSize: 13,
               color: Colors.white.withOpacity(0.7),
               height: 1.5,
@@ -197,7 +191,7 @@ class _FormPanel extends GetView<RegisterController> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
@@ -220,7 +214,7 @@ class _FormPanel extends GetView<RegisterController> {
                 height: 3,
                 margin: const EdgeInsets.only(bottom: 28),
                 decoration: BoxDecoration(
-                  color: _kOrange.withOpacity(0.3),
+                  color: AppColors.primary.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -281,7 +275,7 @@ class _FormPanel extends GetView<RegisterController> {
                       controller.isPasswordVisible.value
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFFB5B0A8),
+                      color: AppColors.textHint,
                       size: 20,
                     ),
                   ),
@@ -304,7 +298,7 @@ class _FormPanel extends GetView<RegisterController> {
                       controller.isConfirmPasswordVisible.value
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFFB5B0A8),
+                      color: AppColors.textHint,
                       size: 20,
                     ),
                   ),
@@ -325,12 +319,12 @@ class _FormPanel extends GetView<RegisterController> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           color: controller.isAgreeToTerms.value
-                              ? _kOrange
-                              : Colors.white,
+                              ? AppColors.primary
+                              : AppColors.surface,
                           border: Border.all(
                             color: controller.isAgreeToTerms.value
-                                ? _kOrange
-                                : const Color(0xFFCEC9C1),
+                                ? AppColors.primary
+                                : AppColors.textHint,
                             width: 1.5,
                           ),
                         ),
@@ -343,27 +337,27 @@ class _FormPanel extends GetView<RegisterController> {
                       Expanded(
                         child: Text.rich(
                           TextSpan(
-                            style: GoogleFonts.dmSans(
+                            style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: const Color(0xFF8A8278),
+                              color: AppColors.textSecondary,
                               height: 1.5,
                             ),
                             children: [
                               const TextSpan(text: 'Saya menyetujui '),
                               TextSpan(
                                 text: 'Syarat & Ketentuan',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 12,
-                                  color: _kOrange,
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const TextSpan(text: ' serta '),
                               TextSpan(
                                 text: 'Kebijakan Privasi',
-                                style: GoogleFonts.dmSans(
+                                style: GoogleFonts.poppins(
                                   fontSize: 12,
-                                  color: _kOrange,
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -379,7 +373,7 @@ class _FormPanel extends GetView<RegisterController> {
             const SizedBox(height: 24),
 
             // ── Tombol Daftar ──
-            Obx(() => _OrangeButton(
+            Obx(() => _PrimaryButton(
                   label: 'Daftar Sekarang',
                   isLoading: controller.isLoading.value,
                   onTap: controller.register,
@@ -390,19 +384,19 @@ class _FormPanel extends GetView<RegisterController> {
             // ── Divider atau ──
             Row(
               children: [
-                const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'atau daftar dengan',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: const Color(0xFFB5B0A8),
+                      color: AppColors.textHint,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                const Expanded(child: Divider(color: Color(0xFFEDE9E1))),
+                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
               ],
             ),
 
@@ -441,16 +435,17 @@ class _FormPanel extends GetView<RegisterController> {
                 onTap: controller.goToLogin,
                 child: Text.rich(
                   TextSpan(
-                    style: GoogleFonts.dmSans(fontSize: 13),
+                    style: GoogleFonts.poppins(fontSize: 13),
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Sudah punya akun? ',
-                        style: TextStyle(color: Color(0xFF8A8278)),
+                        style:
+                            TextStyle(color: AppColors.textSecondary),
                       ),
                       TextSpan(
                         text: 'Masuk →',
-                        style: GoogleFonts.dmSans(
-                          color: _kOrange,
+                        style: GoogleFonts.poppins(
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -467,12 +462,13 @@ class _FormPanel extends GetView<RegisterController> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.lock_outline_rounded,
-                    size: 13, color: _kOrange.withOpacity(0.5)),
+                    size: 13,
+                    color: AppColors.primary.withOpacity(0.5)),
                 const SizedBox(width: 5),
                 Text(
                   'Terenkripsi & aman dengan SSL 256-bit',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: const Color(0xFFB5B0A8)),
+                  style: GoogleFonts.poppins(
+                      fontSize: 11, color: AppColors.textHint),
                 ),
               ],
             ),
@@ -483,7 +479,7 @@ class _FormPanel extends GetView<RegisterController> {
   }
 }
 
-// ─── Shared Widgets (sama persis dengan LoginView) ────────────────────────────
+// ─── Shared Widgets ───────────────────────────────────────────────────────────
 
 class _FieldLabel extends StatelessWidget {
   final String text;
@@ -492,11 +488,11 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: GoogleFonts.dmSans(
+        style: GoogleFonts.poppins(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.8,
-          color: const Color(0xFF8A8278),
+          color: AppColors.textSecondary,
         ),
       );
 }
@@ -530,54 +526,63 @@ class _InputField extends StatelessWidget {
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       validator: validator,
-      style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF18130A)),
+      style: GoogleFonts.poppins(
+          fontSize: 14, color: AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFFC0BBB5)),
-        prefixIcon: Icon(icon, size: 18, color: _kOrange.withOpacity(0.6)),
+        hintStyle: GoogleFonts.poppins(
+            fontSize: 14, color: AppColors.textHint),
+        prefixIcon: Icon(icon,
+            size: 18, color: AppColors.primary.withOpacity(0.6)),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.surfaceVariant,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+          borderSide: const BorderSide(
+              color: Color(0xFFB2DFDB), width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+          borderSide: const BorderSide(
+              color: Color(0xFFB2DFDB), width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: _kOrange, width: 1.5),
+          borderSide:
+              const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.5),
+          borderSide:
+              const BorderSide(color: AppColors.error, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.5),
+          borderSide:
+              const BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
     );
   }
 }
 
-class _OrangeButton extends StatefulWidget {
+class _PrimaryButton extends StatefulWidget {
   final String label;
   final bool isLoading;
   final VoidCallback onTap;
-  const _OrangeButton(
-      {required this.label, required this.isLoading, required this.onTap});
+  const _PrimaryButton(
+      {required this.label,
+      required this.isLoading,
+      required this.onTap});
 
   @override
-  State<_OrangeButton> createState() => _OrangeButtonState();
+  State<_PrimaryButton> createState() => _PrimaryButtonState();
 }
 
-class _OrangeButtonState extends State<_OrangeButton> {
+class _PrimaryButtonState extends State<_PrimaryButton> {
   bool _pressed = false;
 
   @override
@@ -597,14 +602,10 @@ class _OrangeButtonState extends State<_OrangeButton> {
           height: 52,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            gradient: const LinearGradient(
-              colors: [_kOrangeLight, _kOrangeDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppColors.primaryGradient,
             boxShadow: [
               BoxShadow(
-                color: _kOrange.withOpacity(0.4),
+                color: AppColors.primary.withOpacity(0.4),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -622,7 +623,7 @@ class _OrangeButtonState extends State<_OrangeButton> {
                   )
                 : Text(
                     widget.label,
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -673,9 +674,9 @@ class _SocialButtonState extends State<_SocialButton> {
           height: 48,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
+            color: AppColors.surface,
             border: const Border.fromBorderSide(
-              BorderSide(color: Color(0xFFEDE9E1), width: 1.5),
+              BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
             ),
           ),
           child: Row(
@@ -702,10 +703,10 @@ class _SocialButtonState extends State<_SocialButton> {
               const SizedBox(width: 8),
               Text(
                 widget.label,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF4A4440),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],

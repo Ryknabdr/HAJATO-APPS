@@ -16,14 +16,14 @@ const List<Map<String, dynamic>> kBankList = [
     'label': 'BCA',
     'account': '1234567890',
     'accountName': 'PT Hajat Indonesia',
-    'logoAsset': 'assets/images/bca.jpg',
+    'logoAsset': 'assets/images/bca.png',
   },
   {
     'id': 'mandiri',
     'label': 'Mandiri',
     'account': '1400099887766',
     'accountName': 'PT Hajat Indonesia',
-    'logoAsset': 'assets/images/mandiri.png',
+    'logoAsset': 'assets/images/mdr.png',
   },
   {
     'id': 'bri',
@@ -52,19 +52,19 @@ const List<Map<String, dynamic>> kEwalletList = [
     'id': 'ovo',
     'label': 'OVO',
     'number': '0813-xxxx-xxxx',
-    'logoAsset': 'assets/images/ovo.png',
+    'logoAsset': 'assets/images/ovo.jpeg',
   },
   {
     'id': 'dana',
     'label': 'DANA',
     'number': '0814-xxxx-xxxx',
-    'logoAsset': 'assets/images/dana.png',
+    'logoAsset': 'assets/images/dana.jpg',
   },
   {
     'id': 'shopeepay',
     'label': 'ShopeePay',
     'number': '0815-xxxx-xxxx',
-    'logoAsset': 'assets/images/sppy.png',
+    'logoAsset': 'assets/images/spy.png',
   },
 ];
 

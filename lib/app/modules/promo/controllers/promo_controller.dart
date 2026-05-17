@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/theme/app_theme.dart';
 
 class PromoModel {
   final String id;
@@ -32,7 +33,12 @@ class PromoController extends GetxController {
   final RxList<PromoModel> filteredPromos = <PromoModel>[].obs;
 
   final categories = [
-    'Semua', 'Fotografer', 'Catering', 'Dekorasi', 'WO', 'Sound'
+    'Semua',
+    'Fotografer',
+    'Catering',
+    'Dekorasi',
+    'WO',
+    'Sound'
   ];
 
   @override
@@ -52,7 +58,7 @@ class PromoController extends GetxController {
           discount: '20%',
           validUntil: '30 Apr 2026',
           category: 'Fotografer',
-          color: const Color(0xFFFF8C42),
+          color: AppColors.primaryLight,
           icon: Icons.photo_camera_rounded,
           isNew: true,
         ),
@@ -63,7 +69,7 @@ class PromoController extends GetxController {
           discount: '15%',
           validUntil: '25 Apr 2026',
           category: 'Catering',
-          color: const Color(0xFF2ECC71),
+          color: AppColors.success,
           icon: Icons.restaurant_rounded,
         ),
         PromoModel(
@@ -73,7 +79,7 @@ class PromoController extends GetxController {
           discount: '25%',
           validUntil: '15 Mei 2026',
           category: 'Dekorasi',
-          color: const Color(0xFF5B8FF9),
+          color: AppColors.info,
           icon: Icons.park_rounded,
           isNew: true,
         ),
@@ -84,7 +90,7 @@ class PromoController extends GetxController {
           discount: '10%',
           validUntil: '20 Mei 2026',
           category: 'WO',
-          color: const Color(0xFFD4AF37),
+          color: AppColors.accent,
           icon: Icons.favorite_rounded,
         ),
         PromoModel(
@@ -94,7 +100,7 @@ class PromoController extends GetxController {
           discount: '30%',
           validUntil: '10 Mei 2026',
           category: 'Sound',
-          color: const Color(0xFF9B59B6),
+          color: AppColors.secondary,
           icon: Icons.music_note_rounded,
           isNew: true,
         ),
@@ -105,7 +111,7 @@ class PromoController extends GetxController {
           discount: '20%',
           validUntil: '28 Apr 2026',
           category: 'Fotografer',
-          color: const Color(0xFFFF6B9D),
+          color: AppColors.warning,
           icon: Icons.face_retouching_natural,
         ),
       ]);
@@ -119,8 +125,8 @@ class PromoController extends GetxController {
     if (cat == 'Semua') {
       filteredPromos.assignAll(allPromos);
     } else {
-      filteredPromos.assignAll(
-          allPromos.where((p) => p.category == cat).toList());
+      filteredPromos
+          .assignAll(allPromos.where((p) => p.category == cat).toList());
     }
   }
 
@@ -128,7 +134,7 @@ class PromoController extends GetxController {
     Get.snackbar(
       '🎉 Promo Diklaim!',
       '${promo.discount} off untuk ${promo.title} berhasil diklaim',
-      backgroundColor: const Color(0xFF4E342E),
+      backgroundColor: AppColors.primaryDark,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),

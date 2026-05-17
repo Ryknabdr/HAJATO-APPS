@@ -25,8 +25,8 @@ import '../modules/vendor_dashboard/bindings/vendor_dashboard_binding.dart';
 import '../modules/vendor_dashboard/views/vendor_dashboard_view.dart';
 import '../modules/vendor_dashboard/views/manage_service_view.dart';
 import '../modules/vendor_dashboard/views/vendor_chat_view.dart';
-import '../modules/chatbot/bindings/chatbot_binding.dart';
-import '../modules/chatbot/views/chatbot_view.dart';
+// import '../modules/chatbot/bindings/chatbot_binding.dart';
+// import '../modules/chatbot/views/chatbot_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
@@ -40,6 +40,12 @@ import '../modules/payment/bindings/payment_binding.dart';
 import '../modules/payment/views/payment_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/vendor_registration/bindings/vendor_registration_binding.dart';
+import '../modules/vendor_registration/views/vendor_registration_view.dart';
+import '../modules/vendor_profile/views/vendor_profile_view.dart';
+import '../modules/vendor_profile/bindings/vendor_profile_binding.dart';
+import '../modules/notifikasi/bindings/notifikasi_binding.dart';
+import '../modules/notifikasi/views/notifikasi_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -144,12 +150,12 @@ class AppPages {
       binding: VendorDashboardBinding(),
       transition: Transition.rightToLeft,
     ),
-    GetPage(
-      name: AppRoutes.chatbot,
-      page: () => const ChatbotView(),
-      binding: ChatbotBinding(),
-      transition: Transition.downToUp,
-    ),
+    // GetPage(
+    //   name: AppRoutes.chatbot,
+    //   page: () => const ChatbotView(),
+    //   binding: ChatbotBinding(),
+    //   transition: Transition.downToUp,
+    // ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
@@ -190,6 +196,24 @@ GetPage(
   page: () => const RegisterView(),
   binding: RegisterBinding(),
   transition: Transition.rightToLeft,
+),
+GetPage(
+  name: AppRoutes.vendorRegistration,
+  page: () => const VendorRegistrationView(),
+  binding: VendorRegistrationBinding(),
+  transition: Transition.rightToLeft,
+),
+// tambah di dalam pages list
+GetPage(
+  name: AppRoutes.notification,
+  page: () => const NotifikasiView(),
+  binding: NotifikasiBinding(),
+  transition: Transition.rightToLeft,
+),
+GetPage(
+  name: AppRoutes.vendorProfile,
+  page: () => const VendorProfileView(),
+  binding: VendorProfileBinding(),
 ),
   ];
 }

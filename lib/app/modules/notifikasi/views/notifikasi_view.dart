@@ -28,7 +28,6 @@ class NotifikasiView extends GetView<NotifikasiController> {
       padding: const EdgeInsets.fromLTRB(20, 56, 20, 16),
       child: Row(
         children: [
-          // Tombol back
           GestureDetector(
             onTap: () => Get.back(),
             child: Container(
@@ -75,7 +74,6 @@ class NotifikasiView extends GetView<NotifikasiController> {
               ],
             ),
           ),
-          // Tombol tandai semua
           Obx(() => controller.hasUnread
               ? GestureDetector(
                   onTap: controller.markAllAsRead,
@@ -114,7 +112,8 @@ class NotifikasiView extends GetView<NotifikasiController> {
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                 child: Row(
                   children: List.generate(controller.tabs.length, (i) {
-                    final isSelected = controller.selectedTabIndex.value == i;
+                    final isSelected =
+                        controller.selectedTabIndex.value == i;
                     return GestureDetector(
                       onTap: () => controller.selectTab(i),
                       child: AnimatedContainer(
@@ -185,7 +184,6 @@ class NotifikasiView extends GetView<NotifikasiController> {
         );
       }
 
-      // Kelompokkan: unread dulu, lalu read
       final unread = notifs.where((n) => !n.isRead).toList();
       final read = notifs.where((n) => n.isRead).toList();
 
@@ -277,7 +275,7 @@ class _NotifTile extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: notif.isRead ? Colors.white : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: notif.isRead
@@ -288,7 +286,6 @@ class _NotifTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon
               Container(
                 width: 42,
                 height: 42,
@@ -299,7 +296,6 @@ class _NotifTile extends StatelessWidget {
                 child: Icon(notif.icon, color: notif.iconColor, size: 20),
               ),
               const SizedBox(width: 12),
-              // Konten
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +318,8 @@ class _NotifTile extends StatelessWidget {
                           Container(
                             width: 7,
                             height: 7,
-                            margin: const EdgeInsets.only(left: 6, top: 3),
+                            margin:
+                                const EdgeInsets.only(left: 6, top: 3),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
