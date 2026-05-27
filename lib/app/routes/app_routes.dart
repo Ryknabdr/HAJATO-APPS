@@ -3,6 +3,8 @@ abstract class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const forgotPassword = '/forgot-password';
+  static const verifyOtp = '/verify-otp';
+  static const resetPassword = '/reset-password';
   static const home = '/home';
   static const vendorList = '/vendor-list';
   static const vendorDetail = '/vendor-detail';
@@ -32,4 +34,7 @@ abstract class AppRoutes {
   static const vendorRegistration = '/vendor-registration';
   static const notification = '/notification';
   static const vendorProfile = '/vendor-profile';
+  static const myBookings = '/my-bookings';
+  static const bookingDetail = '/booking-detail';
+  static const vendorBookings = '/vendor-bookings';
 }

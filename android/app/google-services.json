@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "657219334090",
+    "project_id": "hajato-app",
+    "storage_bucket": "hajato-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:657219334090:android:67e33ec720b6299c2e2933",
+        "android_client_info": {
+          "package_name": "com.hajato.hajato"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "657219334090-rlov1s3e75u8qj69d5il3ts4m2v17sid.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hajato.hajato",
+            "certificate_hash": "817622ab58d92930c030e81b2c2888ca972a7b06"
+          }
+        },
+        {
+          "client_id": "657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLXFP7kEJ9V7pZ3VNOvdT32NX14Cxbtkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

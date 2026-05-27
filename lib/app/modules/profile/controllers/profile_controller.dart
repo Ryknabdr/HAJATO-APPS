@@ -6,6 +6,8 @@ import 'package:hajato/app/core/theme/app_theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hajato/app/core/constants/api_config.dart';
+
 class ProfileController extends GetxController {
   final name = ''.obs;
   final email = ''.obs;
@@ -13,9 +15,6 @@ class ProfileController extends GetxController {
   final bio = ''.obs;
   final avatarUrl = ''.obs;
   final isLoading = false.obs;
-
-  static const String baseUrl =
-      'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/auth';
 
   final notifPromo = true.obs;
   final notifBooking = true.obs;
@@ -37,9 +36,11 @@ class ProfileController extends GetxController {
       email.value = prefs.getString('email') ?? '-';
       phone.value = prefs.getString('phone') ?? '';
       bio.value = prefs.getString('bio') ?? '';
+      avatarUrl.value = prefs.getString('photo_url') ?? '';
 
       print('NAME LOGIN: ${name.value}');
       print('EMAIL LOGIN: ${email.value}');
+      print('AVATAR URL: ${avatarUrl.value}');
     } finally {
       isLoading.value = false;
     }
@@ -66,7 +67,7 @@ class ProfileController extends GetxController {
       }
 
       final response = await http.put(
-        Uri.parse('$baseUrl/update-profile'),
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/update-profile'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../data/models/models.dart';
 import '../../../routes/app_routes.dart';
+import '../../../core/constants/api_config.dart';
 
 class VendorDetailView extends GetView<VendorController> {
   const VendorDetailView({super.key});
@@ -177,57 +178,135 @@ class VendorDetailView extends GetView<VendorController> {
     );
   }
 
-  Widget _buildPackages(VendorModel vendor) {
-    return SizedBox(
-      height: 200,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: vendor.packages.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (_, i) {
-          final pkg = vendor.packages[i];
-          return GestureDetector(
-            onTap: () => controller.goToBooking(pkg),
-            child: Container(
-              width: 220,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: i == 0 ? AppColors.primaryGradient : null,
-                color: i == 0 ? null : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: i != 0 ? Border.all(color: AppColors.primary.withOpacity(0.3)) : null,
+Widget _buildPackages(VendorModel vendor) {
+  return SizedBox(
+    height: 270,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: vendor.packages.length,
+      separatorBuilder: (_, __) => const SizedBox(width: 12),
+      itemBuilder: (_, i) {
+        final pkg = vendor.packages[i];
+
+        return GestureDetector(
+          onTap: () => controller.goToBooking(pkg),
+          child: Container(
+            width: 240,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.15),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(pkg.name,
-                      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700,
-                          color: i == 0 ? Colors.white : AppColors.textPrimary)),
-                  const SizedBox(height: 4),
-                  Text(formatRupiah(pkg.price),
-                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800,
-                          color: i == 0 ? Colors.white : AppColors.primary)),
-                  const SizedBox(height: 10),
-                  ...pkg.features.take(3).map((f) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(children: [
-                          Icon(Icons.check_circle_rounded,
-                              size: 14, color: i == 0 ? Colors.white70 : AppColors.success),
-                          const SizedBox(width: 6),
-                          Expanded(child: Text(f, style: GoogleFonts.poppins(fontSize: 11,
-                              color: i == 0 ? Colors.white70 : AppColors.textSecondary),
-                              maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        ]),
-                      )),
-                ],
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          );
-        },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+  borderRadius: BorderRadius.circular(12),
+  child: Image.network(
+    '${ApiConfig.baseUrl}/uploads/${pkg.image}',
+    height: 100,
+    width: double.infinity,
+    fit: BoxFit.cover,
+    errorBuilder: (_, __, ___) => Container(
+      height: 100,
+      width: double.infinity,
+      color: AppColors.surfaceVariant,
+      child: const Icon(
+        Icons.image_rounded,
+        color: AppColors.textHint,
+        size: 40,
       ),
-    );
-  }
+    ),
+  ),
+),
+const SizedBox(height: 12),
+                Text(
+                  pkg.name,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  formatRupiah(pkg.price),
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Icon(
+                      Icons.people_rounded,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${pkg.capacity} orang',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.schedule_rounded,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${pkg.duration} jam',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  pkg.description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildReviews(VendorModel vendor) {
     if (vendor.reviews.isEmpty) {

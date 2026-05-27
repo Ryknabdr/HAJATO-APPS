@@ -6,6 +6,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../data/models/models.dart';
 import '../../../routes/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/api_config.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -42,13 +43,15 @@ class HomeView extends GetView<HomeController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Obx(() => Text(
-                    'Halo, ${controller.userName.value} 👋',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: AppColors.textHint,
-                    ),
-                  )),
+              Obx(
+                () => Text(
+                  'Halo, ${controller.userName.value} 👋',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: AppColors.textHint,
+                  ),
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
                 'Rencanakan Acaramu',
@@ -162,17 +165,19 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
           const SizedBox(height: 12),
-          Obx(() => ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: controller.featuredVendors.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (_, i) => _VendorCard(
-                  vendor: controller.featuredVendors[i],
-                  onTap: () => controller
-                      .goToVendorDetail(controller.featuredVendors[i]),
-                ),
-              )),
+          Obx(
+            () => ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: controller.featuredVendors.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, i) => _VendorCard(
+                vendor: controller.featuredVendors[i],
+                onTap: () =>
+                    controller.goToVendorDetail(controller.featuredVendors[i]),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -189,13 +194,13 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        text,
-        style: GoogleFonts.poppins(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A2E),
-        ),
-      );
+    text,
+    style: GoogleFonts.poppins(
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      color: const Color(0xFF1A1A2E),
+    ),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -242,9 +247,7 @@ class _Categories extends GetView<HomeController> {
                           : Colors.white,
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: isSelected
-                            ? color
-                            : const Color(0xFFEEEEEE),
+                        color: isSelected ? color : const Color(0xFFEEEEEE),
                         width: isSelected ? 1.5 : 1,
                       ),
                     ),
@@ -264,8 +267,7 @@ class _Categories extends GetView<HomeController> {
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
-                      color:
-                          isSelected ? color : AppColors.textSecondary,
+                      color: isSelected ? color : AppColors.textSecondary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -300,7 +302,9 @@ class _PromoBanner extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(6),
@@ -337,7 +341,9 @@ class _PromoBanner extends StatelessWidget {
                   onTap: () => Get.toNamed(AppRoutes.promo),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
@@ -413,9 +419,10 @@ class _VendorCardState extends State<_VendorCard> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(15)),
-                child: Image.asset(
-                  widget.vendor.imageUrl,
+                  left: Radius.circular(15),
+                ),
+                child: Image.network(
+                  '${ApiConfig.baseUrl}/uploads/${widget.vendor.imageUrl}',
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
@@ -430,7 +437,6 @@ class _VendorCardState extends State<_VendorCard> {
                     ),
                   ),
                 ),
-                
               ),
               Expanded(
                 child: Padding(
@@ -440,7 +446,9 @@ class _VendorCardState extends State<_VendorCard> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(5),
@@ -469,8 +477,11 @@ class _VendorCardState extends State<_VendorCard> {
                       const SizedBox(height: 3),
                       Row(
                         children: [
-                          Icon(Icons.location_on_rounded,
-                              size: 11, color: AppColors.textHint),
+                          Icon(
+                            Icons.location_on_rounded,
+                            size: 11,
+                            color: AppColors.textHint,
+                          ),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
@@ -491,8 +502,11 @@ class _VendorCardState extends State<_VendorCard> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.star_rounded,
-                                  color: AppColors.warning, size: 13),
+                              Icon(
+                                Icons.star_rounded,
+                                color: AppColors.warning,
+                                size: 13,
+                              ),
                               const SizedBox(width: 3),
                               Text(
                                 '${widget.vendor.rating}',
@@ -578,9 +592,7 @@ class _BottomNav extends StatelessWidget {
                     ),
                     child: Icon(
                       items[i]['icon'] as IconData,
-                      color: isActive
-                          ? AppColors.primary
-                          : AppColors.textHint,
+                      color: isActive ? AppColors.primary : AppColors.textHint,
                       size: 22,
                     ),
                   ),
@@ -589,12 +601,8 @@ class _BottomNav extends StatelessWidget {
                     items[i]['label'] as String,
                     style: GoogleFonts.poppins(
                       fontSize: 10,
-                      fontWeight: isActive
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: isActive
-                          ? AppColors.primary
-                          : AppColors.textHint,
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                      color: isActive ? AppColors.primary : AppColors.textHint,
                     ),
                   ),
                 ],

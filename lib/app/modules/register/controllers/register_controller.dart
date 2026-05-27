@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:hajato/app/core/constants/api_config.dart';
 import '../../../routes/app_routes.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterController extends GetxController {
   final nameController = TextEditingController();
@@ -19,10 +21,6 @@ class RegisterController extends GetxController {
   final isConfirmPasswordVisible = false.obs;
   final isLoading = false.obs;
   final isAgreeToTerms = false.obs;
-
-  // GANTI SESUAI IPV4 LAPTOP
-  // Samakan dengan baseUrl yang dipakai di login/auth_service
-  static const String baseUrl = 'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/auth';
 
   @override
   void onClose() {
@@ -39,8 +37,7 @@ class RegisterController extends GetxController {
   }
 
   void toggleConfirmPasswordVisibility() {
-    isConfirmPasswordVisible.value =
-        !isConfirmPasswordVisible.value;
+    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
 
   void toggleAgreeToTerms() {
@@ -63,10 +60,8 @@ class RegisterController extends GetxController {
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/register'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/register'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'name': nameController.text.trim(),
           'email': emailController.text.trim(),
@@ -82,19 +77,27 @@ class RegisterController extends GetxController {
         Get.snackbar(
           'Berhasil',
           'Register berhasil',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+          duration: const Duration(seconds: 2),
         );
+
+        await Future.delayed(const Duration(seconds: 1));
 
         Get.offAllNamed(AppRoutes.login);
       } else {
         Get.snackbar(
           'Register Gagal',
           data['message'] ?? 'Terjadi kesalahan',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: const Color(0xFFFFEDED),
           colorText: const Color(0xFF991F1F),
           margin: const EdgeInsets.all(16),
           borderRadius: 12,
+          duration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
@@ -118,13 +121,176 @@ class RegisterController extends GetxController {
     Get.back();
   }
 
-  void registerWithGoogle() {
-    Get.snackbar(
-      'Google',
-      'Daftar dengan Google belum tersedia',
-      snackPosition: SnackPosition.BOTTOM,
+Future<void> registerWithGoogle() async {
+  isLoading.value = true;
+
+  try {
+
+    final googleSignIn =
+        GoogleSignIn.instance;
+
+    await googleSignIn.initialize(
+  serverClientId:
+      '657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com',
+);
+
+    final googleUser =
+        await googleSignIn.authenticate();
+
+    final googleAuth =
+        googleUser.authentication;
+
+    final idToken =
+        googleAuth.idToken;
+
+    if (idToken == null) {
+
+      Get.snackbar(
+        'Google Register Gagal',
+        'ID Token tidak ditemukan',
+        snackPosition:
+            SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    final response = await http.post(
+
+      Uri.parse(
+        '${ApiConfig.baseUrl}/api/auth/google-login',
+      ),
+
+      headers: {
+        'Content-Type': 'application/json',
+      },
+
+      body: jsonEncode({
+        'idToken': idToken,
+      }),
     );
+
+    print(
+      "GOOGLE REGISTER STATUS : ${response.statusCode}",
+    );
+
+    print(
+      "GOOGLE REGISTER BODY : ${response.body}",
+    );
+
+    final data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+
+      final token =
+          data['token'] ?? '';
+
+      final name =
+          data['name'] ?? '';
+
+      final email =
+          data['email'] ?? '';
+
+      final role =
+          data['role'] ?? '';
+
+      final phone =
+          data['phone'] ?? '';
+
+      final vendorStatus =
+          data['vendor_status'] ?? '';
+
+      final businessName =
+          data['business_name'] ?? '';
+
+      final photoUrl =
+          data['photo_url'] ?? '';
+
+      final prefs =
+          await SharedPreferences.getInstance();
+
+      await prefs.clear();
+
+      await prefs.setString(
+        'token',
+        token,
+      );
+
+      await prefs.setString(
+        'name',
+        name,
+      );
+
+      await prefs.setString(
+        'email',
+        email,
+      );
+
+      await prefs.setString(
+        'phone',
+        phone,
+      );
+
+      await prefs.setString(
+        'role',
+        role,
+      );
+
+      await prefs.setString(
+        'vendor_status',
+        vendorStatus,
+      );
+
+      await prefs.setString(
+        'business_name',
+        businessName,
+      );
+
+      await prefs.setString(
+  'photo_url',
+  photoUrl,
+);
+
+      Get.snackbar(
+        'Berhasil',
+        'Register Google berhasil',
+        snackPosition:
+            SnackPosition.TOP,
+      );
+
+      Get.offAllNamed(
+        AppRoutes.home,
+        arguments: data,
+      );
+
+    } else {
+
+      Get.snackbar(
+        'Google Register Gagal',
+        data['message'] ??
+            'Terjadi kesalahan',
+        snackPosition:
+            SnackPosition.BOTTOM,
+      );
+    }
+
+} catch (e) {
+
+  print("GOOGLE REGISTER ERROR : $e");
+
+  Get.snackbar(
+    'Error',
+    '$e',
+    snackPosition: SnackPosition.BOTTOM,
+  );
+
+}finally {
+
+    isLoading.value = false;
+
   }
+}
 
   void registerWithFacebook() {
     Get.snackbar(

@@ -32,7 +32,7 @@ class VendorListView extends GetView<VendorController> {
               Expanded(child: _buildVendorList()),
             ],
           ),
-          const FloatingChatbotButton(),
+          
         ],
       ),
     );

@@ -46,6 +46,18 @@ import '../modules/vendor_profile/views/vendor_profile_view.dart';
 import '../modules/vendor_profile/bindings/vendor_profile_binding.dart';
 import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
+import '../modules/forgot_password/bindings/forgot_password_binding.dart';
+import '../modules/forgot_password/views/forgot_password_view.dart';
+import '../modules/verify_otp/bindings/verify_otp_binding.dart';
+import '../modules/verify_otp/views/verify_otp_view.dart';
+import '../modules/reset_password/bindings/reset_password_binding.dart';
+import '../modules/reset_password/views/reset_password_view.dart';
+import '../modules/my_bookings/bindings/my_bookings_binding.dart';
+import '../modules/my_bookings/views/my_bookings_view.dart';
+import '../modules/booking_detail/bindings/booking_detail_binding.dart';
+import '../modules/booking_detail/views/booking_detail_view.dart';
+import '../modules/vendor_bookings/bindings/vendor_bookings_binding.dart';
+import '../modules/vendor_bookings/views/vendor_bookings_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -187,33 +199,66 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-  name: AppRoutes.payment,
-  page: () => const PaymentView(),
-  binding: PaymentBinding(),
-),
-GetPage(
-  name: AppRoutes.register,
-  page: () => const RegisterView(),
-  binding: RegisterBinding(),
-  transition: Transition.rightToLeft,
-),
-GetPage(
-  name: AppRoutes.vendorRegistration,
-  page: () => const VendorRegistrationView(),
-  binding: VendorRegistrationBinding(),
-  transition: Transition.rightToLeft,
-),
-// tambah di dalam pages list
-GetPage(
-  name: AppRoutes.notification,
-  page: () => const NotifikasiView(),
-  binding: NotifikasiBinding(),
-  transition: Transition.rightToLeft,
-),
-GetPage(
-  name: AppRoutes.vendorProfile,
-  page: () => const VendorProfileView(),
-  binding: VendorProfileBinding(),
-),
+      name: AppRoutes.payment,
+      page: () => const PaymentView(),
+      binding: PaymentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => const RegisterView(),
+      binding: RegisterBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.vendorRegistration,
+      page: () => const VendorRegistrationView(),
+      binding: VendorRegistrationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    // tambah di dalam pages list
+    GetPage(
+      name: AppRoutes.notification,
+      page: () => const NotifikasiView(),
+      binding: NotifikasiBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.vendorProfile,
+      page: () => const VendorProfileView(),
+      binding: VendorProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.verifyOtp,
+      page: () => const VerifyOtpView(),
+      binding: VerifyOtpBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordView(),
+      binding: ResetPasswordBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.myBookings,
+      page: () => const MyBookingsView(),
+      binding: MyBookingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.bookingDetail,
+      page: () => const BookingDetailView(),
+      binding: BookingDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.vendorBookings,
+      page: () => const VendorBookingsView(),
+      binding: VendorBookingsBinding(),
+    ),
   ];
 }

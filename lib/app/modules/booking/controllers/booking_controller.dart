@@ -9,8 +9,10 @@ class BookingController extends GetxController {
   late ServicePackage package;
 
   final selectedDate = Rx<DateTime?>(null);
+  final selectedTime = Rx<TimeOfDay?>(null);
   final selectedPackageIndex = 0.obs;
   final notes = ''.obs;
+  final eventLocation = ''.obs;
   final isLoading = false.obs;
 
   @override
@@ -23,9 +25,25 @@ class BookingController extends GetxController {
     }
   }
 
-  String get formattedDate => selectedDate.value == null
-      ? 'Pilih tanggal'
-      : DateFormat('dd MMMM yyyy', 'id').format(selectedDate.value!);
+String get formattedDate => selectedDate.value == null
+    ? 'Pilih tanggal'
+    : DateFormat('dd MMMM yyyy', 'id').format(selectedDate.value!);
+
+String get formattedTime {
+  if (selectedTime.value == null) {
+    return 'Pilih jam';
+  }
+
+  final hour = selectedTime.value!.hour
+      .toString()
+      .padLeft(2, '0');
+
+  final minute = selectedTime.value!.minute
+      .toString()
+      .padLeft(2, '0');
+
+  return '$hour:$minute WIB';
+}
 
   void pickDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -42,6 +60,25 @@ class BookingController extends GetxController {
     );
     if (picked != null) selectedDate.value = picked;
   }
+
+  void pickTime(BuildContext context) async {
+  final picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    builder: (context, child) => Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF4F6AF5),
+        ),
+      ),
+      child: child!,
+    ),
+  );
+
+  if (picked != null) {
+    selectedTime.value = picked;
+  }
+}
 
   void confirm() {
     if (selectedDate.value == null) {
@@ -60,6 +97,8 @@ class BookingController extends GetxController {
       'date': selectedDate.value,
       'notes': notes.value,
       'totalPrice': package.price,
+      'time': formattedTime,
+      'location': eventLocation.value,
     });
   }
 }

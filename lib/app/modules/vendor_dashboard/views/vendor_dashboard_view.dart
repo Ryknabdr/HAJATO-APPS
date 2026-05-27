@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/vendor_dashboard_controller.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
+import '../../../core/constants/api_config.dart';
 import '../../../routes/app_routes.dart';
+import '../../../data/models/models.dart';
 
 class VendorDashboardView extends GetView<VendorDashboardController> {
   const VendorDashboardView({super.key});
@@ -62,6 +64,7 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                 ),
               ),
               const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,15 +76,19 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                         color: AppColors.textHint,
                       ),
                     ),
-                    Text(
-                      'Mahkota Wedding Organizer',
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                    Obx(
+                      () => Text(
+                        controller.businessName.value.isEmpty
+                            ? 'Vendor'
+                            : controller.businessName.value,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -89,27 +96,21 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
 
               GestureDetector(
                 onTap: () {},
-                child: _HeaderIcon(
-                  icon: Icons.notifications_outlined,
-                ),
+                child: _HeaderIcon(icon: Icons.notifications_outlined),
               ),
 
               const SizedBox(width: 8),
 
               GestureDetector(
                 onTap: controller.goToVendorChat,
-                child: _HeaderIcon(
-                  icon: Icons.chat_bubble_outline_rounded,
-                ),
+                child: _HeaderIcon(icon: Icons.chat_bubble_outline_rounded),
               ),
 
               const SizedBox(width: 8),
 
               GestureDetector(
                 onTap: () => Get.toNamed(AppRoutes.vendorProfile),
-                child: _HeaderIcon(
-                  icon: Icons.person_outline_rounded,
-                ),
+                child: _HeaderIcon(icon: Icons.person_outline_rounded),
               ),
             ],
           ),
@@ -203,6 +204,11 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
             label: 'Statistik',
             onTap: controller.goToStatistic,
           ),
+          _QuickAction(
+            icon: Icons.receipt_long_rounded,
+            label: 'Pesanan\nMasuk',
+            onTap: () => Get.toNamed(AppRoutes.vendorBookings),
+          ),
         ],
       ),
     );
@@ -220,7 +226,7 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                 message: 'Belum ada layanan',
               )
             : SizedBox(
-                height: 120,
+                height: 190,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: controller.services.length,
@@ -231,6 +237,7 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
                     return _ServiceCard(
                       name: s.name,
                       price: formatRupiah(s.price),
+                      image: s.image,
                       onEdit: () => controller.editService(s),
                       onDelete: () => controller.deleteService(s.id),
                     );
@@ -245,22 +252,22 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
     return _Section(
       title: 'Pesanan Terbaru',
       child: Obx(
-        () => ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: controller.bookings.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (_, i) {
-            final booking = controller.bookings[i];
+        () => controller.bookings.isEmpty
+            ? const _EmptyState(
+                icon: Icons.receipt_long_outlined,
+                message: 'Belum ada pesanan',
+              )
+            : ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.bookings.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (_, i) {
+                  final booking = controller.bookings[i];
 
-            return _BookingCard(
-              booking: booking,
-              onConfirm: () => controller.confirmBooking(
-                booking['id'],
+                  return _BookingCard(booking: booking);
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -294,9 +301,7 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
 class _HeaderIcon extends StatelessWidget {
   final IconData icon;
 
-  const _HeaderIcon({
-    required this.icon,
-  });
+  const _HeaderIcon({required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -306,11 +311,7 @@ class _HeaderIcon extends StatelessWidget {
         color: const Color(0xFFF4F4F4),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(
-        icon,
-        size: 20,
-        color: AppColors.textPrimary,
-      ),
+      child: Icon(icon, size: 20, color: AppColors.textPrimary),
     );
   }
 }
@@ -374,10 +375,7 @@ class _Chip extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _Chip({
-    required this.label,
-    required this.color,
-  });
+  const _Chip({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -403,10 +401,7 @@ class _StatCol extends StatelessWidget {
   final String value;
   final String label;
 
-  const _StatCol({
-    required this.value,
-    required this.label,
-  });
+  const _StatCol({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -425,10 +420,7 @@ class _StatCol extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: GoogleFonts.poppins(
-            color: Colors.white60,
-            fontSize: 11,
-          ),
+          style: GoogleFonts.poppins(color: Colors.white60, fontSize: 11),
         ),
       ],
     );
@@ -438,11 +430,7 @@ class _StatCol extends StatelessWidget {
 class _VertDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 32,
-      color: Colors.white24,
-    );
+    return Container(width: 1, height: 32, color: Colors.white24);
   }
 }
 
@@ -471,11 +459,7 @@ class _QuickAction extends StatelessWidget {
                 color: const Color(0xFFF4F4F4),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
-                icon,
-                size: 22,
-                color: AppColors.primary,
-              ),
+              child: Icon(icon, size: 22, color: AppColors.primary),
             ),
             const SizedBox(height: 6),
             Text(
@@ -498,21 +482,26 @@ class _QuickAction extends StatelessWidget {
 class _ServiceCard extends StatelessWidget {
   final String name;
   final String price;
+  final String image;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _ServiceCard({
     required this.name,
     required this.price,
+    required this.image,
     required this.onEdit,
     required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = image.isNotEmpty
+        ? '${ApiConfig.baseUrl}/uploads/$image'
+        : '';
+
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(14),
+      width: 180,
       decoration: BoxDecoration(
         color: const Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(14),
@@ -521,52 +510,92 @@ class _ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            name,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    height: 90,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return Container(
+                        height: 90,
+                        color: Colors.grey.shade200,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    height: 90,
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            price,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: onEdit,
-                child: Text(
-                  'Edit',
+
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
                   style: GoogleFonts.poppins(
-                    fontSize: 11,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  price,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: onDelete,
-                child: Text(
-                  'Hapus',
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    color: AppColors.error,
-                    fontWeight: FontWeight.w600,
-                  ),
+
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: onEdit,
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    GestureDetector(
+                      onTap: onDelete,
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: AppColors.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -575,19 +604,17 @@ class _ServiceCard extends StatelessWidget {
 }
 
 class _BookingCard extends StatelessWidget {
-  final Map<String, dynamic> booking;
-  final VoidCallback onConfirm;
+  final BookingModel booking;
 
-  const _BookingCard({
-    required this.booking,
-    required this.onConfirm,
-  });
+  const _BookingCard({required this.booking});
 
   @override
   Widget build(BuildContext context) {
-    final isConfirmed = booking['status'] == 'confirmed';
-    final statusColor = isConfirmed ? AppColors.success : AppColors.warning;
-    final statusLabel = isConfirmed ? 'Dikonfirmasi' : 'Menunggu';
+    final statusColor = booking.bookingStatus == 'confirmed'
+        ? AppColors.success
+        : booking.bookingStatus == 'rejected'
+        ? AppColors.error
+        : AppColors.warning;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -605,33 +632,32 @@ class _BookingCard extends StatelessWidget {
               color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
-              child: Text(
-                (booking['customer'] as String)[0],
-                style: GoogleFonts.poppins(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
-              ),
+            child: const Icon(
+              Icons.receipt_long_rounded,
+              color: AppColors.primary,
+              size: 20,
             ),
           ),
+
           const SizedBox(width: 12),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  booking['customer'] as String,
+                  booking.customerName.isEmpty ? 'Customer' : booking.customerName,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${booking['package']} · ${booking['date']}',
+                  '${booking.packageName} · ${booking.eventDate} · ${booking.eventTime}',
                   style: GoogleFonts.poppins(
                     fontSize: 11,
                     color: AppColors.textHint,
@@ -640,11 +666,12 @@ class _BookingCard extends StatelessWidget {
               ],
             ),
           ),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                formatRupiah(booking['amount'] as int),
+                formatRupiah(booking.totalPrice),
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -659,7 +686,7 @@ class _BookingCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  statusLabel,
+                  booking.bookingStatus,
                   style: GoogleFonts.poppins(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -667,20 +694,6 @@ class _BookingCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!isConfirmed) ...[
-                const SizedBox(height: 4),
-                GestureDetector(
-                  onTap: onConfirm,
-                  child: Text(
-                    'Konfirmasi →',
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ],
@@ -790,10 +803,7 @@ class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
 
-  const _EmptyState({
-    required this.icon,
-    required this.message,
-  });
+  const _EmptyState({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -802,11 +812,7 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 36,
-              color: AppColors.textHint,
-            ),
+            Icon(icon, size: 36, color: AppColors.textHint),
             const SizedBox(height: 8),
             Text(
               message,

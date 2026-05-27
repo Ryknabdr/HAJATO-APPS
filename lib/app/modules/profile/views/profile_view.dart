@@ -45,6 +45,11 @@ class ProfileView extends GetView<ProfileController> {
                         onTap: () => Get.toNamed('/profile/notifications'),
                       ),
                       _MenuItem(
+                      icon: Icons.receipt_long_rounded,
+                      label: 'Pesanan Saya',
+                      onTap: () => Get.toNamed('/my-bookings'),
+                    ),
+                      _MenuItem(
                         icon: Icons.phone_outlined,
                         label: 'Nomor Telepon',
                         subtitle: controller.phone.value,
@@ -205,28 +210,42 @@ class ProfileView extends GetView<ProfileController> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 16),
-                    Obx(() => Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.25),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.5), width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              controller.name.value.isNotEmpty
-                                  ? controller.name.value[0].toUpperCase()
-                                  : '?',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 34,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        )),
+Obx(
+  () => Container(
+    width: 80,
+    height: 80,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withOpacity(0.25),
+      border: Border.all(
+        color: Colors.white.withOpacity(0.5),
+        width: 2,
+      ),
+      image: controller.avatarUrl.value.isNotEmpty
+          ? DecorationImage(
+              image: NetworkImage(
+                controller.avatarUrl.value,
+              ),
+              fit: BoxFit.cover,
+            )
+          : null,
+    ),
+    child: controller.avatarUrl.value.isEmpty
+        ? Center(
+            child: Text(
+              controller.name.value.isNotEmpty
+                  ? controller.name.value[0].toUpperCase()
+                  : '?',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 34,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : null,
+  ),
+),
                     const SizedBox(height: 12),
                     Obx(() => Text(
                           controller.name.value,

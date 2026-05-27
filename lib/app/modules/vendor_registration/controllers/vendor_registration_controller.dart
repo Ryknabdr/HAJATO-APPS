@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hajato/app/core/constants/api_config.dart';
+
 class VendorRegistrationController extends GetxController {
 
   // =========================
@@ -83,6 +85,7 @@ class VendorRegistrationController extends GetxController {
     'Wedding Organizer',
     'MC',
     'Venue',
+    'Sound System',
   ];
 
   // =========================
@@ -355,11 +358,11 @@ class VendorRegistrationController extends GetxController {
       final bool isUpgradeVendor =
           registerMode.value == 'upgrade';
 
-      final uri = Uri.parse(
-        isUpgradeVendor
-            ? 'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/vendor/register-vendor'
-            : 'https://unedacious-aerogenically-sammie.ngrok-free.dev/api/auth/register-vendor',
-      );
+final uri = Uri.parse(
+  isUpgradeVendor
+      ? '${ApiConfig.baseUrl}/api/vendor/register-vendor'
+      : '${ApiConfig.baseUrl}/api/auth/register-vendor',
+);
 
       final request =
           http.MultipartRequest(

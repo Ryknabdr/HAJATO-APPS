@@ -1,6 +1,5 @@
 // Data Models for HAJATO
 
-// ─── Vendor Model ───────────────────────────────────────────────────────────────
 class VendorModel {
   final String id;
   final String name;
@@ -31,22 +30,63 @@ class VendorModel {
     required this.startingPrice,
     this.isFeatured = false,
   });
-}
 
+  factory VendorModel.fromJson(Map<String, dynamic> json) {
+    return VendorModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      category: json['category'] ?? '',
+      description: json['description'] ?? '',
+      rating: (json['rating'] ?? 0).toDouble(),
+      reviewCount: json['review_count'] ?? 0,
+      imageUrl: json['image_url'] ?? '',
+      gallery: List<String>.from(json['gallery'] ?? []),
+      packages: (json['packages'] as List? ?? [])
+          .map((e) => ServicePackage.fromJson(e))
+          .toList(),
+      reviews: const [],
+      location: json['location'] ?? '',
+      startingPrice: json['starting_price'] ?? 0,
+      isFeatured: json['is_featured'] ?? false,
+    );
+  }
+}
 class ServicePackage {
   final String id;
   final String name;
+  final String category;
   final String description;
   final int price;
+  final String capacity;
+  final String duration;
   final List<String> features;
+  final String image;
 
   ServicePackage({
     required this.id,
     required this.name,
+    required this.category,
     required this.description,
     required this.price,
+    this.capacity = '',
+    this.duration = '',
     required this.features,
+    this.image = '',
   });
+
+  factory ServicePackage.fromJson(Map<String, dynamic> json) {
+    return ServicePackage(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      category: json['category'] ?? '',
+      description: json['description'] ?? '',
+      price: json['price'] ?? 0,
+      capacity: json['capacity'] ?? '',
+      duration: json['duration'] ?? '',
+      features: List<String>.from(json['features'] ?? []),
+      image: json['image'] ?? '',
+    );
+  }
 }
 
 class ReviewModel {
@@ -67,7 +107,6 @@ class ReviewModel {
   });
 }
 
-// ─── Event Model ─────────────────────────────────────────────────────────────
 class EventModel {
   final String id;
   String namaAcara;
@@ -84,7 +123,6 @@ class EventModel {
   });
 }
 
-// ─── Guest Model ─────────────────────────────────────────────────────────────
 class GuestModel {
   final String id;
   final String nama;
@@ -103,30 +141,55 @@ class GuestModel {
   });
 }
 
-// ─── Booking Model ───────────────────────────────────────────────────────────
 class BookingModel {
   final String id;
-  final String vendorId;
+  final String customerName;
   final String vendorName;
-  final String packageId;
   final String packageName;
-  DateTime bookingDate;
-  String status; // pending, confirmed, cancelled
+  final String eventDate;
+  final String eventTime;
+  final String location;
+  final String paymentMethod;
   final int totalPrice;
+  final String bookingStatus;
+  final String paymentStatus;
+  final String vendorPayoutStatus;
+  final String paymentProof;
 
   BookingModel({
     required this.id,
-    required this.vendorId,
+    required this.customerName,
     required this.vendorName,
-    required this.packageId,
     required this.packageName,
-    required this.bookingDate,
-    required this.status,
+    required this.eventDate,
+    required this.eventTime,
+    required this.location,
+    required this.paymentMethod,
     required this.totalPrice,
+    required this.bookingStatus,
+    required this.paymentStatus,
+    required this.vendorPayoutStatus,
+    required this.paymentProof,
   });
-}
 
-// ─── Chat Message Model ───────────────────────────────────────────────────────
+  factory BookingModel.fromJson(Map<String, dynamic> json) {
+    return BookingModel(
+      id: json['id'] ?? '',
+      customerName: json['customer_name'] ?? '',
+      vendorName: json['vendor_name'] ?? '',
+      packageName: json['package_name'] ?? '',
+      eventDate: json['event_date'] ?? '',
+      eventTime: json['event_time'] ?? '',
+      location: json['location'] ?? '',
+      paymentMethod: json['payment_method'] ?? '',
+      totalPrice: json['total_price'] ?? 0,
+      bookingStatus: json['booking_status'] ?? '',
+      paymentStatus: json['payment_status'] ?? '',
+      vendorPayoutStatus: json['vendor_payout_status'] ?? '',
+      paymentProof: json['payment_proof'] ?? '',
+    );
+  }
+}
 class MessageModel {
   final String id;
   final String senderId;
