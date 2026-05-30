@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../controllers/booking_detail_controller.dart';
-import 'dart:io';
-import '../../../core/constants/api_config.dart';
+// import 'dart:io';
+// import '../../../core/constants/api_config.dart';
 
 class BookingDetailView extends GetView<BookingDetailController> {
   const BookingDetailView({super.key});
@@ -59,7 +59,7 @@ class BookingDetailView extends GetView<BookingDetailController> {
                   const SizedBox(height: 20),
 
                   _StatusChip(
-                    label: booking.bookingStatus,
+                    label: _statusText(booking.bookingStatus),
                     color: _statusColor(booking.bookingStatus),
                   ),
                 ],
@@ -99,13 +99,15 @@ class BookingDetailView extends GetView<BookingDetailController> {
                 _DetailItem(
                   icon: Icons.payments_rounded,
                   label: 'Metode',
-                  value: booking.paymentMethod,
+                  value: booking.paymentMethod == 'midtrans'
+                      ? 'Midtrans'
+                      : booking.paymentMethod,
                 ),
 
                 _DetailItem(
                   icon: Icons.receipt_long_rounded,
-                  label: 'Status Payment',
-                  value: booking.paymentStatus,
+                  label: 'Status Pembayaran',
+                  value: _statusText(booking.paymentStatus),
                 ),
               ],
             ),
@@ -115,78 +117,21 @@ class BookingDetailView extends GetView<BookingDetailController> {
             const SizedBox(height: 18),
 
             _DetailCard(
-              title: 'Bukti Pembayaran',
+              title: 'Pembayaran Midtrans',
               children: [
-                Obx(() {
-                  final image = controller.selectedImage.value;
-
-                  if (image != null) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-
-                      child: Image.file(
-                        image,
-                        height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }
-
-                  if (booking.paymentProof.isNotEmpty) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-
-                      child: Image.network(
-                        '${ApiConfig.baseUrl}/uploads/payment_proofs/${booking.paymentProof}',
-                        height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }
-
-                  return Text(
-                    'Belum ada gambar dipilih',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: booking.paymentStatus == 'paid'
+                        ? null
+                        : controller.payWithMidtrans,
+                    icon: const Icon(Icons.payment_rounded),
+                    label: Text(
+                      booking.paymentStatus == 'paid'
+                          ? 'Sudah Dibayar'
+                          : 'Bayar dengan Midtrans',
                     ),
-                  );
-                }),
-
-                const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed:
-                            booking.paymentStatus ==
-                                    'waiting_admin_verification' ||
-                                booking.paymentStatus == 'paid'
-                            ? null
-                            : controller.pickPaymentProof,
-                        icon: const Icon(Icons.image_rounded),
-                        label: const Text('Pilih Bukti'),
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed:
-                            booking.paymentStatus ==
-                                    'waiting_admin_verification' ||
-                                booking.paymentStatus == 'paid'
-                            ? null
-                            : controller.uploadPaymentProof,
-                        icon: const Icon(Icons.upload_rounded),
-                        label: const Text('Upload'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -199,18 +144,22 @@ class BookingDetailView extends GetView<BookingDetailController> {
                 _TimelineItem(title: 'Booking Dibuat', active: true),
 
                 _TimelineItem(
-                  title: 'Bukti Pembayaran Diupload',
-                  active: booking.paymentProof.isNotEmpty,
+                  title: 'Pembayaran Berhasil',
+                  active: booking.paymentStatus == 'paid',
                 ),
 
                 _TimelineItem(
                   title: 'Booking Dikonfirmasi',
-                  active: booking.bookingStatus == 'confirmed',
+                  active:
+                      booking.bookingStatus == 'confirmed' ||
+                      booking.bookingStatus == 'completed',
                 ),
 
                 _TimelineItem(
                   title: 'Dana Ditahan Sistem',
-                  active: booking.vendorPayoutStatus == 'hold',
+                  active:
+                      booking.vendorPayoutStatus == 'hold' ||
+                      booking.vendorPayoutStatus == 'released',
                 ),
 
                 _TimelineItem(
@@ -269,6 +218,31 @@ class BookingDetailView extends GetView<BookingDetailController> {
     }
 
     return AppColors.warning;
+  }
+
+  String _statusText(String status) {
+    switch (status) {
+      case 'pending_payment':
+        return 'Menunggu Pembayaran';
+
+      case 'paid':
+        return 'Sudah Dibayar';
+
+      case 'confirmed':
+        return 'Dikonfirmasi';
+
+      case 'completed':
+        return 'Selesai';
+
+      case 'released':
+        return 'Dana Dicairkan';
+
+      case 'hold':
+        return 'Dana Ditahan';
+
+      default:
+        return status;
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:hajato/app/core/constants/api_config.dart';
 
@@ -28,6 +29,32 @@ class LoginController extends GetxController {
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
+
+  Future<void> saveFCMToken(String jwtToken) async {
+  try {
+    final fcmToken =
+        await FirebaseMessaging.instance.getToken();
+
+    if (fcmToken == null) return;
+
+    await http.post(
+      Uri.parse(
+        '${ApiConfig.baseUrl}/api/auth/save-fcm-token',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+      body: jsonEncode({
+        'fcm_token': fcmToken,
+      }),
+    );
+
+    print('FCM TOKEN SAVED');
+  } catch (e) {
+    print('SAVE FCM ERROR: $e');
+  }
+}
 
   Future<void> login() async {
     if (!formKey.currentState!.validate()) return;
@@ -69,6 +96,7 @@ class LoginController extends GetxController {
         await prefs.setString('vendor_status', vendorStatus);
         await prefs.setString('business_name', businessName);
         await prefs.setString('photo_url', photoUrl);
+        await saveFCMToken(token);
         print("TOKEN : $token");
         print("ROLE : $role");
         print("VENDOR STATUS : $vendorStatus");
@@ -183,6 +211,7 @@ Future<void> loginWithGoogle() async {
       await prefs.setString('vendor_status', vendorStatus);
       await prefs.setString('business_name', businessName);
       await prefs.setString('photo_url', photoUrl);
+      await saveFCMToken(token);
 
       Get.snackbar(
         'Berhasil',

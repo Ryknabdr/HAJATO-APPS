@@ -147,19 +147,19 @@ class MyBookingsView extends GetView<MyBookingsController> {
                         runSpacing: 8,
                         children: [
 
-                          _StatusChip(
-                            label: booking.bookingStatus,
-                            color: _statusColor(
-                              booking.bookingStatus,
-                            ),
-                          ),
+_StatusChip(
+  label: _statusText(booking.bookingStatus),
+  color: _statusColor(
+    booking.bookingStatus,
+  ),
+),
 
-                          _StatusChip(
-                            label: booking.paymentStatus,
-                            color: _statusColor(
-                              booking.paymentStatus,
-                            ),
-                          ),
+_StatusChip(
+  label: _statusText(booking.paymentStatus),
+  color: _statusColor(
+    booking.paymentStatus,
+  ),
+),
                         ],
                       ),
 
@@ -206,6 +206,33 @@ class MyBookingsView extends GetView<MyBookingsController> {
 
     return AppColors.warning;
   }
+
+  String _statusText(String status) {
+
+  switch (status) {
+
+    case 'pending_payment':
+      return 'Menunggu Pembayaran';
+
+    case 'paid':
+      return 'Sudah Dibayar';
+
+    case 'confirmed':
+      return 'Dikonfirmasi';
+
+    case 'completed':
+      return 'Selesai';
+
+    case 'released':
+      return 'Dana Dicairkan';
+
+    case 'hold':
+      return 'Dana Ditahan';
+
+    default:
+      return status;
+  }
+}
 }
 
 class _StatusChip extends StatelessWidget {

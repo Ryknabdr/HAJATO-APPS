@@ -95,8 +95,50 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
               ),
 
               GestureDetector(
-                onTap: () {},
-                child: _HeaderIcon(icon: Icons.notifications_outlined),
+                onTap: () async {
+                  await Get.toNamed(AppRoutes.notification);
+
+                  controller.fetchUnreadNotifications();
+                },
+                child: Obx(
+                  () => Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const _HeaderIcon(
+                        icon: Icons.notifications_outlined,
+                      ),
+
+                      if (controller.unreadNotifications.value > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                controller.unreadNotifications.value > 99
+                                    ? '99+'
+                                    : controller.unreadNotifications.value.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
 
               const SizedBox(width: 8),

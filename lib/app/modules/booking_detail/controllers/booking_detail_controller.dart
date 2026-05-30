@@ -1,91 +1,53 @@
-import 'package:get/get.dart';
+import 'dart:convert';
 
-import '../../../data/models/models.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../core/constants/api_config.dart';
+import '../../../data/models/models.dart';
 
 class BookingDetailController extends GetxController {
-
   late BookingModel booking;
-  final selectedImage = Rx<File?>(null);
 
   @override
   void onInit() {
     super.onInit();
-
     booking = Get.arguments as BookingModel;
   }
 
-  Future<void> pickPaymentProof() async {
-  final picker = ImagePicker();
+  Future<void> payWithMidtrans() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
 
-  final picked = await picker.pickImage(
-    source: ImageSource.gallery,
-    imageQuality: 80,
-  );
-
-  if (picked != null) {
-    selectedImage.value = File(picked.path);
-  }
-}
-
-Future<void> uploadPaymentProof() async {
-
-  if (selectedImage.value == null) {
-
-    Get.snackbar(
-      'Peringatan',
-      'Pilih gambar terlebih dahulu',
-    );
-
-    return;
-  }
-
-  try {
-
-    final prefs = await SharedPreferences.getInstance();
-
-    final token = prefs.getString('token');
-
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse(
-        '${ApiConfig.baseUrl}/api/booking/upload-proof/${booking.id}',
-      ),
-    );
-
-    request.headers['Authorization'] = 'Bearer $token';
-
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        selectedImage.value!.path,
-      ),
-    );
-
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      Get.snackbar(
-        'Berhasil',
-        'Bukti pembayaran berhasil diupload',
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/payment/create/${booking.id}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
-    } else {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final redirectUrl = data['redirect_url'];
 
+        await launchUrl(
+          Uri.parse(redirectUrl),
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        Get.snackbar(
+          'Gagal',
+          'Tidak dapat membuat pembayaran Midtrans',
+        );
+      }
+    } catch (e) {
       Get.snackbar(
         'Error',
-        'Upload gagal',
+        e.toString(),
       );
     }
-
-  } catch (e) {
-
-    print('UPLOAD ERROR: $e');
   }
-}
 }

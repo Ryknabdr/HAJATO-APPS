@@ -66,17 +66,53 @@ class HomeView extends GetView<HomeController> {
           ),
           GestureDetector(
             onTap: controller.goToNotification,
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F4F4),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: const Icon(
-                Icons.notifications_outlined,
-                size: 20,
-                color: Color(0xFF1A1A2E),
+            child: Obx(
+              () => Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF4F4F4),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_outlined,
+                      size: 20,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+
+                  if (controller.unreadNotifications.value > 0)
+                    Positioned(
+                      right: -2,
+                      top: -2,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            controller.unreadNotifications.value > 99
+                                ? '99+'
+                                : controller.unreadNotifications.value.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

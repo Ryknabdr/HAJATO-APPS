@@ -37,12 +37,15 @@ class VendorDashboardController extends GetxController {
 
   final ImagePicker picker = ImagePicker();
 
+  final unreadNotifications = 0.obs;
+
   @override
   void onInit() {
     super.onInit();
     _loadVendorStatus();
     fetchMyServices();
     fetchVendorBookings();
+    fetchUnreadNotifications();
   }
 
   @override
@@ -320,6 +323,30 @@ class VendorDashboardController extends GetxController {
       );
     }
   }
+
+  Future<void> fetchUnreadNotifications() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/notifications/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      unreadNotifications.value = data
+          .where((notif) => notif['is_read'] == false)
+          .length;
+    }
+  } catch (e) {
+    print('FETCH UNREAD NOTIFICATION ERROR: $e');
+  }
+}
 
   void confirmBooking(String id) {
     if (!checkVendorAccess()) return;

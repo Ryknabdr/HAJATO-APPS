@@ -21,6 +21,7 @@ class HomeController extends GetxController {
   final RxList<VendorModel> featuredVendors = <VendorModel>[].obs;
 
   final currentNavIndex = 0.obs;
+  final unreadNotifications = 0.obs;
 
 final categories = [
   {'label': 'Fotografi', 'icon': '📷'},
@@ -34,14 +35,13 @@ final categories = [
   {'label': 'Sound System', 'icon': '🔊'},
 ];
 
-  @override
 @override
 void onInit() {
   super.onInit();
 
   loadUserName();
-
   fetchPublicVendors();
+  fetchUnreadNotifications();
 }
 
   @override
@@ -151,11 +151,36 @@ void changeNav(int index) async {
   }
 }
 
-  void goToNotification() {
-    Get.to(
-      () => const NotifikasiView(),
-      binding: NotifikasiBinding(),
-      transition: Transition.rightToLeft,
+Future<void> fetchUnreadNotifications() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/notifications/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
     );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      unreadNotifications.value =
+          data.where((notif) => notif['is_read'] == false).length;
+    }
+  } catch (e) {
+    print('FETCH USER UNREAD NOTIFICATION ERROR: $e');
   }
+}
+
+void goToNotification() async {
+  await Get.to(
+    () => const NotifikasiView(),
+    binding: NotifikasiBinding(),
+    transition: Transition.rightToLeft,
+  );
+
+  fetchUnreadNotifications();
+}
 }

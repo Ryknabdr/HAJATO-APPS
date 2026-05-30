@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../data/models/models.dart';
-import '../../../routes/app_routes.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../data/models/models.dart';
 import '../../../core/constants/api_config.dart';
 
 class PaymentController extends GetxController {
@@ -17,39 +19,16 @@ class PaymentController extends GetxController {
   late String notes;
   late int totalPrice;
 
-  final selectedMethod = ''.obs;
-  final selectedBank = ''.obs;
-  final selectedEwallet = ''.obs;
   final isLoading = false.obs;
-
-  final banks = [
-    {'id': 'bca', 'label': 'BCA', 'account': '1234567890', 'logo': '🏦'},
-    {'id': 'bni', 'label': 'BNI', 'account': '0987654321', 'logo': '🏦'},
-    {'id': 'bri', 'label': 'BRI', 'account': '1122334455', 'logo': '🏦'},
-    {
-      'id': 'mandiri',
-      'label': 'Mandiri',
-      'account': '5544332211',
-      'logo': '🏦',
-    },
-  ];
-
-  final ewallets = [
-    {'id': 'gopay', 'label': 'GoPay', 'number': '08123456789', 'logo': '💚'},
-    {'id': 'ovo', 'label': 'OVO', 'number': '08234567890', 'logo': '💜'},
-    {'id': 'dana', 'label': 'DANA', 'number': '08345678901', 'logo': '💙'},
-    {
-      'id': 'shopeepay',
-      'label': 'ShopeePay',
-      'number': '08456789012',
-      'logo': '🧡',
-    },
-  ];
+  final paymentSuccess = false.obs;
+  String? bookingId;
 
   @override
   void onInit() {
     super.onInit();
+
     final args = Get.arguments as Map<String, dynamic>;
+
     vendor = args['vendor'] as VendorModel;
     package = args['package'] as ServicePackage;
     eventDate = args['date'] as DateTime;
@@ -63,25 +42,10 @@ class PaymentController extends GetxController {
       DateFormat('dd MMMM yyyy', 'id').format(eventDate);
 
   String get formattedPrice => NumberFormat.currency(
-    locale: 'id',
-    symbol: 'Rp ',
-    decimalDigits: 0,
-  ).format(totalPrice);
-
-  bool get isValid {
-    if (selectedMethod.value == 'transfer')
-      return selectedBank.value.isNotEmpty;
-    if (selectedMethod.value == 'ewallet')
-      return selectedEwallet.value.isNotEmpty;
-    if (selectedMethod.value == 'cod') return true;
-    return false;
-  }
-
-  void selectMethod(String method) {
-    selectedMethod.value = method;
-    selectedBank.value = '';
-    selectedEwallet.value = '';
-  }
+        locale: 'id',
+        symbol: 'Rp ',
+        decimalDigits: 0,
+      ).format(totalPrice);
 
   Future<bool> createBooking() async {
     try {
@@ -89,22 +53,8 @@ class PaymentController extends GetxController {
       final token = prefs.getString('token');
 
       if (token == null) {
-        Get.snackbar(
-          'Error',
-          'Token tidak ditemukan, silakan login ulang',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Error', 'Token tidak ditemukan, silakan login ulang');
         return false;
-      }
-
-      String paymentDetail = '';
-
-      if (selectedMethod.value == 'transfer') {
-        paymentDetail = selectedBank.value;
-      } else if (selectedMethod.value == 'ewallet') {
-        paymentDetail = selectedEwallet.value;
-      } else {
-        paymentDetail = 'cod';
       }
 
       final response = await http.post(
@@ -122,70 +72,70 @@ class PaymentController extends GetxController {
           'event_time': eventTime,
           'location': eventLocation,
           'notes': notes,
-          'payment_method': selectedMethod.value,
-          'payment_detail': paymentDetail,
+          'payment_method': 'midtrans',
+          'payment_detail': 'midtrans',
           'total_price': totalPrice,
         }),
       );
 
-      print('CREATE BOOKING STATUS: ${response.statusCode}');
-      print('CREATE BOOKING BODY: ${response.body}');
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        bookingId = data['booking_id'];
+        return true;
+      }
 
-      return response.statusCode == 201;
+      return false;
     } catch (e) {
       print('CREATE BOOKING ERROR: $e');
       return false;
     }
   }
 
-  void pay() async {
-    if (!isValid) {
-      String msg = selectedMethod.value == 'transfer'
-          ? 'Silakan pilih bank tujuan'
-          : selectedMethod.value == 'ewallet'
-          ? 'Silakan pilih e-wallet'
-          : 'Silakan pilih metode pembayaran';
-      Get.snackbar(
-        'Peringatan',
-        msg,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFFBBF24),
-        colorText: Colors.white,
+  Future<void> payWithMidtrans() async {
+    try {
+      isLoading.value = true;
+
+      final success = await createBooking();
+
+      if (!success || bookingId == null) {
+        Get.snackbar('Error', 'Booking gagal dibuat');
+        return;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/payment/create/$bookingId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
-      return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final redirectUrl = data['redirect_url'];
+        
+
+        await launchUrl(
+          Uri.parse(redirectUrl),
+          mode: LaunchMode.externalApplication,
+        );
+        paymentSuccess.value = true;
+
+        Get.snackbar(
+  'Pembayaran diproses',
+  'Silakan cek status pembayaran di Pesanan Saya',
+);
+
+        
+      } else {
+        Get.snackbar('Gagal', 'Tidak dapat membuat transaksi Midtrans');
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = true;
-
-    final success = await createBooking();
-
-    isLoading.value = false;
-
-    if (!success) {
-      Get.snackbar(
-        'Error',
-        'Booking gagal dibuat',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Pembayaran Berhasil! 🎉'),
-        content: Text(
-          'Pesanan ${vendor.name} untuk ${package.name}\npada $formattedDate telah dikonfirmasi.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.offAllNamed(AppRoutes.home),
-            child: const Text('Kembali ke Beranda'),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -18,6 +18,11 @@ class MyBookingsController extends GetxController {
     super.onInit();
     fetchBookings();
   }
+  @override
+  void onReady() {
+    super.onReady();
+    fetchBookings();
+}
 
   Future<void> fetchBookings() async {
 
