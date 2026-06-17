@@ -7,6 +7,9 @@ import '../../../core/constants/api_config.dart';
 import '../../../data/models/models.dart';
 import '../../../routes/app_routes.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../services/chat_service.dart';
+
 class VendorController extends GetxController {
   final RxList<VendorModel> vendors = <VendorModel>[].obs;
   final RxList<VendorModel> filteredVendors = <VendorModel>[].obs;
@@ -16,6 +19,9 @@ class VendorController extends GetxController {
   final isGridView = false.obs;
   final searchQuery = ''.obs;
   final isLoading = false.obs;
+  final vendorReviews = <ReviewModel>[].obs;
+  final detailRating = 0.0.obs;
+  final detailReviewCount = 0.obs;
 
 final categories = [
   'Semua',
@@ -97,8 +103,11 @@ return ServicePackage(
 );
           }).toList();
 
+          print(e);
+
           return VendorModel(
             id: e['id'] ?? '',
+            vendorUserId: e['vendor_user_id'] ?? '',
             name: e['name'] ?? '',
             category: e['category'] ?? '',
             description: e['description'] ?? '',
@@ -136,6 +145,63 @@ return ServicePackage(
     }
   }
 
+  Future<void> fetchVendorReviews(String vendorId) async {
+    try {
+
+      print('VENDOR ID REVIEW: $vendorId');
+
+      final response = await http.get(
+        Uri.parse(
+          '${ApiConfig.baseUrl}/api/reviews/vendor/$vendorId',
+        ),
+      );
+
+      print('REVIEW STATUS: ${response.statusCode}');
+      print('REVIEW BODY: ${response.body}');
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final List reviews = data['data'] ?? [];
+
+        print('TOTAL REVIEW: ${reviews.length}');
+
+        vendorReviews.assignAll(
+          reviews.map((e) {
+            return ReviewModel(
+              id: e['id'] ?? '',
+              userName: e['customer_name'] ?? '',
+              userAvatar: '',
+              rating: (e['rating'] ?? 0).toDouble(),
+              comment: e['comment'] ?? '',
+              date: e['created_at'] ?? '',
+            );
+          }).toList(),
+        );
+
+        print('OBS REVIEW: ${vendorReviews.length}');
+      }
+    } catch (e) {
+      print('FETCH REVIEW ERROR: $e');
+    }
+  }
+
+  Future<void> fetchVendorRating(String vendorId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/reviews/vendor-rating/$vendorId'),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      detailRating.value = (data['average_rating'] ?? 0).toDouble();
+      detailReviewCount.value = data['total_reviews'] ?? 0;
+    }
+  } catch (e) {
+    print('FETCH VENDOR RATING ERROR: $e');
+  }
+}
   void selectCategory(String cat) {
     selectedCategory.value = cat;
     _applyFilters();
@@ -179,8 +245,15 @@ return ServicePackage(
 
   void goToDetail(VendorModel vendor) {
     selectedVendor = vendor;
-    Get.toNamed(AppRoutes.vendorDetail, arguments: vendor);
-  }
+
+    fetchVendorReviews(vendor.id);
+    fetchVendorRating(vendor.id);
+
+    Get.toNamed(
+      AppRoutes.vendorDetail,
+      arguments: vendor,
+    );
+}
 
   void goToBooking(ServicePackage package) {
     selectedPackage = package;
@@ -201,4 +274,40 @@ return ServicePackage(
   Future<void> refreshVendors() async {
     await fetchVendors();
   }
+
+  Future<void> goToChatVendor() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final userId = prefs.getString('user_id') ?? '';
+  final userName = prefs.getString('name') ?? 'User';
+
+  final vendorId = selectedVendor.id;
+  final vendorUserId = selectedVendor.vendorUserId;
+  final vendorName = selectedVendor.name;
+
+  final chatId = ChatService.getChatId(
+    userId: userId,
+    vendorId: vendorId,
+  );
+
+  await ChatService.createOrUpdateChatRoom(
+    chatId: chatId,
+    userId: userId,
+    userName: userName,
+    vendorId: vendorId,
+    vendorName: vendorName,
+    lastMessage: '',
+  );
+
+  Get.toNamed(
+    AppRoutes.chat,
+    arguments: {
+      'chat_id': chatId,
+      'receiver_name': vendorName,
+      'receiver_id': vendorUserId,
+      'sender_id': userId,
+      'sender_role': 'user',
+    },
+  );
+}
 }

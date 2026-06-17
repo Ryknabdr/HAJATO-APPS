@@ -18,6 +18,7 @@ abstract class AppRoutes {
   static const qrScanner = '/qr-scanner';
   static const dashboard = '/dashboard';
   static const vendorDashboard = '/vendor-dashboard';
+  static const vendorStatistic = '/vendor-statistic';
   static const manageService = '/manage-service';
   static const vendorChat = '/vendor-chat';
   static const chatbot = '/chatbot';
@@ -37,4 +38,5 @@ abstract class AppRoutes {
   static const myBookings = '/my-bookings';
   static const bookingDetail = '/booking-detail';
   static const vendorBookings = '/vendor-bookings';
+  static const vendorSchedule = '/vendor-schedule';
 }

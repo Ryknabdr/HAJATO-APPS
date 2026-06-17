@@ -6,12 +6,15 @@ import 'app/core/theme/app_theme.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'app/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp();await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   await NotificationService.init();
 
   await initializeDateFormatting('id', null);

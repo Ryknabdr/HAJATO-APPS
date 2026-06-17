@@ -14,6 +14,7 @@ class VendorModel {
   final String location;
   final int startingPrice;
   final bool isFeatured;
+  final String vendorUserId;
 
   VendorModel({
     required this.id,
@@ -29,11 +30,13 @@ class VendorModel {
     required this.location,
     required this.startingPrice,
     this.isFeatured = false,
+    required this.vendorUserId,
   });
 
   factory VendorModel.fromJson(Map<String, dynamic> json) {
     return VendorModel(
       id: json['id'] ?? '',
+      vendorUserId: json['vendor_user_id'] ?? '',
       name: json['name'] ?? '',
       category: json['category'] ?? '',
       description: json['description'] ?? '',
@@ -155,6 +158,7 @@ class BookingModel {
   final String paymentStatus;
   final String vendorPayoutStatus;
   final String paymentProof;
+  final bool hasReviewed;
 
   BookingModel({
     required this.id,
@@ -170,6 +174,7 @@ class BookingModel {
     required this.paymentStatus,
     required this.vendorPayoutStatus,
     required this.paymentProof,
+    required this.hasReviewed,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -187,6 +192,7 @@ class BookingModel {
       paymentStatus: json['payment_status'] ?? '',
       vendorPayoutStatus: json['vendor_payout_status'] ?? '',
       paymentProof: json['payment_proof'] ?? '',
+      hasReviewed: json['has_reviewed'] ?? false,
     );
   }
 }
@@ -206,6 +212,90 @@ class MessageModel {
     required this.isMe,
     this.type = MessageType.text,
   });
+}
+
+class VendorScheduleModel {
+  final String id;
+  final String customerName;
+  final String packageName;
+  final String eventDate;
+  final String eventTime;
+  final String location;
+  final String bookingStatus;
+  final String paymentStatus;
+  final int totalPrice;
+
+  VendorScheduleModel({
+    required this.id,
+    required this.customerName,
+    required this.packageName,
+    required this.eventDate,
+    required this.eventTime,
+    required this.location,
+    required this.bookingStatus,
+    required this.paymentStatus,
+    required this.totalPrice,
+  });
+
+  factory VendorScheduleModel.fromJson(Map<String, dynamic> json) {
+    return VendorScheduleModel(
+      id: json['id'] ?? '',
+      customerName: json['customer_name'] ?? '',
+      packageName: json['package_name'] ?? '',
+      eventDate: json['event_date'] ?? '',
+      eventTime: json['event_time'] ?? '',
+      location: json['location'] ?? '',
+      bookingStatus: json['booking_status'] ?? '',
+      paymentStatus: json['payment_status'] ?? '',
+      totalPrice: json['total_price'] ?? 0,
+    );
+  }
+}
+
+class PayoutHistoryModel {
+  final String id;
+  final String customerName;
+  final String packageName;
+  final String eventDate;
+  final int totalPrice;
+  final String status;
+
+  PayoutHistoryModel({
+    required this.id,
+    required this.customerName,
+    required this.packageName,
+    required this.eventDate,
+    required this.totalPrice,
+    required this.status,
+  });
+
+  factory PayoutHistoryModel.fromJson(Map<String, dynamic> json) {
+    return PayoutHistoryModel(
+      id: json['id'] ?? '',
+      customerName: json['customer_name'] ?? '',
+      packageName: json['package_name'] ?? '',
+      eventDate: json['event_date'] ?? '',
+      totalPrice: json['total_price'] ?? 0,
+      status: json['vendor_payout_status'] ?? '',
+    );
+  }
+}
+
+class TopPackageModel {
+  final String packageName;
+  final int totalBooking;
+
+  TopPackageModel({
+    required this.packageName,
+    required this.totalBooking,
+  });
+
+  factory TopPackageModel.fromJson(Map<String, dynamic> json) {
+    return TopPackageModel(
+      packageName: json['package_name'] ?? '',
+      totalBooking: json['total_booking'] ?? 0,
+    );
+  }
 }
 
 enum MessageType { text, image, system }

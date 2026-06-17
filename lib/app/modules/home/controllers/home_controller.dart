@@ -117,11 +117,13 @@ void selectCategory(String cat) {
     );
   }
 
-  void goToVendorDetail(VendorModel vendor) {
-    Get.toNamed(
+  Future<void> goToVendorDetail(VendorModel vendor) async {
+    await Get.toNamed(
       AppRoutes.vendorDetail,
       arguments: vendor,
     );
+
+    await fetchPublicVendors();
   }
 
 void changeNav(int index) async {

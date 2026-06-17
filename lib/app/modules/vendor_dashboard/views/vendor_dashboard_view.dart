@@ -8,6 +8,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/constants/api_config.dart';
 import '../../../routes/app_routes.dart';
 import '../../../data/models/models.dart';
+import '../../../services/chat_service.dart';
 
 class VendorDashboardView extends GetView<VendorDashboardController> {
   const VendorDashboardView({super.key});
@@ -17,15 +18,17 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: _buildHeader()),
-          SliverToBoxAdapter(child: _buildStats()),
-          SliverToBoxAdapter(child: _buildQuickActions()),
-          SliverToBoxAdapter(child: _buildServices()),
-          SliverToBoxAdapter(child: _buildBookings()),
-          SliverToBoxAdapter(child: _buildReviews()),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+      slivers: [
+        SliverToBoxAdapter(child: _buildHeader()),
+        SliverToBoxAdapter(child: _buildStats()),
+        SliverToBoxAdapter(child: _buildExtraStats()),
+        SliverToBoxAdapter(child: _buildQuickActions()),
+        SliverToBoxAdapter(child: _buildServices()),
+        SliverToBoxAdapter(child: _buildBookings()),
+        SliverToBoxAdapter(child: _buildPayoutHistory()),
+        SliverToBoxAdapter(child: _buildReviews()),
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+      ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: controller.goToNewService,
@@ -143,10 +146,78 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
 
               const SizedBox(width: 8),
 
-              GestureDetector(
-                onTap: controller.goToVendorChat,
-                child: _HeaderIcon(icon: Icons.chat_bubble_outline_rounded),
-              ),
+              Obx(() {
+                if (controller.vendorId.value.isEmpty) {
+                  return GestureDetector(
+                    onTap: controller.goToVendorChat,
+                    child: _HeaderIcon(
+                      icon: Icons.chat_bubble_outline_rounded,
+                    ),
+                  );
+                }
+
+                return StreamBuilder(
+                  stream: ChatService.getUnreadVendorChats(
+                    controller.vendorId.value,
+                  ),
+                  builder: (context, snapshot) {
+                    final unreadCount = snapshot.hasData
+                        ? snapshot.data!.docs.fold<int>(
+                            0,
+                            (sum, doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+
+                              return sum + ((data['unread_vendor'] ?? 0) as int);
+                            },
+                          )
+                        : 0;
+
+                    print('TOTAL UNREAD CHAT: $unreadCount');
+
+                    return GestureDetector(
+                      onTap: controller.goToVendorChat,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          _HeaderIcon(
+                            icon: Icons.chat_bubble_outline_rounded,
+                          ),
+
+                          if (unreadCount > 0)
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 20,
+                                  minHeight: 20,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 2,
+                                ),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    unreadCount > 99 ? '99+' : '$unreadCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
 
               const SizedBox(width: 8),
 
@@ -161,7 +232,13 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
 
           Row(
             children: [
-              _Chip(label: '⭐ 4.9', color: AppColors.warning),
+              Obx(
+                () => _Chip(
+                  label:
+                      '⭐ ${controller.averageRating.value.toStringAsFixed(1)}',
+                  color: AppColors.warning,
+                ),
+              ),
               const SizedBox(width: 6),
               Obx(
                 () => _Chip(
@@ -211,8 +288,8 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
             _VertDivider(),
             Obx(
               () => _StatCol(
-                value: '${controller.services.length}',
-                label: 'Layanan',
+                value: controller.averageRating.value.toStringAsFixed(1),
+                label: 'Rating',
               ),
             ),
           ],
@@ -220,6 +297,79 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
       ),
     );
   }
+
+  Widget _buildExtraStats() {
+  return Container(
+    color: Colors.white,
+    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+    child: Column(
+      children: [
+
+        Row(
+          children: [
+
+            Expanded(
+              child: Obx(
+                () => _InfoStatCard(
+                  title: 'Booking Selesai',
+                  value:
+                      '${controller.completedBooking.value}',
+                  icon: Icons.check_circle_rounded,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: Obx(
+                () => _InfoStatCard(
+                  title: 'Total Ulasan',
+                  value:
+                      '${controller.totalReviews.value}',
+                  icon: Icons.star_rounded,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        Row(
+          children: [
+
+            Expanded(
+              child: Obx(
+                () => _InfoStatCard(
+                  title: 'Dana Dicairkan',
+                  value: formatRupiah(
+                    controller.danaDicairkan.value,
+                  ),
+                  icon: Icons.account_balance_wallet_rounded,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: Obx(
+                () => _InfoStatCard(
+                  title: 'Dana Ditahan',
+                  value: formatRupiah(
+                    controller.danaDitahan.value,
+                  ),
+                  icon: Icons.lock_clock_rounded,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildQuickActions() {
     return _Section(
@@ -314,29 +464,77 @@ class VendorDashboardView extends GetView<VendorDashboardController> {
     );
   }
 
+  Widget _buildPayoutHistory() {
+  return _Section(
+    title: 'Riwayat Pencairan Dana',
+    child: Obx(
+      () => controller.payouts.isEmpty
+          ? const _EmptyState(
+              icon: Icons.account_balance_wallet_outlined,
+              message: 'Belum ada dana dicairkan',
+            )
+          : Column(
+              children: controller.payouts.take(3).map((payout) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _PayoutCard(payout: payout),
+                );
+              }).toList(),
+            ),
+    ),
+  );
+}
+
   Widget _buildReviews() {
     return _Section(
       title: 'Ulasan Terbaru',
-      child: Column(
-        children: const [
-          _ReviewCard(
-            name: 'Siti Rahayu',
-            rating: 5,
-            comment:
-                'Pelayanannya sangat memuaskan! Dekorasi sesuai ekspektasi dan tim sangat profesional.',
-            date: '15 Mei 2025',
-          ),
-          SizedBox(height: 8),
-          _ReviewCard(
-            name: 'Ahmad Fauzi',
-            rating: 4,
-            comment:
-                'Koordinasi acara berjalan lancar. Sangat direkomendasikan.',
-            date: '2 Apr 2025',
-          ),
-        ],
+      child: Obx(
+        () => controller.reviews.isEmpty
+            ? const _EmptyState(
+                icon: Icons.star_outline_rounded,
+                message: 'Belum ada ulasan',
+              )
+            : Column(
+                children: controller.reviews.take(3).map((review) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _ReviewCard(
+                      name: review.userName,
+                      rating: review.rating.toInt(),
+                      comment: review.comment,
+                      date: review.date,
+                    ),
+                  );
+                }).toList(),
+              ),
       ),
     );
+  }
+}
+
+String _formatDate(String dateString) {
+  try {
+    final date = DateTime.parse(dateString);
+
+    const months = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    return '${date.day} ${months[date.month]} ${date.year}';
+  } catch (e) {
+    return dateString;
   }
 }
 
@@ -473,6 +671,66 @@ class _VertDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(width: 1, height: 32, color: Colors.white24);
+  }
+}
+
+class _InfoStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+
+  const _InfoStatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFFEEEEEE),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+
+          Icon(
+            icon,
+            color: AppColors.primary,
+            size: 22,
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              color: AppColors.textHint,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -744,6 +1002,76 @@ class _BookingCard extends StatelessWidget {
   }
 }
 
+class _PayoutCard extends StatelessWidget {
+  final PayoutHistoryModel payout;
+
+  const _PayoutCard({required this.payout});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet_rounded,
+              color: AppColors.success,
+              size: 20,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  payout.packageName,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${payout.customerName} · ${payout.eventDate}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color: AppColors.textHint,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Text(
+            formatRupiah(payout.totalPrice),
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.success,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ReviewCard extends StatelessWidget {
   final String name;
   final int rating;
@@ -803,7 +1131,7 @@ class _ReviewCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      date,
+                      _formatDate(date),
                       style: GoogleFonts.poppins(
                         fontSize: 11,
                         color: AppColors.textHint,

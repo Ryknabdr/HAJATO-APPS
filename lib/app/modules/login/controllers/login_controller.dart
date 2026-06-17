@@ -77,6 +77,7 @@ class LoginController extends GetxController {
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final token = data['token'] ?? '';
+        final userId = data['user_id'] ?? '';
         final name = data['name'] ?? '';
         final email = data['email'] ?? '';
         final role = data['role'] ?? '';
@@ -89,6 +90,7 @@ class LoginController extends GetxController {
         await prefs.clear();
 
         await prefs.setString('token', token);
+        await prefs.setString('user_id', userId);
         await prefs.setString('name', name);
         await prefs.setString('email', email);
         await prefs.setString('phone', phone);
@@ -193,6 +195,7 @@ Future<void> loginWithGoogle() async {
 
     if (response.statusCode == 200) {
       final token = data['token'] ?? '';
+      final userId = data['user_id'] ?? '';
       final name = data['name'] ?? '';
       final email = data['email'] ?? '';
       final role = data['role'] ?? '';
@@ -204,6 +207,7 @@ Future<void> loginWithGoogle() async {
 
       await prefs.clear();
       await prefs.setString('token', token);
+      await prefs.setString('user_id', userId);
       await prefs.setString('name', name);
       await prefs.setString('email', email);
       await prefs.setString('phone', phone);

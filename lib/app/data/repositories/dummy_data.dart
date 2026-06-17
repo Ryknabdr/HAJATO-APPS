@@ -4,6 +4,7 @@ class DummyData {
   static final List<VendorModel> vendors = [
     VendorModel(
       id: 'v1',
+      vendorUserId: '',
       name: 'Lensa Pro Studio',
       category: 'Fotografer',
       description:
@@ -51,6 +52,7 @@ class DummyData {
 
     VendorModel(
       id: 'v2',
+      vendorUserId: '',
       name: 'Nusantara Catering',
       category: 'Catering',
       description: 'Catering terpercaya untuk berbagai acara.',
@@ -83,6 +85,7 @@ class DummyData {
 
     VendorModel(
       id: 'v3',
+      vendorUserId: '',
       name: 'Elegance Tent & Dekor',
       category: 'Tenda',
       description: 'Penyedia tenda dan dekorasi premium.',
@@ -115,6 +118,7 @@ class DummyData {
 
     VendorModel(
       id: 'v4',
+      vendorUserId: '',
       name: 'Mawar Jambon',
       category: 'Makeup',
       description: 'Makeup artist profesional.',
@@ -145,6 +149,7 @@ class DummyData {
 
     VendorModel(
       id: 'v5',
+      vendorUserId: '',
       name: 'Vendorindo',
       category: 'Sound System',
       description: 'Penyewaan sound system profesional.',
@@ -175,6 +180,7 @@ class DummyData {
 
     VendorModel(
       id: 'v6',
+      vendorUserId: '',
       name: 'Mahkota Wedding Organizer',
       category: 'Wedding Organizer',
       description: 'Wedding organizer terpercaya.',

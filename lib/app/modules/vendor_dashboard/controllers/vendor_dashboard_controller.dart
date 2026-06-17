@@ -13,12 +13,23 @@ import '../../../core/constants/api_config.dart';
 class VendorDashboardController extends GetxController {
   final services = <ServicePackage>[].obs;
   final bookings = <BookingModel>[].obs;
+  final reviews = <ReviewModel>[].obs;
+  final payouts = <PayoutHistoryModel>[].obs;
+  final schedules = <VendorScheduleModel>[].obs;
+  final topPackages = <TopPackageModel>[].obs;
 
   final totalPendapatan = 0.obs;
   final totalBooking = 0.obs;
 
+  final completedBooking = 0.obs;
+  final danaDicairkan = 0.obs;
+  final danaDitahan = 0.obs;
+  final averageRating = 0.0.obs;
+  final totalReviews = 0.obs;
+
   final vendorStatus = ''.obs;
   final businessName = ''.obs;
+  final vendorId = ''.obs;
   final isVerified = false.obs;
 
   final serviceName = ''.obs;
@@ -46,6 +57,11 @@ class VendorDashboardController extends GetxController {
     fetchMyServices();
     fetchVendorBookings();
     fetchUnreadNotifications();
+    fetchDashboardStats();
+    fetchVendorReviews();
+    fetchPayoutHistory();
+    fetchVendorSchedule();
+    
   }
 
   @override
@@ -324,6 +340,167 @@ class VendorDashboardController extends GetxController {
     }
   }
 
+  Future<void> fetchDashboardStats() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/vendor/dashboard-stats'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('DASHBOARD STATS STATUS: ${response.statusCode}');
+    print('DASHBOARD STATS BODY: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+
+        vendorId.value = data['vendor_id'] ?? '';
+
+        print('VENDOR ID CHAT: ${vendorId.value}');
+
+      totalBooking.value = data['total_booking'] ?? 0;
+      completedBooking.value = data['completed_booking'] ?? 0;
+      totalPendapatan.value = data['total_pendapatan'] ?? 0;
+      danaDicairkan.value = data['dana_dicairkan'] ?? 0;
+      danaDitahan.value = data['dana_ditahan'] ?? 0;
+      averageRating.value = (data['average_rating'] ?? 0).toDouble();
+      totalReviews.value = data['total_reviews'] ?? 0;
+      final List packageData = data['top_packages'] ?? [];
+
+      topPackages.assignAll(
+        packageData.map(
+          (e) => TopPackageModel.fromJson(e),
+        ).toList(),
+      );
+      
+      print('TOP PACKAGE: ${topPackages.length}');
+
+    }
+  } catch (e) {
+    print('FETCH DASHBOARD STATS ERROR: $e');
+  }
+}
+
+Future<void> fetchVendorReviews() async {
+  print('MASUK FETCH VENDOR REVIEWS');
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final statsResponse = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/vendor/dashboard-stats'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('STATS FOR REVIEW STATUS: ${statsResponse.statusCode}');
+    print('STATS FOR REVIEW BODY: ${statsResponse.body}');
+
+    if (statsResponse.statusCode != 200) return;
+
+    final statsData = jsonDecode(statsResponse.body);
+    final vendorId = statsData['vendor_id'];
+
+    print('VENDOR ID DASHBOARD: $vendorId');
+
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/reviews/vendor/$vendorId'),
+    );
+
+    print('REVIEW STATUS: ${response.statusCode}');
+    print('REVIEW BODY: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List list = data['data'] ?? [];
+
+      print('TOTAL REVIEW DASHBOARD: ${list.length}');
+
+      reviews.assignAll(
+        list.map((e) {
+          return ReviewModel(
+            id: e['id'] ?? '',
+            userName: e['customer_name'] ?? '',
+            userAvatar: '',
+            rating: (e['rating'] ?? 0).toDouble(),
+            comment: e['comment'] ?? '',
+            date: e['created_at'] ?? '',
+          );
+        }).toList(),
+      );
+    }
+  } catch (e, s) {
+    print('FETCH DASHBOARD REVIEW ERROR: $e');
+    print(s);
+  }
+}
+
+Future<void> fetchPayoutHistory() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/vendor/payout-history'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('PAYOUT STATUS: ${response.statusCode}');
+    print('PAYOUT BODY: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      final List list = data['data'] ?? [];
+
+      payouts.assignAll(
+        list.map(
+          (e) => PayoutHistoryModel.fromJson(e),
+        ).toList(),
+      );
+    }
+  } catch (e) {
+    print('FETCH PAYOUT ERROR: $e');
+  }
+}
+
+Future<void> fetchVendorSchedule() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token') ?? '';
+
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/booking/vendor-schedule'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('SCHEDULE STATUS: ${response.statusCode}');
+    print('SCHEDULE BODY: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List list = data['data'] ?? [];
+
+      schedules.assignAll(
+        list.map((e) => VendorScheduleModel.fromJson(e)).toList(),
+      );
+    }
+  } catch (e) {
+    print('FETCH SCHEDULE ERROR: $e');
+  }
+}
+
   Future<void> fetchUnreadNotifications() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token') ?? '';
@@ -377,9 +554,15 @@ class VendorDashboardController extends GetxController {
 
   void goToSchedule() {
     if (!checkVendorAccess()) return;
+
+    Get.toNamed(AppRoutes.vendorSchedule);
   }
 
   void goToStatistic() {
     if (!checkVendorAccess()) return;
+
+    Get.toNamed(
+      AppRoutes.vendorStatistic,
+    );
   }
 }

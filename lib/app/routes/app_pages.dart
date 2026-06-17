@@ -58,6 +58,10 @@ import '../modules/booking_detail/bindings/booking_detail_binding.dart';
 import '../modules/booking_detail/views/booking_detail_view.dart';
 import '../modules/vendor_bookings/bindings/vendor_bookings_binding.dart';
 import '../modules/vendor_bookings/views/vendor_bookings_view.dart';
+import '../modules/vendor_dashboard/views/vendor_statistic_view.dart';
+import '../modules/vendor_dashboard/views/vendor_schedule_view.dart';
+import '../modules/chat/views/chat_view.dart';
+import '../modules/vendor_dashboard/views/vendor_chat_list_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -158,7 +162,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.vendorChat,
-      page: () => const VendorChatView(),
+      page: () => const VendorChatListView(),
       binding: VendorDashboardBinding(),
       transition: Transition.rightToLeft,
     ),
@@ -260,5 +264,17 @@ class AppPages {
       page: () => const VendorBookingsView(),
       binding: VendorBookingsBinding(),
     ),
+    GetPage(
+    name: AppRoutes.vendorStatistic,
+    page: () => const VendorStatisticView(),
+  ),
+    GetPage(
+    name: AppRoutes.vendorSchedule,
+    page: () => const VendorScheduleView(),
+  ),
+    GetPage(
+    name: AppRoutes.chat,
+    page: () => const ChatView(),
+  ),
   ];
 }

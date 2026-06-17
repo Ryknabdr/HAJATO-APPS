@@ -175,6 +175,106 @@ _StatusChip(
                           color: AppColors.primary,
                         ),
                       ),
+                      if (booking.bookingStatus == 'completed') ...[
+                        const SizedBox(height: 12),
+
+                        if (booking.hasReviewed)
+                          Text(
+                            'Ulasan sudah dikirim',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.success,
+                            ),
+                          )
+                        else
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                            onPressed: () {
+
+                              final commentController = TextEditingController();
+
+                              int rating = 5;
+
+                              Get.dialog(
+                                AlertDialog(
+                                  title: const Text('Beri Ulasan'),
+
+                                  content: StatefulBuilder(
+                                    builder: (context, setState) {
+
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: List.generate(5, (index) {
+    final starValue = index + 1;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          rating = starValue;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Icon(
+          starValue <= rating
+              ? Icons.star_rounded
+              : Icons.star_border_rounded,
+          color: AppColors.warning,
+          size: 34,
+        ),
+      ),
+    );
+  }),
+),
+
+                                          const SizedBox(height: 12),
+
+                                          TextField(
+                                            controller: commentController,
+                                            maxLines: 4,
+                                            decoration: const InputDecoration(
+                                              hintText: 'Tulis ulasan...',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+
+                                  actions: [
+
+                                    TextButton(
+                                      onPressed: () => Get.back(),
+                                      child: const Text('Batal'),
+                                    ),
+
+                                    ElevatedButton(
+                                      onPressed: () {
+
+                                        controller.submitReview(
+                                          bookingId: booking.id,
+                                          rating: rating,
+                                          comment: commentController.text,
+                                        );
+                                      },
+                                      child: const Text('Kirim'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                              icon: const Icon(Icons.star_rounded),
+                              label: const Text('Beri Ulasan'),
+                            ),
+                          ),
+                      ],
                     ],
                   ),
                 ),

@@ -63,4 +63,55 @@ class MyBookingsController extends GetxController {
 
     }
   }
+  Future<void> submitReview({
+  required String bookingId,
+  required int rating,
+  required String comment,
+}) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/api/reviews/create'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'booking_id': bookingId,
+        'rating': rating,
+        'comment': comment,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 201) {
+      Get.back();
+
+      Get.snackbar(
+        'Berhasil',
+        data['message'] ?? 'Ulasan berhasil dikirim',
+        snackPosition: SnackPosition.TOP,
+      );
+
+      await fetchBookings();
+    } else {
+      Get.snackbar(
+        'Gagal',
+        data['message'] ?? 'Gagal mengirim ulasan',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  } catch (e) {
+    print('SUBMIT REVIEW ERROR: $e');
+
+    Get.snackbar(
+      'Error',
+      'Tidak dapat terhubung ke server',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+}
 }

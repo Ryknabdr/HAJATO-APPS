@@ -13,9 +13,15 @@ class VendorDetailView extends GetView<VendorController> {
 
   @override
   Widget build(BuildContext context) {
-    final vendor = Get.arguments as VendorModel? ?? controller.selectedVendor;
-    final pageController = PageController();
-    final currentPage = 0.obs;
+  final vendor = Get.arguments as VendorModel? ?? controller.selectedVendor;
+  final pageController = PageController();
+  final currentPage = 0.obs;
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    controller.selectedVendor = vendor;
+    controller.fetchVendorReviews(vendor.id);
+    controller.fetchVendorRating(vendor.id);
+  });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -142,14 +148,31 @@ class VendorDetailView extends GetView<VendorController> {
           const SizedBox(height: 8),
           Row(children: [
             const Icon(Icons.location_on_rounded, size: 14, color: AppColors.textSecondary),
-            const SizedBox(width: 4),
+            const SizedBox(width: 4), 
             Text(vendor.location, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
             const Spacer(),
             const Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
             const SizedBox(width: 3),
-            Text('${vendor.rating}', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700)),
-            Text(' (${vendor.reviewCount} ulasan)',
-                style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary)),
+
+            Obx(
+              () => Text(
+                controller.detailRating.value.toStringAsFixed(1),
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+
+            Obx(
+              () => Text(
+                ' (${controller.detailReviewCount.value} ulasan)',
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
           ]),
           const SizedBox(height: 12),
           Row(children: [
@@ -309,50 +332,125 @@ const SizedBox(height: 12),
 }
 
   Widget _buildReviews(VendorModel vendor) {
-    if (vendor.reviews.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Text('Belum ada ulasan', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
-      );
-    }
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: vendor.reviews.length,
-      separatorBuilder: (_, __) => const Divider(height: 20),
-      itemBuilder: (_, i) {
-        final rev = vendor.reviews[i];
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              child: Text(rev.userName[0], style: GoogleFonts.poppins(color: AppColors.primary, fontWeight: FontWeight.w700)),
+    return Obx(() {
+
+      if (controller.vendorReviews.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Belum ada ulasan',
+            style: GoogleFonts.poppins(
+              color: AppColors.textSecondary,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Text(rev.userName, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
-                    const Spacer(),
-                    RatingStars(rating: rev.rating, size: 12),
-                  ]),
-                  const SizedBox(height: 2),
-                  Text(rev.date, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textHint)),
-                  const SizedBox(height: 4),
-                  Text(rev.comment, style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary, height: 1.5)),
-                ],
-              ),
-            ),
-          ],
+          ),
         );
-      },
-    );
+      }
+
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: controller.vendorReviews.length,
+        separatorBuilder: (_, __) => const Divider(height: 20),
+        itemBuilder: (_, i) {
+
+          final rev = controller.vendorReviews[i];
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              CircleAvatar(
+                radius: 20,
+                backgroundColor:
+                    AppColors.primary.withOpacity(0.1),
+                child: Text(
+                  rev.userName.isNotEmpty
+                      ? rev.userName[0].toUpperCase()
+                      : '?',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      rev.userName,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    RatingStars(
+                      rating: rev.rating,
+                      size: 12,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      rev.comment,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Text(
+                      _formatDate(rev.date),
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: AppColors.textHint,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        },
+      );
+    });
   }
+
+  String _formatDate(String dateString) {
+  try {
+    final date = DateTime.parse(dateString);
+
+    const months = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    return '${date.day} ${months[date.month]} ${date.year}';
+  } catch (e) {
+    return dateString;
+  }
+}
 
   Widget _buildBottomBar(VendorModel vendor) {
     return Container(
@@ -364,7 +462,7 @@ const SizedBox(height: 12),
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Get.toNamed(AppRoutes.chat),
+            onTap: controller.goToChatVendor,
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
