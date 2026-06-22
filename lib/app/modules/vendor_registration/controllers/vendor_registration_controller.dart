@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import '../../../routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -476,40 +477,34 @@ final uri = Uri.parse(
       // SUCCESS
       // =========================
 
+      print("REGISTER MODE : ${registerMode.value}");
+      print("IS UPGRADE VENDOR : $isUpgradeVendor");
+      print("EMAIL VENDOR : ${emailController.text.trim()}");
+
       if (response.statusCode == 200 ||
           response.statusCode == 201) {
 
-        // REGISTER LANGSUNG
-        if (!isUpgradeVendor &&
-            data['token'] != null) {
-
-          await prefs.setString(
-            'token',
-            data['token'],
-          );
-
-          await prefs.setString(
-            'role',
-            data['role'] ?? '',
-          );
-
-          await prefs.setString(
-            'vendor_status',
-            data['vendor_status'] ?? '',
-          );
-        }
-
         Get.snackbar(
           'Berhasil',
-          data['message'] ??
-              'Pendaftaran berhasil',
-          snackPosition:
-              SnackPosition.BOTTOM,
+          data['message'] ?? 'Pendaftaran berhasil',
+          snackPosition: SnackPosition.BOTTOM,
         );
 
-        Get.offNamed(
-          '/vendor-registration-status',
-        );
+        if (isUpgradeVendor) {
+          Get.offNamed(
+            '/vendor-registration-status',
+          );
+          } else {
+            await Future.delayed(const Duration(milliseconds: 500));
+
+            Get.toNamed(
+              AppRoutes.verifyOtp,
+              arguments: {
+                'email': emailController.text.trim(),
+                'purpose': 'register',
+              },
+            );
+          }
 
       } else {
 

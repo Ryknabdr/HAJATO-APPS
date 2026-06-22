@@ -62,6 +62,7 @@ class ForgotPasswordController extends GetxController {
           AppRoutes.verifyOtp,
           arguments: {
             'email': emailController.text.trim(),
+            'purpose': 'reset_password',
           },
         );
       } else {

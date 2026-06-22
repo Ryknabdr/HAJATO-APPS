@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import '../../../services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -44,78 +44,81 @@ class RegisterController extends GetxController {
     isAgreeToTerms.value = !isAgreeToTerms.value;
   }
 
-  Future<void> register() async {
-    if (!formKey.currentState!.validate()) return;
+Future<void> register() async {
+  if (!formKey.currentState!.validate()) return;
 
-    if (!isAgreeToTerms.value) {
+  if (!isAgreeToTerms.value) {
+    Get.snackbar(
+      'Peringatan',
+      'Setujui syarat & ketentuan terlebih dahulu',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    return;
+  }
+
+  isLoading.value = true;
+
+  try {
+    final result = await AuthService.register(
+      name: nameController.text.trim(),
+      email: emailController.text.trim(),
+      phone: phoneController.text.trim(),
+      password: passwordController.text.trim(),
+      role: 'user',
+    );
+
+    final statusCode = result['statusCode'];
+    final data = result['data'];
+
+    if (statusCode == 201) {
       Get.snackbar(
-        'Peringatan',
-        'Setujui syarat & ketentuan terlebih dahulu',
-        snackPosition: SnackPosition.BOTTOM,
+        'Berhasil',
+        data['message'] ?? 'Register berhasil. Kode OTP telah dikirim ke email',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 2),
       );
-      return;
-    }
 
-    isLoading.value = true;
+      await Future.delayed(const Duration(seconds: 1));
 
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': nameController.text.trim(),
+      Get.toNamed(
+        AppRoutes.verifyOtp,
+        arguments: {
           'email': emailController.text.trim(),
-          'phone': phoneController.text.trim(),
-          'password': passwordController.text.trim(),
-          'role': 'user',
-        }),
+          'purpose': 'register',
+        },
       );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 201) {
-        Get.snackbar(
-          'Berhasil',
-          'Register berhasil',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 12,
-          duration: const Duration(seconds: 2),
-        );
-
-        await Future.delayed(const Duration(seconds: 1));
-
-        Get.offAllNamed(AppRoutes.login);
-      } else {
-        Get.snackbar(
-          'Register Gagal',
-          data['message'] ?? 'Terjadi kesalahan',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: const Color(0xFFFFEDED),
-          colorText: const Color(0xFF991F1F),
-          margin: const EdgeInsets.all(16),
-          borderRadius: 12,
-          duration: const Duration(seconds: 2),
-        );
-      }
-    } catch (e) {
-      print(e);
-
+    } else {
       Get.snackbar(
-        'Error',
-        'Tidak dapat terhubung ke server',
-        snackPosition: SnackPosition.BOTTOM,
+        'Register Gagal',
+        data['message'] ?? 'Terjadi kesalahan',
+        snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFFFFEDED),
         colorText: const Color(0xFF991F1F),
         margin: const EdgeInsets.all(16),
         borderRadius: 12,
+        duration: const Duration(seconds: 2),
       );
-    } finally {
-      isLoading.value = false;
     }
+  } catch (e) {
+    print("REGISTER CONTROLLER ERROR : $e");
+
+    Get.snackbar(
+      'Error',
+      'Tidak dapat terhubung ke server',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFFFEDED),
+      colorText: const Color(0xFF991F1F),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
+  } finally {
+    isLoading.value = false;
   }
+}
 
   void goToLogin() {
     Get.back();
