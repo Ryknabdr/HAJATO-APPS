@@ -1,4 +1,4 @@
-package com.hajato.hajato
+package com.uhn.hajato
 
 import io.flutter.embedding.android.FlutterActivity
 
