@@ -26,6 +26,7 @@ abstract class AppRoutes {
   static const profileEdit = '/profile/edit';
   static const profileChangePass = '/profile/change-password';
   static const profileNotifications = '/profile/notifications';
+  static const activityLog = '/activity-log';
   static const promo = '/promo';
   static const payment = '/payment';
   static const profileHelp = '/profile/help';
@@ -39,4 +40,6 @@ abstract class AppRoutes {
   static const bookingDetail = '/booking-detail';
   static const vendorBookings = '/vendor-bookings';
   static const vendorSchedule = '/vendor-schedule';
+  static const vendorData = '/vendor-data';
+  static const changePassword = '/change-password';
 }

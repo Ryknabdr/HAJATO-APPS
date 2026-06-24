@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/profile_controller.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../routes/app_routes.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -36,19 +37,21 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                       _MenuItem(
                         icon: Icons.lock_outline_rounded,
-                        label: 'Ganti Kata Sandi',
-                        onTap: () => Get.toNamed('/profile/change-password'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.notifications_outlined,
-                        label: 'Pengaturan Notifikasi',
-                        onTap: () => Get.toNamed('/profile/notifications'),
+                        label: 'Ubah Password',
+                        onTap: () {
+                          Get.toNamed(AppRoutes.changePassword);
+                        },
                       ),
                       _MenuItem(
                       icon: Icons.receipt_long_rounded,
                       label: 'Pesanan Saya',
                       onTap: () => Get.toNamed('/my-bookings'),
                     ),
+                        _MenuItem(
+                        icon: Icons.history_rounded,
+                        label: 'Aktivitas Saya',
+                        onTap: () => Get.toNamed('/activity-log'),
+                      ),
                       _MenuItem(
                         icon: Icons.phone_outlined,
                         label: 'Nomor Telepon',

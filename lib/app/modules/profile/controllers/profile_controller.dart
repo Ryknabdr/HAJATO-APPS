@@ -130,52 +130,73 @@ class ProfileController extends GetxController {
     _showSnackbar('Kata sandi berhasil diubah');
   }
 
-  void logout() async {
-    final prefs = await SharedPreferences.getInstance();
+void logout() async {
+  final prefs = await SharedPreferences.getInstance();
 
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Keluar',
-          style: TextStyle(
-            color: Color(0xFFFF6B2C),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: const Text(
-          'Apakah kamu yakin ingin keluar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Batal',
-              style: TextStyle(color: Color(0xFF8A8278)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await prefs.clear();
-              Get.offAllNamed('/login');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B2C),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Keluar',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
+  Get.dialog(
+    AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-    );
-  }
+      title: const Text(
+        'Keluar',
+        style: TextStyle(
+          color: Color(0xFFFF6B2C),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: const Text(
+        'Apakah kamu yakin ingin keluar?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: const Text(
+            'Batal',
+            style: TextStyle(color: Color(0xFF8A8278)),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final token = prefs.getString('token');
+
+            try {
+              if (token != null && token.isNotEmpty) {
+                final response = await http.post(
+                  Uri.parse('${ApiConfig.baseUrl}/api/auth/logout'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer $token',
+                  },
+                );
+
+                print('LOGOUT STATUS: ${response.statusCode}');
+                print('LOGOUT BODY: ${response.body}');
+              }
+            } catch (e) {
+              print('LOGOUT ERROR: $e');
+            }
+
+            await prefs.clear();
+
+            Get.back();
+            Get.offAllNamed('/login');
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFF6B2C),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'Keluar',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   void deleteAccount() {
     Get.dialog(

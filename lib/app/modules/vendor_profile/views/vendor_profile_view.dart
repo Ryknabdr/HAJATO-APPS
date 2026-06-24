@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../routes/app_routes.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../controllers/vendor_profile_controller.dart';
@@ -114,15 +115,26 @@ class VendorProfileView extends GetView<VendorProfileController> {
               _MenuTile(
                 icon: Icons.storefront_outlined,
                 title: 'Data Vendor',
-                onTap: () {},
+                onTap: () async {
+                  await Get.toNamed(AppRoutes.vendorData);
+                  controller.loadVendorData();
+                },
+              ),
+              _MenuTile(
+                icon: Icons.history_rounded,
+                title: 'Aktivitas Saya',
+                onTap: () {
+                  Get.toNamed('/activity-log');
+                },
               ),
 
               _MenuTile(
                 icon: Icons.lock_outline_rounded,
                 title: 'Ubah Password',
-                onTap: () {},
+                onTap: () {
+                  Get.toNamed(AppRoutes.changePassword);
+                },
               ),
-
               _MenuTile(
                 icon: Icons.info_outline_rounded,
                 title: 'Tentang Aplikasi',

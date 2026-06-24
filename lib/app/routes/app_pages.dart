@@ -32,7 +32,7 @@ import '../modules/login/views/login_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/profile/views/edit_profile_view.dart';
-import '../modules/profile/views/change_password_view.dart';
+// import '../modules/profile/views/change_password_view.dart';
 import '../modules/profile/views/notification_setting_view.dart';
 import '../modules/promo/bindings/promo_binding.dart';
 import '../modules/promo/views/promo_view.dart';
@@ -62,6 +62,12 @@ import '../modules/vendor_dashboard/views/vendor_statistic_view.dart';
 import '../modules/vendor_dashboard/views/vendor_schedule_view.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/vendor_dashboard/views/vendor_chat_list_view.dart';
+import '../modules/activity_log/bindings/activity_log_binding.dart';
+import '../modules/activity_log/views/activity_log_view.dart';
+import '../modules/vendor_data/bindings/vendor_data_binding.dart';
+import '../modules/vendor_data/views/vendor_data_view.dart';
+import '../modules/change_password/bindings/change_password_binding.dart';
+import '../modules/change_password/views/change_password_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -185,15 +191,21 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-      name: AppRoutes.profileChangePass,
+      name: AppRoutes.changePassword,
       page: () => const ChangePasswordView(),
-      binding: ProfileBinding(),
+      binding: ChangePasswordBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.profileNotifications,
       page: () => const NotificationSettingView(),
       binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.activityLog,
+      page: () => const ActivityLogView(),
+      binding: ActivityLogBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -230,6 +242,12 @@ class AppPages {
       name: AppRoutes.vendorProfile,
       page: () => const VendorProfileView(),
       binding: VendorProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.vendorData,
+      page: () => const VendorDataView(),
+      binding: VendorDataBinding(),
+      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.forgotPassword,
