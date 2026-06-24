@@ -138,7 +138,9 @@ class VendorProfileView extends GetView<VendorProfileController> {
               _MenuTile(
                 icon: Icons.info_outline_rounded,
                 title: 'Tentang Aplikasi',
-                onTap: () {},
+                onTap: () {
+                  Get.toNamed(AppRoutes.profileAbout);
+                },
               ),
 
               const SizedBox(height: 30),

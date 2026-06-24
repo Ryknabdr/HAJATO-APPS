@@ -32,6 +32,9 @@ import '../modules/login/views/login_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/profile/views/edit_profile_view.dart';
+import '../modules/profile/views/about_view.dart';
+import '../modules/profile/views/help_view.dart';
+import '../modules/profile/views/privacy_terms_view.dart';
 // import '../modules/profile/views/change_password_view.dart';
 import '../modules/profile/views/notification_setting_view.dart';
 import '../modules/promo/bindings/promo_binding.dart';
@@ -190,6 +193,33 @@ class AppPages {
       binding: ProfileBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+    name: AppRoutes.profileHelp,
+    page: () => const HelpView(),
+    binding: ProfileBinding(),
+    transition: Transition.rightToLeft,
+  ),
+
+  GetPage(
+    name: AppRoutes.profilePrivacy,
+    page: () => const PrivacyView(),
+    binding: ProfileBinding(),
+    transition: Transition.rightToLeft,
+  ),
+
+  GetPage(
+    name: AppRoutes.profileTerms,
+    page: () => const TermsView(),
+    binding: ProfileBinding(),
+    transition: Transition.rightToLeft,
+  ),
+
+  GetPage(
+    name: AppRoutes.profileAbout,
+    page: () => const AboutView(),
+    binding: ProfileBinding(),
+    transition: Transition.rightToLeft,
+  ),
     GetPage(
       name: AppRoutes.changePassword,
       page: () => const ChangePasswordView(),
