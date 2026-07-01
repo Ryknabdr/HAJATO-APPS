@@ -15,13 +15,22 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: _buildHeader()),
-          SliverToBoxAdapter(child: _buildSearch()),
-          SliverToBoxAdapter(child: _buildBody()),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+      // --- IMPLEMENTASI REFRESH INDICATOR ---
+      body: RefreshIndicator(
+        color: AppColors.primary, // Warna loading spinner putar
+        backgroundColor: Colors.white,
+        onRefresh: () => controller
+            .refreshHome(), // Memanggil fungsi reset kategori & fetch data
+        child: CustomScrollView(
+          // Wajib menggunakan AlwaysScrollableScrollPhysics agar layar bisa di-pull refresh meskipun datanya sedikit
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildHeader()),
+            SliverToBoxAdapter(child: _buildSearch()),
+            SliverToBoxAdapter(child: _buildBody()),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
       ),
       bottomNavigationBar: Obx(
         () => _BottomNav(
@@ -32,7 +41,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ── HEADER ───────────────────────────────────────────────
+  // ── HEADER (FIXED: ICON CHAT BERSANDING DENGAN NOTIFIKASI ALA IG) ────────
   Widget _buildHeader() {
     return Container(
       color: Colors.white,
@@ -64,57 +73,83 @@ class HomeView extends GetView<HomeController> {
               ),
             ],
           ),
-          GestureDetector(
-            onTap: controller.goToNotification,
-            child: Obx(
-              () => Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4F4F4),
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_outlined,
-                      size: 20,
-                      color: Color(0xFF1A1A2E),
-                    ),
+          // Row pembungkus agar Icon Chat dan Notifikasi berdampingan di kanan
+          Row(
+            children: [
+              // ── 🟢 SHORTCUT PINTASAN CHAT (ALA DM INSTAGRAM) ──
+              // ── 🟢 SHORTCUT PINTASAN CHAT (SUDAH DI-FIX SESUAI APPROUTES) ──
+              GestureDetector(
+                onTap: () => Get.toNamed(
+                  AppRoutes.chat,
+                ), // ── 🟢 FIX: Sekarang rutenya udah valid mengarah ke '/chat'
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF4F4F4),
+                    borderRadius: BorderRadius.circular(13),
                   ),
-
-                  if (controller.unreadNotifications.value > 0)
-                    Positioned(
-                      right: -2,
-                      top: -2,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(
-                          minWidth: 18,
-                          minHeight: 18,
+                  child: const Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 18,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+              ), // Jarak aman antar-ikon pintasan
+              // ── ICON NOTIFIKASI BAWAAN ──
+              GestureDetector(
+                onTap: controller.goToNotification,
+                child: Obx(
+                  () => Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF4F4F4),
+                          borderRadius: BorderRadius.circular(13),
                         ),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          size: 20,
+                          color: Color(0xFF1A1A2E),
                         ),
-                        child: Center(
-                          child: Text(
-                            controller.unreadNotifications.value > 99
-                                ? '99+'
-                                : controller.unreadNotifications.value.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                      ),
+                      if (controller.unreadNotifications.value > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                controller.unreadNotifications.value > 99
+                                    ? '99+'
+                                    : controller.unreadNotifications.value
+                                          .toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                ],
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -223,7 +258,6 @@ class HomeView extends GetView<HomeController> {
 // ─────────────────────────────────────────────────────────────
 // SECTION LABEL
 // ─────────────────────────────────────────────────────────────
-
 class _SectionLabel extends StatelessWidget {
   final String text;
   const _SectionLabel(this.text);
@@ -242,7 +276,6 @@ class _SectionLabel extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // CATEGORIES
 // ─────────────────────────────────────────────────────────────
-
 class _Categories extends GetView<HomeController> {
   final _icons = [
     Icons.photo_camera_rounded,
@@ -320,7 +353,6 @@ class _Categories extends GetView<HomeController> {
 // ─────────────────────────────────────────────────────────────
 // PROMO BANNER
 // ─────────────────────────────────────────────────────────────
-
 class _PromoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -418,9 +450,8 @@ class _PromoBanner extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// VENDOR CARD
+// VENDOR CARD (FIXED IMAGE URL)
 // ─────────────────────────────────────────────────────────────
-
 class _VendorCard extends StatefulWidget {
   final VendorModel vendor;
   final VoidCallback onTap;
@@ -458,7 +489,7 @@ class _VendorCardState extends State<_VendorCard> {
                   left: Radius.circular(15),
                 ),
                 child: Image.network(
-                  '${ApiConfig.baseUrl}/uploads/${widget.vendor.imageUrl}',
+                  widget.vendor.imageUrl,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
@@ -586,7 +617,6 @@ class _VendorCardState extends State<_VendorCard> {
 // ─────────────────────────────────────────────────────────────
 // BOTTOM NAV
 // ─────────────────────────────────────────────────────────────
-
 class _BottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;

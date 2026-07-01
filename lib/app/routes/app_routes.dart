@@ -10,7 +10,9 @@ abstract class AppRoutes {
   static const vendorDetail = '/vendor-detail';
   static const booking = '/booking';
   static const chat = '/chat';
+  static const chatViewRoom = '/chat-room';
   static const event = '/event';
+  static const templateSelection = '/template-selection';
   static const invitation = '/invitation';
   static const guestRegistration = '/guest-registration';
   static const guestList = '/guest-list';

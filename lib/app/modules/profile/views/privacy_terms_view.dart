@@ -32,7 +32,7 @@ class PrivacyView extends StatelessWidget {
             _headerCard(
               icon: Icons.privacy_tip_outlined,
               title: 'Kebijakan Privasi',
-              lastUpdated: '1 Januari 2025',
+              lastUpdated: '1 juli 2026',
             ),
             const SizedBox(height: 20),
             _sectionTile(
@@ -91,7 +91,7 @@ class TermsView extends StatelessWidget {
             _headerCard(
               icon: Icons.description_outlined,
               title: 'Syarat & Ketentuan',
-              lastUpdated: '1 Januari 2025',
+              lastUpdated: '1 Juli 2026',
             ),
             const SizedBox(height: 20),
             _sectionTile(

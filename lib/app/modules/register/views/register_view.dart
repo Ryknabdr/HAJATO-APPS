@@ -121,8 +121,13 @@ class _Header extends StatelessWidget {
                   color: Colors.white.withOpacity(0.2),
                   border: Border.all(color: Colors.white.withOpacity(0.3)),
                 ),
-                child: const Center(
-                  child: Text('🎊', style: TextStyle(fontSize: 18)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(
+                    'assets/images/hajatonew.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.star_rounded, color: Colors.white, size: 18),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -406,22 +411,19 @@ class _FormPanel extends GetView<RegisterController> {
             Row(
               children: [
                 Expanded(
-                  child: _SocialButton(
+                  child: _SocialImageButton(
                     label: 'Google',
-                    color: const Color(0xFFFFF0F0),
-                    initial: 'G',
-                    initialColor: const Color(0xFFDB4437),
-                    onTap: controller.registerWithGoogle,
+                    imagePath: 'assets/images/google.png',
+                    onTap: controller.loginWithGoogle,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _SocialButton(
-                    label: 'Facebook',
-                    color: const Color(0xFFE8F0FE),
-                    initial: 'f',
-                    initialColor: const Color(0xFF1877F2),
-                    onTap: controller.registerWithFacebook,
+                  child: _SocialIconButton(
+                    label: 'Face ID',
+                    icon: Icons.face_retouching_natural_rounded,
+                    iconColor: AppColors.primary,
+                    onTap: controller.loginWithFaceId,
                   ),
                 ),
               ],
@@ -439,8 +441,7 @@ class _FormPanel extends GetView<RegisterController> {
                     children: [
                       TextSpan(
                         text: 'Sudah punya akun? ',
-                        style:
-                            TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: AppColors.textSecondary),
                       ),
                       TextSpan(
                         text: 'Masuk →',
@@ -637,25 +638,22 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
   }
 }
 
-class _SocialButton extends StatefulWidget {
+// ───🟢 FIX UTAMA: DEKLARASI WIDGET SOCIAL BARU BERBASIS IMAGE ASSET ───
+class _SocialImageButton extends StatefulWidget {
   final String label;
-  final Color color;
-  final String initial;
-  final Color initialColor;
+  final String imagePath;
   final VoidCallback onTap;
-  const _SocialButton({
+  const _SocialImageButton({
     required this.label,
-    required this.color,
-    required this.initial,
-    required this.initialColor,
+    required this.imagePath,
     required this.onTap,
   });
 
   @override
-  State<_SocialButton> createState() => _SocialButtonState();
+  State<_SocialImageButton> createState() => _SocialImageButtonState();
 }
 
-class _SocialButtonState extends State<_SocialButton> {
+class _SocialImageButtonState extends State<_SocialImageButton> {
   bool _pressed = false;
 
   @override
@@ -675,31 +673,78 @@ class _SocialButtonState extends State<_SocialButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: AppColors.surface,
-            border: const Border.fromBorderSide(
-              BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
-            ),
+            border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: widget.color,
-                ),
-                child: Center(
-                  child: Text(
-                    widget.initial,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: widget.initialColor,
-                    ),
-                  ),
+              Image.asset(
+                widget.imagePath,
+                width: 20,
+                height: 20,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata_rounded, color: Colors.red, size: 22),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ───🟢 FIX UTAMA: DEKLARASI WIDGET SOCIAL BARU BERBASIS ICON ───
+class _SocialIconButton extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onTap;
+  const _SocialIconButton({
+    required this.label,
+    required this.icon,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_SocialIconButton> createState() => _SocialIconButtonState();
+}
+
+class _SocialIconButtonState extends State<_SocialIconButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: AppColors.surface,
+            border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(widget.icon, size: 20, color: widget.iconColor),
               const SizedBox(width: 8),
               Text(
                 widget.label,

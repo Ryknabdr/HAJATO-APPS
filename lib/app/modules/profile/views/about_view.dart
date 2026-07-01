@@ -38,9 +38,14 @@ class AboutView extends StatelessWidget {
                       border: Border.all(
                           color: Colors.white.withOpacity(0.3), width: 1.5),
                     ),
-                    child: const Center(
-                      child: Text('🎊', style: TextStyle(fontSize: 36)),
-                    ),
+                   child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(
+                    'assets/images/hajatonew.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.star_rounded, color: Colors.white, size: 18),
+                  ),
+                ),
                   ),
                   const SizedBox(height: 16),
                   Text('HAJATO',
@@ -84,13 +89,13 @@ class AboutView extends StatelessWidget {
                       children: [
                         _infoRow(Icons.tag_rounded, 'Versi', '1.0.0', false),
                         const Divider(height: 1, indent: 68, color: Color(0xFFB2DFDB)),
-                        _infoRow(Icons.update_rounded, 'Terakhir Diperbarui', '1 Jan 2025', false),
+                        _infoRow(Icons.update_rounded, 'Terakhir Diperbarui', '1 Juli 2026', false),
                         const Divider(height: 1, indent: 68, color: Color(0xFFB2DFDB)),
                         _infoRow(Icons.developer_mode_rounded, 'Developer', 'Tim Hajato', false),
                         const Divider(height: 1, indent: 68, color: Color(0xFFB2DFDB)),
                         _infoRow(Icons.language_rounded, 'Website', 'www.hajato.id', false),
                         const Divider(height: 1, indent: 68, color: Color(0xFFB2DFDB)),
-                        _infoRow(Icons.email_outlined, 'Email', 'hello@hajato.id', true),
+                        _infoRow(Icons.email_outlined, 'Email', 'hajato.app@gmail.com', true),
                       ],
                     ),
                   ),
@@ -113,7 +118,7 @@ class AboutView extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  Text('© 2025 Hajato. All rights reserved.',
+                  Text('© 2026 Hajato. All rights reserved.',
                       style: GoogleFonts.dmSans(
                           fontSize: 12, color: AppColors.textSecondary)),
                 ],

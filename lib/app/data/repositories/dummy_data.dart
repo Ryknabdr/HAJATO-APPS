@@ -211,13 +211,14 @@ class DummyData {
   ];
 
   static final List<GuestModel> sampleGuests = [
-    GuestModel(
-      id: 'g1',
-      nama: 'Ahmad Fauzi',
-      nomorHP: '081234567890',
-      hadir: true,
-      checkedIn: true,
-      qrData: 'HAJATO-g1',
-    ),
-  ];
+  GuestModel(
+    id: 'g1',
+    name: 'Ahmad Fauzi',       // 🟢 dari 'nama' diubah jadi 'name'
+    phone: '081234567890',     // 🟢 dari 'nomorHP' diubah jadi 'phone'
+    status: 'confirmed',       // 🟢 Tambahkan status untuk backend
+    hadir: true,
+    checkedIn: true,
+    qrData: 'HAJATO-g1',
+  ),
+];
 }

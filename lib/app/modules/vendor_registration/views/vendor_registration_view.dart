@@ -65,7 +65,14 @@ class VendorRegistrationView extends GetView<VendorRegistrationController> {
                 color: Colors.white.withOpacity(0.2),
                 border: Border.all(color: Colors.white.withOpacity(0.3)),
               ),
-              child: const Center(child: Text('🏪', style: TextStyle(fontSize: 18))),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(
+                    'assets/images/hajatonew.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.star_rounded, color: Colors.white, size: 18),
+                  ),
+                ),
             ),
             const SizedBox(width: 10),
             Text('HAJATO',

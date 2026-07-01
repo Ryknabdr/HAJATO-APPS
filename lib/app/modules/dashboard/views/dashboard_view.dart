@@ -15,17 +15,23 @@ class DashboardView extends GetView<DashboardController> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader()),
-              SliverToBoxAdapter(child: _buildStatCards()),
-              SliverToBoxAdapter(child: _buildGuestChart()),
-              SliverToBoxAdapter(child: _buildVendorSummary()),
-              SliverToBoxAdapter(child: _buildRecentActivity()),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
+          RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async {
+              await controller.fetchDashboardData();
+            },
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(), 
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildStatCards()),
+                SliverToBoxAdapter(child: _buildGuestChart()),
+                SliverToBoxAdapter(child: _buildVendorSummary()),
+                SliverToBoxAdapter(child: _buildRecentActivity()),
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            ),
           ),
-          // const FloatingChatbotButton(),
         ],
       ),
     );
@@ -48,40 +54,54 @@ class DashboardView extends GetView<DashboardController> {
                   Text('Rangkuman Acara Anda', style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+              GestureDetector(
+                onTap: () => controller.fetchDashboardData(),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                  child: Obx(() => controller.isLoading.value
+                      ? const SizedBox(
+                          width: 22, height: 22,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22)),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white24),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.celebration_rounded, color: Colors.white, size: 20),
-                const SizedBox(width: 10),
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Acara Aktif', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 11)),
-                    Text('Pernikahan Ahmad & Siti', style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                )),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(8)),
-                  child: Text('Aktif', style: GoogleFonts.poppins(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+          Obx(() => Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white24),
                 ),
-              ],
-            ),
-          ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.celebration_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Acara Aktif', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 11)),
+                        Text(
+                          controller.eventName.value.isNotEmpty 
+                              ? controller.eventName.value 
+                              : 'Memuat nama acara...',
+                          style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    )),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Aktif', style: GoogleFonts.poppins(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              )),
         ],
       ),
     );
@@ -205,12 +225,6 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildVendorSummary() {
-    final vendors = [
-      {'name': 'Lensa Pro Studio', 'cat': 'Fotografer', 'status': 'confirmed', 'icon': Icons.photo_camera_rounded},
-      {'name': 'Nusantara Catering', 'cat': 'Catering', 'status': 'pending', 'icon': Icons.restaurant_rounded},
-      {'name': 'Mahkota WO', 'cat': 'Wedding Organizer', 'status': 'confirmed', 'icon': Icons.favorite_rounded},
-    ];
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
@@ -218,62 +232,80 @@ class DashboardView extends GetView<DashboardController> {
         children: [
           const SectionHeader(title: 'Vendor Dipesan', actionLabel: 'Lihat Semua'),
           const SizedBox(height: 12),
-          ...vendors.map((v) => Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)],
+          Obx(() {
+            if (controller.vendorList.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                child: Center(
+                  child: Text('Belum ada vendor yang dipesan', 
+                      style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textHint)),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                      child: Icon(v['icon'] as IconData, color: AppColors.primary, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(v['name'] as String, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
-                          Text(v['cat'] as String, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary)),
-                        ],
+              );
+            }
+            return Column(
+              children: controller.vendorList.map((v) {
+                IconData iconData = Icons.store_rounded;
+                if (v.icon == 'photo') iconData = Icons.photo_camera_rounded;
+                if (v.icon == 'restaurant') iconData = Icons.restaurant_rounded;
+                if (v.icon == 'favorite') iconData = Icons.favorite_rounded;
+
+                // ── 🟢 FIX DI SINI: SESUAIKAN DENGAN STATUS APPROVED/PENDING DARI CONTROLLER ──
+                final bool isApproved = v.status.toLowerCase() == 'approved' || v.status.toLowerCase() == 'confirmed';
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: Icon(iconData, color: AppColors.primary, size: 20),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: v['status'] == 'confirmed' ? AppColors.success.withOpacity(0.1) : AppColors.warning.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        v['status'] == 'confirmed' ? 'Dikonfirmasi' : 'Menunggu',
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: v['status'] == 'confirmed' ? AppColors.success : AppColors.warning,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(v.name, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
+                            Text(v.cat, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary)),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isApproved ? AppColors.success.withOpacity(0.1) : AppColors.warning.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          isApproved ? 'Dikonfirmasi' : 'Menunggu',
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: isApproved ? AppColors.success : AppColors.warning,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          }),
         ],
       ),
     );
   }
 
   Widget _buildRecentActivity() {
-    final activities = [
-      {'icon': Icons.how_to_reg_rounded, 'text': 'Ahmad Fauzi melakukan check-in', 'time': '5 menit lalu', 'color': AppColors.success},
-      {'icon': Icons.person_add_rounded, 'text': 'Dewi Lestari didaftarkan sebagai tamu', 'time': '1 jam lalu', 'color': AppColors.info},
-      {'icon': Icons.store_rounded, 'text': 'Pesanan Catering dikonfirmasi', 'time': '3 jam lalu', 'color': AppColors.primary},
-      {'icon': Icons.qr_code_rounded, 'text': 'QR Code digenerate untuk 7 tamu', 'time': '5 jam lalu', 'color': AppColors.secondary},
-    ];
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -287,37 +319,48 @@ class DashboardView extends GetView<DashboardController> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: activities.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, indent: 56),
-              itemBuilder: (_, i) {
-                final a = activities[i];
+            child: Obx(() {
+              if (controller.recentActivities.isEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: (a['color'] as Color).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(a['icon'] as IconData, color: a['color'] as Color, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(a['text'] as String, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500)),
-                          Text(a['time'] as String, style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint)),
-                        ]),
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: Text('Belum ada aktivitas terbaru',
+                        style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textHint)),
                   ),
                 );
-              },
-            ),
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.recentActivities.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, indent: 56),
+                itemBuilder: (_, i) {
+                  final a = controller.recentActivities[i];
+                  return Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.how_to_reg_rounded, color: AppColors.success, size: 18),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text(a.text, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500)),
+                            Text(a.time, style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint)),
+                          ]),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),

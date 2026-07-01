@@ -11,7 +11,7 @@ class VendorChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(ChatController(vendorName: 'Vendor'));
+    final ctrl = Get.put(ChatController());
     final inputCtrl = TextEditingController();
     final focusNode = FocusNode();
 

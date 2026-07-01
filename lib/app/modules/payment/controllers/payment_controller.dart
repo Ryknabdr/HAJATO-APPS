@@ -18,6 +18,7 @@ class PaymentController extends GetxController {
   late String eventLocation;
   late String notes;
   late int totalPrice;
+  String? eventId; // ── 🟢 DEKLARASIKAN VARIABEL UNTUK MENAMPUNG EVENT_ID
 
   final isLoading = false.obs;
   final paymentSuccess = false.obs;
@@ -36,6 +37,7 @@ class PaymentController extends GetxController {
     eventLocation = args['location'] as String;
     notes = args['notes'] as String;
     totalPrice = args['totalPrice'] as int;
+    eventId = args['event_id'] as String?; // ── 🟢 TANGKAP DATA EVENT_ID DARI ARGUMENTS
   }
 
   String get formattedDate =>
@@ -68,6 +70,7 @@ class PaymentController extends GetxController {
           'vendor_name': vendor.name,
           'package_id': package.id,
           'package_name': package.name,
+          'event_id': eventId, // ── 🟢 DIKIRIM KE BACKEND SEKARANG! BIAR GAK NULL LAGI
           'event_date': eventDate.toIso8601String(),
           'event_time': eventTime,
           'location': eventLocation,
@@ -124,9 +127,9 @@ class PaymentController extends GetxController {
         paymentSuccess.value = true;
 
         Get.snackbar(
-  'Pembayaran diproses',
-  'Silakan cek status pembayaran di Pesanan Saya',
-);
+          'Pembayaran diproses',
+          'Silakan cek status pembayaran di Pesanan Saya',
+        );
 
         
       } else {

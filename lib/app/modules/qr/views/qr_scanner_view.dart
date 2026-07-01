@@ -18,18 +18,39 @@ class QrScannerView extends GetView<QrController> {
       body: Stack(
         children: [
           // Camera preview
+          // Camera preview
           MobileScanner(
             controller: scannerController,
-            onDetect: (capture) {
+            onDetect: (capture) async {
               final barcodes = capture.barcodes;
               if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
                 final code = barcodes.first.rawValue!;
-                controller.onScanDetect(code);
-                // Also trigger check-in on GuestController if found
+                
                 try {
-                  final guestCtrl = Get.find<GuestController>();
-                  guestCtrl.checkIn(code);
-                } catch (_) {}
+                  // 🟢 FIX UTAMA: Cek apakah GuestController sudah terdaftar di memori, jika belum langsung di-put
+                  late GuestController guestCtrl;
+                  if (Get.isRegistered<GuestController>()) {
+                    guestCtrl = Get.find<GuestController>();
+                  } else {
+                    guestCtrl = Get.put(GuestController());
+                  }
+                  
+                  // Kunci: Jika tidak sedang memproses, langsung amankan alur scan
+                  if (!guestCtrl.isProcessingScan.value) {
+                    guestCtrl.isProcessingScan.value = true; // Kunci menyala!
+                    
+                    controller.onScanDetect(code); // Trigger status UI bawah
+                    
+                    // Tembak API ke Flask dan tunggu sampai delay selesai (await)
+                    await guestCtrl.checkIn(code);       
+                    
+                  } else {
+                    print("[DEBUG HAJATO] SCANNER DIABAIKAN KARENA SEDANG PROSES.");
+                  }
+                } catch (e) {
+                  controller.onScanDetect(code);
+                  print("[DEBUG HAJATO] ERROR ON_DETECT: $e");
+                }
               }
             },
           ),

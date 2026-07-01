@@ -150,7 +150,7 @@ class _Header extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(13),
                   child: Image.asset(
-                    'assets/images/hajato.png',
+                    'assets/images/hajatonew.png',
                     fit: BoxFit.cover,
                   ),
                 ),

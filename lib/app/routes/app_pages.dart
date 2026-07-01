@@ -10,8 +10,10 @@ import '../modules/booking/bindings/booking_binding.dart';
 import '../modules/booking/views/booking_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/chat/views/chatlistview.dart'; // ── 🟢 TAMBAHAN IMPORT UNTUK LIST CHAT USER
 import '../modules/event/bindings/event_binding.dart';
 import '../modules/event/views/event_view.dart';
+import '../modules/event/views/template_selection_view.dart';
 import '../modules/event/views/invitation_view.dart';
 import '../modules/guest/bindings/guest_binding.dart';
 import '../modules/guest/views/guest_registration_view.dart';
@@ -63,7 +65,6 @@ import '../modules/vendor_bookings/bindings/vendor_bookings_binding.dart';
 import '../modules/vendor_bookings/views/vendor_bookings_view.dart';
 import '../modules/vendor_dashboard/views/vendor_statistic_view.dart';
 import '../modules/vendor_dashboard/views/vendor_schedule_view.dart';
-import '../modules/chat/views/chat_view.dart';
 import '../modules/vendor_dashboard/views/vendor_chat_list_view.dart';
 import '../modules/activity_log/bindings/activity_log_binding.dart';
 import '../modules/activity_log/views/activity_log_view.dart';
@@ -109,17 +110,33 @@ class AppPages {
       binding: BookingBinding(),
       transition: Transition.rightToLeft,
     ),
+    
+    // ── 🟢 1. ROUTE UTAMA DIUBAH MENJADI HALAMAN DAFTAR RIWAYAT CHAT USER ──
     GetPage(
       name: AppRoutes.chat,
+      page: () => const ChatListView(), 
+      binding: ChatBinding(),
+      transition: Transition.rightToLeft,
+    ),
+
+    // ── 🟢 2. ROUTE BARU KHUSUS UNTUK KAMAR OBROLAN PRIVAT USER-VENDOR ──
+    GetPage(
+      name: AppRoutes.chatViewRoom,
       page: () => const ChatView(),
       binding: ChatBinding(),
       transition: Transition.rightToLeft,
     ),
+
     GetPage(
       name: AppRoutes.event,
       page: () => const EventView(),
       binding: EventBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.templateSelection,
+      page: () => const TemplateSelectionView(),
+      binding: EventBinding(),
     ),
     GetPage(
       name: AppRoutes.invitation,
@@ -175,12 +192,6 @@ class AppPages {
       binding: VendorDashboardBinding(),
       transition: Transition.rightToLeft,
     ),
-    // GetPage(
-    //   name: AppRoutes.chatbot,
-    //   page: () => const ChatbotView(),
-    //   binding: ChatbotBinding(),
-    //   transition: Transition.downToUp,
-    // ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
@@ -194,32 +205,29 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-    name: AppRoutes.profileHelp,
-    page: () => const HelpView(),
-    binding: ProfileBinding(),
-    transition: Transition.rightToLeft,
-  ),
-
-  GetPage(
-    name: AppRoutes.profilePrivacy,
-    page: () => const PrivacyView(),
-    binding: ProfileBinding(),
-    transition: Transition.rightToLeft,
-  ),
-
-  GetPage(
-    name: AppRoutes.profileTerms,
-    page: () => const TermsView(),
-    binding: ProfileBinding(),
-    transition: Transition.rightToLeft,
-  ),
-
-  GetPage(
-    name: AppRoutes.profileAbout,
-    page: () => const AboutView(),
-    binding: ProfileBinding(),
-    transition: Transition.rightToLeft,
-  ),
+      name: AppRoutes.profileHelp,
+      page: () => const HelpView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profilePrivacy,
+      page: () => const PrivacyView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profileTerms,
+      page: () => const TermsView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.profileAbout,
+      page: () => const AboutView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
     GetPage(
       name: AppRoutes.changePassword,
       page: () => const ChangePasswordView(),
@@ -261,7 +269,6 @@ class AppPages {
       binding: VendorRegistrationBinding(),
       transition: Transition.rightToLeft,
     ),
-    // tambah di dalam pages list
     GetPage(
       name: AppRoutes.notification,
       page: () => const NotifikasiView(),
@@ -313,16 +320,12 @@ class AppPages {
       binding: VendorBookingsBinding(),
     ),
     GetPage(
-    name: AppRoutes.vendorStatistic,
-    page: () => const VendorStatisticView(),
-  ),
+      name: AppRoutes.vendorStatistic,
+      page: () => const VendorStatisticView(),
+    ),
     GetPage(
-    name: AppRoutes.vendorSchedule,
-    page: () => const VendorScheduleView(),
-  ),
-    GetPage(
-    name: AppRoutes.chat,
-    page: () => const ChatView(),
-  ),
+      name: AppRoutes.vendorSchedule,
+      page: () => const VendorScheduleView(),
+    ),
   ];
 }

@@ -39,7 +39,6 @@ class BookingController extends GetxController {
     }
 
     final hour = selectedTime.value!.hour.toString().padLeft(2, '0');
-
     final minute = selectedTime.value!.minute.toString().padLeft(2, '0');
 
     return '$hour:$minute WIB';
@@ -141,14 +140,17 @@ class BookingController extends GetxController {
     }
 
     isLoading.value = true;
-
     final available = await checkAvailability();
-
     isLoading.value = false;
 
     if (!available) {
       return;
     }
+
+    // ── 🟢 TRIK AMAN: AMBIL EVENT_ID YANG AKTIF DI SINI ──
+    final prefs = await SharedPreferences.getInstance();
+    String activeEventId = prefs.getString('selected_event_id') ?? '';
+    print("[DEBUG HAJATO] Mengirim event_id ke halaman payment: $activeEventId");
 
     Get.toNamed(
       AppRoutes.payment,
@@ -160,6 +162,7 @@ class BookingController extends GetxController {
         'totalPrice': package.price,
         'time': formattedTime,
         'location': eventLocation.value,
+        'event_id': activeEventId, // ── 🟢 DATA ID ACARA SEKARANG IKUT DIKIRIM KE PAYMENT VIEW
       },
     );
   }

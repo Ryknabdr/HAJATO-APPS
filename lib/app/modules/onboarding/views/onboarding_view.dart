@@ -307,7 +307,7 @@ class _IconFrameState extends State<_IconFrame>
             ),
             child: ClipOval(
               child: Image.asset(
-                'assets/images/hajato.png',
+                'assets/images/hajatonew.png',
                 fit: BoxFit.cover,
                 width: 96,
                 height: 96,

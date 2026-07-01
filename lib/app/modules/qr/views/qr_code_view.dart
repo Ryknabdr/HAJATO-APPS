@@ -60,9 +60,9 @@ class QrCodeView extends GetView<QrController> {
                         const Divider(),
                         const SizedBox(height: 16),
                         // Guest info
-                        Text(guest.nama, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                        Text(guest.name, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                         const SizedBox(height: 4),
-                        Text(guest.nomorHP, style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                        Text(guest.phone, style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

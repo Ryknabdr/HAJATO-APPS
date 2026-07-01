@@ -11,6 +11,16 @@ class GuestListView extends GetView<GuestController> {
 
   @override
   Widget build(BuildContext context) {
+    // 🟢 AMBIL ID ACARA DARI ARGUMEN NAVIGASI HALAMAN PREVIOUS (DASHBOARD/EVENT)
+    final String eventId = Get.arguments ?? '';
+
+    // Trigger API Fetch tepat saat halaman pertama kali dirender
+    if (eventId.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.fetchGuests(eventId);
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: HajatAppBar(
@@ -18,7 +28,8 @@ class GuestListView extends GetView<GuestController> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_rounded, color: AppColors.primary),
-            onPressed: () => Get.toNamed('/guest-registration'),
+            // 🟢 FIX MUTLAK: Sekarang ID Acara (eventId) ikut dioper ke form pendaftaran
+            onPressed: () => Get.toNamed('/guest-registration', arguments: eventId),
           ),
         ],
       ),
@@ -30,8 +41,30 @@ class GuestListView extends GetView<GuestController> {
           _buildSearch(),
           // Filter chips
           _buildFilterChips(),
-          // Guest list
-          Expanded(child: _buildGuestList()),
+          // Guest list dengan Pull-to-Refresh & Loading handler
+          Expanded(
+            child: Obx(() {
+              // Hanya tampilkan loading tengah jika data benar-benar kosong pertama kali fetch
+              if (controller.isLoading.value && controller.guests.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                );
+              }
+              
+              // 🟢 BUNGKUS DENGAN REFRESHINDICATOR DI SINI
+              return RefreshIndicator(
+                color: AppColors.primary,
+                backgroundColor: Colors.white,
+                onRefresh: () async {
+                  if (controller.currentEventId.isNotEmpty) {
+                    // Tarik data ulang dari Flask backend
+                    await controller.fetchGuests(controller.currentEventId);
+                  }
+                },
+                child: _buildGuestList(),
+              );
+            }),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -114,22 +147,31 @@ class GuestListView extends GetView<GuestController> {
   }
 
   Widget _buildGuestList() {
-    return Obx(() {
-      final list = controller.filteredGuests;
-      if (list.isEmpty) {
-        return const EmptyState(
-          icon: Icons.people_outline_rounded,
-          title: 'Tidak Ada Tamu',
-          subtitle: 'Belum ada tamu yang sesuai filter',
-        );
-      }
-      return ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, i) => _GuestTile(guest: list[i], onQR: () => controller.goToQRCode(list[i])),
+    final list = controller.filteredGuests;
+    if (list.isEmpty) {
+      // ⚠️ Agar halaman kosong/empty state tetap bisa di-refresh via swipe down, kita bungkus custom scroll view
+      return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Container(
+          height: 300, // Beri jarak space tinggi
+          alignment: Alignment.center,
+          child: const EmptyState(
+            icon: Icons.people_outline_rounded,
+            title: 'Tidak Ada Tamu',
+            subtitle: 'Belum ada tamu yang sesuai filter',
+          ),
+        ),
       );
-    });
+    }
+    
+    return ListView.separated(
+      // ⚠️ Wajib dipasang AlwaysScrollableScrollPhysics agar list tetap bisa ditarik walau item-nya sedikit
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: list.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (_, i) => _GuestTile(guest: list[i], onQR: () => controller.goToQRCode(list[i])),
+    );
   }
 }
 
@@ -176,7 +218,7 @@ class _GuestTile extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                guest.nama[0].toUpperCase(),
+                guest.name.isNotEmpty ? guest.name[0].toUpperCase() : 'G',
                 style: GoogleFonts.poppins(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
               ),
             ),
@@ -186,9 +228,9 @@ class _GuestTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(guest.nama, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(guest.name, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                Text(guest.nomorHP, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
+                Text(guest.phone, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),

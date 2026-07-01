@@ -10,9 +10,13 @@ class GuestRegistrationView extends GetView<GuestController> {
 
   @override
   Widget build(BuildContext context) {
+    final String? eventIdFromArgs = Get.arguments;
+    if (eventIdFromArgs != null && eventIdFromArgs.isNotEmpty) {
+      controller.currentEventId = eventIdFromArgs;
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const HajatAppBar(title: 'Daftar Tamu (RSVP)'),
+      appBar: const HajatAppBar(title: 'Tambah Tamu Darurat'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -38,8 +42,8 @@ class GuestRegistrationView extends GetView<GuestController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Form RSVP', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                        Text('Daftarkan tamu dan konfirmasi kehadiran', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
+                        Text('Registrasi Kilat', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                        Text('Input tamu dadakan di lokasi. Otomatis terkonfirmasi Hadir.', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -51,9 +55,9 @@ class GuestRegistrationView extends GetView<GuestController> {
             const SizedBox(height: 14),
 
             // Nama field
-            _FieldLabel('Nama Lengkap'),
+            const _FieldLabel('Nama Lengkap'),
             TextField(
-              onChanged: (v) => controller.nama.value = v,
+              onChanged: (v) => controller.nama.value = v, 
               decoration: const InputDecoration(
                 hintText: 'Masukkan nama lengkap',
                 prefixIcon: Icon(Icons.person_rounded, color: AppColors.primary),
@@ -61,96 +65,39 @@ class GuestRegistrationView extends GetView<GuestController> {
             ),
             const SizedBox(height: 16),
 
-            // Nomor HP
-            _FieldLabel('Nomor HP'),
+            // ── 🟢 REVISI UTAMA: NOMOR HP DIGANTI JADI ASAL / ROMBONGAN ──
+            const _FieldLabel('Asal / Rombongan'),
             TextField(
-              onChanged: (v) => controller.nomorHP.value = v,
-              keyboardType: TextInputType.phone,
+              onChanged: (v) => controller.nomorHP.value = v, // 🟢 Tetap lempar ke variabel ini dulu biar lo gak perlu bikin variabel baru di controller, tinggal ganti isinya aja
+              keyboardType: TextInputType.text,
               decoration: const InputDecoration(
-                hintText: 'Contoh: 081234567890',
-                prefixIcon: Icon(Icons.phone_rounded, color: AppColors.primary),
+                hintText: 'Contoh: Teman Kuliah, Keluarga Pekalongan, RT 02',
+                prefixIcon: Icon(Icons.location_city_rounded, color: AppColors.primary),
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Kehadiran
-            _FieldLabel('Status Kehadiran'),
-            Obx(() => Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => controller.hadir.value = true,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              gradient: controller.hadir.value ? AppColors.primaryGradient : null,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.check_circle_rounded,
-                                    color: controller.hadir.value ? Colors.white : AppColors.textHint, size: 18),
-                                const SizedBox(width: 6),
-                                Text('Hadir',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: controller.hadir.value ? Colors.white : AppColors.textHint)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => controller.hadir.value = false,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: !controller.hadir.value ? AppColors.error : null,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.cancel_rounded,
-                                    color: !controller.hadir.value ? Colors.white : AppColors.textHint, size: 18),
-                                const SizedBox(width: 6),
-                                Text('Tidak Hadir',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: !controller.hadir.value ? Colors.white : AppColors.textHint)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
             const SizedBox(height: 32),
 
-            GradientButton(
-              label: 'Daftarkan Tamu',
-              onTap: controller.registerGuest,
-              icon: Icons.how_to_reg_rounded,
-            ),
+            // Button Pendaftaran
+            Obx(() => controller.isLoading.value
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    ),
+                  )
+                : GradientButton(
+                    label: 'Konfirmasi Masuk',
+                    onTap: controller.registerGuest,
+                    icon: Icons.how_to_reg_rounded,
+                  )),
             const SizedBox(height: 12),
+            
             OutlinedButton.icon(
-              onPressed: () => Get.toNamed('/guest-list'),
+              onPressed: () => Get.toNamed('/guest-list', arguments: controller.currentEventId), 
               icon: const Icon(Icons.list_rounded),
               label: const Text('Lihat Daftar Tamu'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 52),
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
             ),
           ],

@@ -17,94 +17,101 @@ class ProfileView extends GetView<ProfileController> {
           return Center(
               child: CircularProgressIndicator(color: AppColors.primary));
         }
-        return CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildVendorBanner(),
-                    const SizedBox(height: 24),
-                    _sectionLabel('Akun'),
-                    _buildMenuCard([
-                      _MenuItem(
-                        icon: Icons.person_outline_rounded,
-                        label: 'Edit Profil',
-                        onTap: () => Get.toNamed('/profile/edit'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.lock_outline_rounded,
-                        label: 'Ubah Password',
-                        onTap: () {
-                          Get.toNamed(AppRoutes.changePassword);
-                        },
-                      ),
-                      _MenuItem(
-                      icon: Icons.receipt_long_rounded,
-                      label: 'Pesanan Saya',
-                      onTap: () => Get.toNamed('/my-bookings'),
-                    ),
+        
+        // --- IMPLEMENTASI REFRESH INDICATOR ---
+        return RefreshIndicator(
+          color: AppColors.primary, // Warna loading spinner
+          backgroundColor: Colors.white,
+          edgeOffset: 100, // Menyesuaikan offset agar loading muncul proporsional di sliver bar
+          onRefresh: () async {
+            // Memanggil kembali fungsi fetchProfile untuk menyegarkan data
+            await controller.fetchProfile();
+          },
+          child: CustomScrollView(
+            // Wajib ditambahkan AlwaysScrollableScrollPhysics agar layar sliver bisa ditarik ke bawah
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              _buildSliverAppBar(context), // Oper context ke sliver app bar
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildVendorBanner(),
+                      const SizedBox(height: 24),
+                      _sectionLabel('Akun'),
+                      _buildMenuCard([
                         _MenuItem(
-                        icon: Icons.history_rounded,
-                        label: 'Aktivitas Saya',
-                        onTap: () => Get.toNamed('/activity-log'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.phone_outlined,
-                        label: 'Nomor Telepon',
-                        subtitle: controller.phone.value,
-                        onTap: () => Get.toNamed('/profile/edit'),
-                      ),
-                    ]),
-                    const SizedBox(height: 20),
-                    _sectionLabel('Lainnya'),
-                    _buildMenuCard([
-                      _MenuItem(
-                        icon: Icons.help_outline_rounded,
-                        label: 'Pusat Bantuan',
-                        onTap: () => Get.toNamed('/profile/help'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.privacy_tip_outlined,
-                        label: 'Kebijakan Privasi',
-                        onTap: () => Get.toNamed('/profile/privacy'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.description_outlined,
-                        label: 'Syarat & Ketentuan',
-                        onTap: () => Get.toNamed('/profile/terms'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.info_outline_rounded,
-                        label: 'Tentang Aplikasi',
-                        subtitle: 'v1.0.0',
-                        onTap: () => Get.toNamed('/profile/about'),
-                      ),
-                    ]),
-                    const SizedBox(height: 20),
-                    _sectionLabel('Zona Berbahaya'),
-                    _buildMenuCard([
-                      _MenuItem(
-                        icon: Icons.logout_rounded,
-                        label: 'Keluar',
-                        color: AppColors.primary,
-                        onTap: controller.logout,
-                      ),
-                      _MenuItem(
-                        icon: Icons.delete_forever_outlined,
-                        label: 'Hapus Akun',
-                        color: AppColors.error,
-                        onTap: controller.deleteAccount,
-                      ),
-                    ]),
-                  ],
+                          icon: Icons.person_outline_rounded,
+                          label: 'Edit Profil',
+                          onTap: () => Get.toNamed('/profile/edit'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.lock_outline_rounded,
+                          label: 'Ubah Password',
+                          onTap: () {
+                            Get.toNamed(AppRoutes.changePassword);
+                          },
+                        ),
+                        _MenuItem(
+                          icon: Icons.receipt_long_rounded,
+                          label: 'Pesanan Saya',
+                          onTap: () => Get.toNamed('/my-bookings'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.history_rounded,
+                          label: 'Aktivitas Saya',
+                          onTap: () => Get.toNamed('/activity-log'),
+                        ),
+                      ]),
+                      const SizedBox(height: 20),
+                      _sectionLabel('Lainnya'),
+                      _buildMenuCard([
+                        _MenuItem(
+                          icon: Icons.help_outline_rounded,
+                          label: 'Pusat Bantuan',
+                          onTap: () => Get.toNamed('/profile/help'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.privacy_tip_outlined,
+                          label: 'Kebijakan Privasi',
+                          onTap: () => Get.toNamed('/profile/privacy'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.description_outlined,
+                          label: 'Syarat & Ketentuan',
+                          onTap: () => Get.toNamed('/profile/terms'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.info_outline_rounded,
+                          label: 'Tentang Aplikasi',
+                          subtitle: 'v1.0.0',
+                          onTap: () => Get.toNamed('/profile/about'),
+                        ),
+                      ]),
+                      const SizedBox(height: 20),
+                      _sectionLabel('Zona Berbahaya'),
+                      _buildMenuCard([
+                        _MenuItem(
+                          icon: Icons.logout_rounded,
+                          label: 'Keluar',
+                          color: AppColors.primary,
+                          onTap: controller.logout,
+                        ),
+                        _MenuItem(
+                          icon: Icons.delete_forever_outlined,
+                          label: 'Hapus Akun',
+                          color: AppColors.error,
+                          onTap: controller.deleteAccount,
+                        ),
+                      ]),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }),
     );
@@ -178,7 +185,7 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 260,
       pinned: true,
@@ -213,42 +220,151 @@ class ProfileView extends GetView<ProfileController> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 16),
-Obx(
-  () => Container(
-    width: 80,
-    height: 80,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: Colors.white.withOpacity(0.25),
-      border: Border.all(
-        color: Colors.white.withOpacity(0.5),
-        width: 2,
-      ),
-      image: controller.avatarUrl.value.isNotEmpty
-          ? DecorationImage(
-              image: NetworkImage(
-                controller.avatarUrl.value,
-              ),
-              fit: BoxFit.cover,
-            )
-          : null,
-    ),
-    child: controller.avatarUrl.value.isEmpty
-        ? Center(
-            child: Text(
-              controller.name.value.isNotEmpty
-                  ? controller.name.value[0].toUpperCase()
-                  : '?',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 34,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          )
-        : null,
-  ),
-),
+                    // ── 🟢 UPDATE TOTAL: GESTURE DETECTOR ALA WHATSAPP (PREVIEW ATAS + KLIK FULL SCREEN) ──
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            // 🟢 Ngatur posisi pop-up agar gantung di ATAS ala WA
+                            alignment: const Alignment(0, -0.4), 
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            clipBehavior: Clip.antiAlias,
+                            child: Container(
+                              width: 250,
+                              height: 310,
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  // # Area Atas: Foto Profil Preview
+                                  Expanded(
+                                    child: GestureDetector(
+                                      // 🟢 KLIK KEDUA - Buka Full Screen utuh pas foto diklik lagi
+                                      onTap: () {
+                                        Navigator.pop(context); // Tutup dulu dialog kecilnya
+                                        Get.to(() => Scaffold(
+                                          backgroundColor: Colors.black,
+                                          appBar: AppBar(
+                                            backgroundColor: Colors.black,
+                                            foregroundColor: Colors.white,
+                                            title: Text(controller.name.value, style: GoogleFonts.dmSans()),
+                                            elevation: 0,
+                                          ),
+                                          body: Center(
+                                            child: Obx(() => controller.avatarUrl.value.isNotEmpty
+                                                ? Image.network(
+                                                    controller.avatarUrl.value,
+                                                    fit: BoxFit.contain,
+                                                    width: double.infinity,
+                                                    height: double.infinity,
+                                                  )
+                                                : Container(
+                                                    color: AppColors.primary.withOpacity(0.2),
+                                                    child: Center(
+                                                      child: Text(
+                                                        controller.name.value.isNotEmpty ? controller.name.value[0].toUpperCase() : '?',
+                                                        style: GoogleFonts.playfairDisplay(fontSize: 120, fontWeight: FontWeight.w700, color: Colors.white),
+                                                      ),
+                                                    ),
+                                                  )),
+                                          ),
+                                        ));
+                                      },
+                                      child: Obx(() => Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withOpacity(0.15),
+                                          image: controller.avatarUrl.value.isNotEmpty
+                                              ? DecorationImage(
+                                                  image: NetworkImage(controller.avatarUrl.value),
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : null,
+                                        ),
+                                        child: controller.avatarUrl.value.isEmpty
+                                            ? Center(
+                                                child: Text(
+                                                  controller.name.value.isNotEmpty ? controller.name.value[0].toUpperCase() : '?',
+                                                  style: GoogleFonts.playfairDisplay(
+                                                    fontSize: 80,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                ),
+                                              )
+                                            : null,
+                                      )),
+                                    ),
+                                  ),
+                                  
+                                  // # Area Bawah: Nama & Email di dalam Pop-up
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    width: double.infinity,
+                                    color: Colors.white,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Obx(() => Text(
+                                          controller.name.value,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                        )),
+                                        const SizedBox(height: 2),
+                                        Obx(() => Text(
+                                          controller.email.value,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.textSecondary),
+                                        )),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Obx(
+                        () => Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.25),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.5),
+                              width: 2,
+                            ),
+                            image: controller.avatarUrl.value.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(
+                                      controller.avatarUrl.value,
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: controller.avatarUrl.value.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    controller.name.value.isNotEmpty
+                                        ? controller.name.value[0].toUpperCase()
+                                        : '?',
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 34,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Obx(() => Text(
                           controller.name.value,

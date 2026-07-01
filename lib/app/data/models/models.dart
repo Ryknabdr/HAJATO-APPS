@@ -54,6 +54,7 @@ class VendorModel {
     );
   }
 }
+
 class ServicePackage {
   final String id;
   final String name;
@@ -116,6 +117,8 @@ class EventModel {
   DateTime tanggal;
   String lokasi;
   String? description;
+  List<RundownItem> rundown;
+  List<String> gallery;
 
   EventModel({
     required this.id,
@@ -123,27 +126,97 @@ class EventModel {
     required this.tanggal,
     required this.lokasi,
     this.description,
+    this.rundown = const [],
+    this.gallery = const [],
   });
+
+  factory EventModel.fromJson(Map<String, dynamic> json) {
+    return EventModel(
+      id: json['id'] ?? json['_id'] ?? '',
+      namaAcara: json['name'] ?? '',
+      tanggal: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      lokasi: json['location'] ?? '',
+      description: json['description'],
+      gallery: List<String>.from(json['gallery'] ?? []),
+      rundown: (json['rundown'] as List? ?? [])
+          .map((e) => RundownItem.fromJson(e))
+          .toList(),
+    );
+  }
+}
+
+class RundownItem {
+  final String time;
+  final String activity;
+
+  RundownItem({
+    required this.time,
+    required this.activity,
+  });
+
+  factory RundownItem.fromJson(Map<String, dynamic> json) {
+    return RundownItem(
+      time: json['time'] ?? '',
+      activity: json['activity'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'time': time,
+      'activity': activity,
+    };
+  }
 }
 
 class GuestModel {
   final String id;
-  final String nama;
-  final String nomorHP;
-  bool hadir;
-  bool checkedIn;
-  final String? qrData;
+  final String name;      
+  final String phone;     
+  final String status;    
+  final bool hadir;       
+  final bool checkedIn;   
+  final String qrData;   
 
   GuestModel({
     required this.id,
-    required this.nama,
-    required this.nomorHP,
+    required this.name,
+    required this.phone,
+    required this.status,
     this.hadir = false,
     this.checkedIn = false,
-    this.qrData,
+    this.qrData = '',
   });
-}
 
+  factory GuestModel.fromJson(Map<String, dynamic> json) {
+    // Ambil status asli dari backend Flask
+    final currentStatus = json['status'] ?? 'pending';
+
+    return GuestModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '-',
+      status: currentStatus,
+      // 🟢 SINKRONISASI STATUS: Otomatis bernilai true jika terkonfirmasi hadir atau sudah check-in
+      hadir: currentStatus == 'confirmed' || currentStatus == 'attended',
+      // 🟢 SINKRONISASI CHECK-IN: Bernilai true hanya jika statusnya sudah 'attended' (lewat scan QR)
+      checkedIn: currentStatus == 'attended',
+      // 🟢 FIX UTAMA: Menyesuaikan nama key dari Flask ('qr_code', bukan 'qr_data')
+      qrData: json['qr_code'] ?? '', 
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      'status': status,
+      'checked_in': checkedIn,
+      'qr_code': qrData,
+    };
+  }
+}
 class BookingModel {
   final String id;
   final String customerName;
@@ -196,6 +269,7 @@ class BookingModel {
     );
   }
 }
+
 class MessageModel {
   final String id;
   final String senderId;

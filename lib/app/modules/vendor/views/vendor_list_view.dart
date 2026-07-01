@@ -22,17 +22,12 @@ class VendorListView extends GetView<VendorController> {
               )),
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              _buildSearch(),
-              _buildCategories(),
-              _buildFilterBar(),
-              Expanded(child: _buildVendorList()),
-            ],
-          ),
-          
+          _buildSearch(),
+          _buildCategories(),
+          _buildFilterBar(),
+          Expanded(child: _buildVendorList()),
         ],
       ),
     );
@@ -125,35 +120,56 @@ class VendorListView extends GetView<VendorController> {
     );
   }
 
+  // ── 🟢 FIX UTAMA: SEKARANG MENDUKUNG PULL TO REFRESH DINAMIS DARI SERVER ──
   Widget _buildVendorList() {
     return Obx(() {
       if (controller.filteredVendors.isEmpty) {
-        return const EmptyState(
-          icon: Icons.store_rounded,
-          title: 'Vendor Tidak Ditemukan',
-          subtitle: 'Coba ubah filter atau kata kunci pencarian Anda',
+        return RefreshIndicator(
+          color: AppColors.primary,
+          backgroundColor: Colors.white,
+          onRefresh: () => controller.refreshVendors(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(), // Memaksa scroll aktif saat kosong
+            children: const [
+              SizedBox(height: 100),
+              EmptyState(
+                icon: Icons.store_rounded,
+                title: 'Vendor Tidak Ditemukan',
+                subtitle: 'Coba ubah filter atau kata kunci pencarian Anda',
+              ),
+            ],
+          ),
         );
       }
-      return controller.isGridView.value
-          ? GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 12, mainAxisSpacing: 12),
-              itemCount: controller.filteredVendors.length,
-              itemBuilder: (_, i) => _VendorGridCard(
-                vendor: controller.filteredVendors[i],
-                onTap: () => controller.goToDetail(controller.filteredVendors[i]),
+
+      return RefreshIndicator(
+        color: AppColors.primary,
+        backgroundColor: Colors.white,
+        onRefresh: () => controller.refreshVendors(),
+        child: controller.isGridView.value
+            ? GridView.builder(
+                padding: const EdgeInsets.all(16),
+                // Gunakan AlwaysScrollableScrollPhysics agar bisa di-pull down
+                physics: const AlwaysScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 12, mainAxisSpacing: 12),
+                itemCount: controller.filteredVendors.length,
+                itemBuilder: (_, i) => _VendorGridCard(
+                  vendor: controller.filteredVendors[i],
+                  onTap: () => controller.goToDetail(controller.filteredVendors[i]),
+                ),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: controller.filteredVendors.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (_, i) => _VendorListCard(
+                  vendor: controller.filteredVendors[i],
+                  onTap: () => controller.goToDetail(controller.filteredVendors[i]),
+                ),
               ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: controller.filteredVendors.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _VendorListCard(
-                vendor: controller.filteredVendors[i],
-                onTap: () => controller.goToDetail(controller.filteredVendors[i]),
-              ),
-            );
+      );
     });
   }
 }

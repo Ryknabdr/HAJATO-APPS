@@ -31,30 +31,27 @@ class LoginController extends GetxController {
   }
 
   Future<void> saveFCMToken(String jwtToken) async {
-  try {
-    final fcmToken =
-        await FirebaseMessaging.instance.getToken();
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
 
-    if (fcmToken == null) return;
+      if (fcmToken == null) return;
 
-    await http.post(
-      Uri.parse(
-        '${ApiConfig.baseUrl}/api/auth/save-fcm-token',
-      ),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $jwtToken',
-      },
-      body: jsonEncode({
-        'fcm_token': fcmToken,
-      }),
-    );
+      await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/save-fcm-token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+        body: jsonEncode({
+          'fcm_token': fcmToken,
+        }),
+      );
 
-    print('FCM TOKEN SAVED');
-  } catch (e) {
-    print('SAVE FCM ERROR: $e');
+      print('FCM TOKEN SAVED');
+    } catch (e) {
+      print('SAVE FCM ERROR: $e');
+    }
   }
-}
 
   Future<void> login() async {
     if (!formKey.currentState!.validate()) return;
@@ -85,9 +82,22 @@ class LoginController extends GetxController {
         final vendorStatus = data['vendor_status'] ?? '';
         final businessName = data['business_name'] ?? '';
         final photoUrl = data['photo_url'] ?? '';
-        final prefs = await SharedPreferences.getInstance();
+        
+        // Ambil event id dari server jika diselipkan di response API backend
+        final eventId = data['event_id'] ?? ''; 
 
-        await prefs.clear();
+        final prefs = await SharedPreferences.getInstance();
+        
+        // ── 🟢 FIX 1: HAPUS SECARA SPESIFIK DATA SESI LAMA, JANGAN CLEAR SEMUA ──
+        await prefs.remove('token');
+        await prefs.remove('user_id');
+        await prefs.remove('name');
+        await prefs.remove('email');
+        await prefs.remove('phone');
+        await prefs.remove('role');
+        await prefs.remove('vendor_status');
+        await prefs.remove('business_name');
+        await prefs.remove('photo_url');
 
         await prefs.setString('token', token);
         await prefs.setString('user_id', userId);
@@ -98,11 +108,20 @@ class LoginController extends GetxController {
         await prefs.setString('vendor_status', vendorStatus);
         await prefs.setString('business_name', businessName);
         await prefs.setString('photo_url', photoUrl);
+        await prefs.setBool('isLoggedIn', true);
+        
+        // ── 🟢 FIX 2: HANYA TIMPA EVENT ID DARI SERVER JIKA BACKEND MENYEDIAKANNYA ──
+        if (eventId.toString().isNotEmpty) {
+          await prefs.setString('selected_event_id', eventId.toString());
+        }
+        
         await saveFCMToken(token);
+        
         print("TOKEN : $token");
         print("ROLE : $role");
         print("VENDOR STATUS : $vendorStatus");
         print("BUSINESS NAME : $businessName");
+        print("EVENT ID DI LOGIN : $eventId");
 
         Get.snackbar(
           'Berhasil',
@@ -128,7 +147,7 @@ class LoginController extends GetxController {
           colorText: const Color(0xFF991F1F),
           margin: const EdgeInsets.all(16),
           borderRadius: 12,
-        );
+      );
       }
     } catch (e) {
       print(e);
@@ -151,114 +170,132 @@ class LoginController extends GetxController {
     Get.offNamed(AppRoutes.register);
   }
 
-void goToForgotPassword() {
-  Get.toNamed(AppRoutes.forgotPassword);
-}
+  void goToForgotPassword() {
+    Get.toNamed(AppRoutes.forgotPassword);
+  }
 
-Future<void> loginWithGoogle() async {
-  isLoading.value = true;
+  Future<void> loginWithGoogle() async {
+    isLoading.value = true;
 
-  try {
-    final googleSignIn = GoogleSignIn.instance;
+    try {
+      final googleSignIn = GoogleSignIn.instance;
 
-    await googleSignIn.initialize(
-  serverClientId:
-      '657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com',
-);
-
-    final googleUser = await googleSignIn.authenticate();
-
-    final googleAuth = googleUser.authentication;
-    final idToken = googleAuth.idToken;
-
-    if (idToken == null) {
-      Get.snackbar(
-        'Google Login Gagal',
-        'ID Token tidak ditemukan',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/auth/google-login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'idToken': idToken,
-      }),
-    );
-
-    print("GOOGLE STATUS : ${response.statusCode}");
-    print("GOOGLE BODY : ${response.body}");
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      final token = data['token'] ?? '';
-      final userId = data['user_id'] ?? '';
-      final name = data['name'] ?? '';
-      final email = data['email'] ?? '';
-      final role = data['role'] ?? '';
-      final phone = data['phone'] ?? '';
-      final vendorStatus = data['vendor_status'] ?? '';
-      final businessName = data['business_name'] ?? '';
-      final photoUrl = data['photo_url'] ?? '';
-      final prefs = await SharedPreferences.getInstance();
-
-      await prefs.clear();
-      await prefs.setString('token', token);
-      await prefs.setString('user_id', userId);
-      await prefs.setString('name', name);
-      await prefs.setString('email', email);
-      await prefs.setString('phone', phone);
-      await prefs.setString('role', role);
-      await prefs.setString('vendor_status', vendorStatus);
-      await prefs.setString('business_name', businessName);
-      await prefs.setString('photo_url', photoUrl);
-      await saveFCMToken(token);
-
-      Get.snackbar(
-        'Berhasil',
-        'Login Google berhasil',
-        snackPosition: SnackPosition.TOP,
+      await googleSignIn.initialize(
+        serverClientId: '657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com',
       );
 
-      if (role == 'admin') {
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else if (role == 'vendor' && vendorStatus == 'approved') {
-        Get.offAllNamed(AppRoutes.vendorDashboard);
-      } else if (role == 'vendor_pending' || vendorStatus == 'pending') {
-        Get.offAllNamed(AppRoutes.vendorDashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.home, arguments: data);
+      final googleUser = await googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        Get.snackbar(
+          'Google Login Gagal',
+          'ID Token tidak ditemukan',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
       }
-    } else {
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/google-login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'idToken': idToken,
+        }),
+      );
+
+      print("GOOGLE STATUS : ${response.statusCode}");
+      print("GOOGLE BODY : ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final token = data['token'] ?? '';
+        final userId = data['user_id'] ?? '';
+        final name = data['name'] ?? '';
+        final email = data['email'] ?? '';
+        final role = data['role'] ?? '';
+        final phone = data['phone'] ?? '';
+        final vendorStatus = data['vendor_status'] ?? '';
+        final businessName = data['business_name'] ?? '';
+        final photoUrl = data['photo_url'] ?? '';
+        
+        final eventId = data['event_id'] ?? '';
+
+        final prefs = await SharedPreferences.getInstance();
+
+        // ── 🟢 FIX 3: SAMA SEPERTI DI ATAS, HAPUS SESI LAMA SECARA PARSIAL JANGAN SENGGOL EVENT ID ──
+        await prefs.remove('token');
+        await prefs.remove('user_id');
+        await prefs.remove('name');
+        await prefs.remove('email');
+        await prefs.remove('phone');
+        await prefs.remove('role');
+        await prefs.remove('vendor_status');
+        await prefs.remove('business_name');
+        await prefs.remove('photo_url');
+
+        await prefs.setString('token', token);
+        await prefs.setString('user_id', userId);
+        await prefs.setString('name', name);
+        await prefs.setString('email', email);
+        await prefs.setString('phone', phone);
+        await prefs.setString('role', role);
+        await prefs.setString('vendor_status', vendorStatus);
+        await prefs.setString('business_name', businessName);
+        await prefs.setString('photo_url', photoUrl);
+        
+        if (eventId.toString().isNotEmpty) {
+          await prefs.setString('selected_event_id', eventId.toString());
+        }
+        
+        await saveFCMToken(token);
+        print("GOOGLE EVENT ID : $eventId");
+
+        Get.snackbar(
+          'Berhasil',
+          'Login Google berhasil',
+          snackPosition: SnackPosition.TOP,
+        );
+
+        if (role == 'admin') {
+          Get.offAllNamed(AppRoutes.dashboard);
+        } else if (role == 'vendor' && vendorStatus == 'approved') {
+          Get.offAllNamed(AppRoutes.vendorDashboard);
+        } else if (role == 'vendor_pending' || vendorStatus == 'pending') {
+          Get.offAllNamed(AppRoutes.vendorDashboard);
+        } else {
+          Get.offAllNamed(AppRoutes.home, arguments: data);
+        }
+      } else {
+        Get.snackbar(
+          'Google Login Gagal',
+          data['message'] ?? 'Terjadi kesalahan',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFFEDED),
+          colorText: const Color(0xFF991F1F),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+        );
+      }
+    } catch (e) {
+      print("GOOGLE LOGIN ERROR : $e");
+
       Get.snackbar(
-        'Google Login Gagal',
-        data['message'] ?? 'Terjadi kesalahan',
+        'Error',
+        'Tidak dapat login dengan Google',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFFFEDED),
         colorText: const Color(0xFF991F1F),
         margin: const EdgeInsets.all(16),
         borderRadius: 12,
       );
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    print("GOOGLE LOGIN ERROR : $e");
-
-    Get.snackbar(
-      'Error',
-      'Tidak dapat login dengan Google',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFFFFEDED),
-      colorText: const Color(0xFF991F1F),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
-  } finally {
-    isLoading.value = false;
   }
-}
+
   void loginWithFaceId() {
     Get.snackbar(
       'Segera Hadir',
