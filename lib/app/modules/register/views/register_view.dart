@@ -407,7 +407,7 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 16),
 
-            // ── Social Buttons ──
+           // ── Social Buttons & Vendor ──
             Row(
               children: [
                 Expanded(
@@ -420,10 +420,14 @@ class _FormPanel extends GetView<RegisterController> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _SocialIconButton(
-                    label: 'Face ID',
-                    icon: Icons.face_retouching_natural_rounded,
+                    label: 'Daftar Vendor', // 🟢 Teks diubah
+                    icon: Icons.storefront_rounded, // 🟢 Ikon diganti jadi ikon toko/vendor
                     iconColor: AppColors.primary,
-                    onTap: controller.loginWithFaceId,
+                    onTap: () {
+                      // 🟢 Navigasi GetX ke halaman registrasi vendor
+                      // Pastikan string '/register-vendor' ini sesuai dengan nama route di main.dart / app_pages.dart kamu ya!
+                      Get.toNamed('/vendor-registration'); 
+                    },
                   ),
                 ),
               ],
