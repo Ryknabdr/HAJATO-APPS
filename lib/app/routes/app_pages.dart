@@ -72,6 +72,8 @@ import '../modules/vendor_data/bindings/vendor_data_binding.dart';
 import '../modules/vendor_data/views/vendor_data_view.dart';
 import '../modules/change_password/bindings/change_password_binding.dart';
 import '../modules/change_password/views/change_password_view.dart';
+import '../modules/insight/bindings/insight_binding.dart';
+import '../modules/insight/views/insight_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -327,5 +329,11 @@ class AppPages {
       name: AppRoutes.vendorSchedule,
       page: () => const VendorScheduleView(),
     ),
+    GetPage(
+    name: AppRoutes.insight,
+    page: () => const InsightView(),
+    binding: InsightBinding(),
+    transition: Transition.rightToLeft,
+  ),
   ];
 }

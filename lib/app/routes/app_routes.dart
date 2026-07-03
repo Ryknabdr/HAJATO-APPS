@@ -44,4 +44,5 @@ abstract class AppRoutes {
   static const vendorSchedule = '/vendor-schedule';
   static const vendorData = '/vendor-data';
   static const changePassword = '/change-password';
+  static const insight = '/insight';
 }
