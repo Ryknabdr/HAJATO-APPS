@@ -7,6 +7,8 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../data/models/models.dart';
 import '../../../routes/app_routes.dart';
 import '../controllers/home_controller.dart';
+// IMPORT SERVICE BANNER BARU
+import '../../../services/banner_services.dart'; 
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -41,7 +43,6 @@ class HomeView extends GetView<HomeController> {
   // ============================================================
   // HEADER
   // ============================================================
-
   Widget _buildHeader() {
     return Container(
       color: Colors.white,
@@ -161,7 +162,6 @@ class HomeView extends GetView<HomeController> {
   // ============================================================
   // SEARCH
   // ============================================================
-
   Widget _buildSearch() {
     return Container(
       color: Colors.white,
@@ -210,7 +210,6 @@ class HomeView extends GetView<HomeController> {
   // ============================================================
   // BODY
   // ============================================================
-
   Widget _buildBody() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -223,7 +222,7 @@ class HomeView extends GetView<HomeController> {
           _Categories(),
           const SizedBox(height: 20),
 
-          // Slider vendor pengganti banner promo
+          // Slider vendor pengganti banner promo dinamis
           const _VendorSlider(),
 
           const SizedBox(height: 24),
@@ -398,15 +397,9 @@ class HomeView extends GetView<HomeController> {
                     controller.latestYoutubeVideos[index];
 
                 final String thumbnail = (video['thumbnail'] ?? '').toString();
-
-                final String title = (video['title'] ?? 'Tanpa judul')
-                    .toString();
-
-                final String kategori = (video['kategori'] ?? 'Inspirasi')
-                    .toString();
-
+                final String title = (video['title'] ?? 'Tanpa judul').toString();
+                final String kategori = (video['kategori'] ?? 'Inspirasi').toString();
                 final String channel = (video['channel'] ?? '-').toString();
-
                 final String videoLink = (video['video_link'] ?? '').toString();
 
                 return _YoutubeVideoCard(
@@ -430,10 +423,8 @@ class HomeView extends GetView<HomeController> {
 // ============================================================
 // SECTION LABEL
 // ============================================================
-
 class _SectionLabel extends StatelessWidget {
   final String text;
-
   const _SectionLabel(this.text);
 
   @override
@@ -452,7 +443,6 @@ class _SectionLabel extends StatelessWidget {
 // ============================================================
 // KATEGORI
 // ============================================================
-
 class _Categories extends GetView<HomeController> {
   _Categories();
 
@@ -480,13 +470,10 @@ class _Categories extends GetView<HomeController> {
         },
         itemBuilder: (_, index) {
           final Map<String, String> category = controller.categories[index];
-
-          final Color color =
-              AppColors.categoryColors[index % AppColors.categoryColors.length];
+          final Color color = AppColors.categoryColors[index % AppColors.categoryColors.length];
 
           return Obx(() {
-            final bool isSelected =
-                controller.selectedCategory.value == category['label'];
+            final bool isSelected = controller.selectedCategory.value == category['label'];
 
             return GestureDetector(
               onTap: () {
@@ -500,9 +487,7 @@ class _Categories extends GetView<HomeController> {
                     width: 54,
                     height: 54,
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? color.withOpacity(0.12)
-                          : Colors.white,
+                      color: isSelected ? color.withOpacity(0.12) : Colors.white,
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
                         color: isSelected ? color : const Color(0xFFEEEEEE),
@@ -522,9 +507,7 @@ class _Categories extends GetView<HomeController> {
                         : category['label']!,
                     style: GoogleFonts.poppins(
                       fontSize: 10,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected ? color : AppColors.textSecondary,
                     ),
                     textAlign: TextAlign.center,
@@ -540,100 +523,63 @@ class _Categories extends GetView<HomeController> {
 }
 
 // ============================================================
-// SLIDER VENDOR
+// SLIDER BANNER REKOMENDASI DAN TIPS (DINAMIS DARI DATABASE)
 // ============================================================
-
-class _VendorSlider extends GetView<HomeController> {
+class _VendorSlider extends StatelessWidget {
   const _VendorSlider();
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final List<VendorModel> vendors = controller.allVendors.toList();
+    return FutureBuilder<List<dynamic>>(
+      future: BannerServices.fetchActiveBanners(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 215,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-      if (vendors.isEmpty) {
-        return Container(
-          width: double.infinity,
-          height: 190,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEEEEEE)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.storefront_outlined,
-                size: 40,
-                color: AppColors.textHint,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Belum ada vendor tersedia',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        );
-      }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const _SectionLabel('Vendor Terbaru'),
-              GestureDetector(
-                onTap: () {
-                  controller.goToVendorList(null);
-                },
-                child: Text(
-                  'Lihat Semua',
+        final List<dynamic> banners = snapshot.data!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _SectionLabel('Rekomendasi Spesial'),
+                Text(
+                  'Info',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 4),
-
-          Text(
-            'Temukan vendor terbaik untuk acara impianmu',
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              color: AppColors.textSecondary,
+              ],
             ),
-          ),
+            const SizedBox(height: 4),
+            Text(
+              'Info penting dan panduan menarik untuk acaramu',
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 215,
+              child: PageView.builder(
+                itemCount: banners.length,
+                itemBuilder: (context, index) {
+                  final banner = banners[index];
 
-          const SizedBox(height: 12),
-
-          SizedBox(
-            height: 215,
-            child: PageView.builder(
-              controller: controller.vendorSliderController,
-              itemCount: vendors.length,
-              onPageChanged: controller.onVendorSlideChanged,
-              itemBuilder: (context, index) {
-                final VendorModel vendor = vendors[index];
-
-                final String description = vendor.description.trim().isEmpty
-                    ? 'Temukan layanan terbaik untuk kebutuhan acara impianmu.'
-                    : vendor.description.trim();
-
-                return GestureDetector(
-                  onTap: () {
-                    controller.goToVendorDetail(vendor);
-                  },
-                  child: Container(
+                  return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
@@ -650,17 +596,18 @@ class _VendorSlider extends GetView<HomeController> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        if (vendor.imageUrl.isNotEmpty)
-                          Image.network(
-                            vendor.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) {
-                              return const _VendorImagePlaceholder();
-                            },
-                          )
-                        else
-                          const _VendorImagePlaceholder(),
-
+                        Image.network(
+                          banner['image_url'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) {
+                            return Container(
+                              color: AppColors.primary,
+                              child: const Center(
+                                child: Icon(Icons.image_outlined, size: 40, color: Colors.white),
+                              ),
+                            );
+                          },
+                        ),
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -675,35 +622,6 @@ class _VendorSlider extends GetView<HomeController> {
                             ),
                           ),
                         ),
-
-                        Positioned(
-                          top: 14,
-                          left: 14,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 9,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              vendor.category.trim().isEmpty
-                                  ? 'VENDOR'
-                                  : vendor.category.toUpperCase(),
-                              style: GoogleFonts.poppins(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: 0.3,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-
                         Positioned(
                           left: 18,
                           right: 18,
@@ -712,7 +630,7 @@ class _VendorSlider extends GetView<HomeController> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                vendor.name,
+                                banner['title'],
                                 style: GoogleFonts.poppins(
                                   fontSize: 19,
                                   fontWeight: FontWeight.w700,
@@ -722,11 +640,9 @@ class _VendorSlider extends GetView<HomeController> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-
                               const SizedBox(height: 5),
-
                               Text(
-                                description,
+                                banner['subtitle'],
                                 style: GoogleFonts.poppins(
                                   fontSize: 10,
                                   color: Colors.white.withOpacity(0.82),
@@ -735,131 +651,19 @@ class _VendorSlider extends GetView<HomeController> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-
                               const SizedBox(height: 10),
-
-                              Row(
-                                children: [
-                                  if (vendor.location.trim().isNotEmpty) ...[
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        vendor.location,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 10,
-                                          color: Colors.white,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ] else
-                                    const Spacer(),
-
-                                  const SizedBox(width: 10),
-
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 7,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(9),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Lihat Vendor',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.primary,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_rounded,
-                                          size: 14,
-                                          color: AppColors.primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          if (vendors.length > 1) ...[
-            const SizedBox(height: 11),
-            SizedBox(
-              width: double.infinity,
-              height: 8,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: MediaQuery.of(context).size.width - 32,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(vendors.length, (index) {
-                      final bool selected =
-                          controller.currentVendorSlide.value == index;
-
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: selected ? 18 : 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.primary.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ],
-        ],
-      );
-    });
-  }
-}
-
-class _VendorImagePlaceholder extends StatelessWidget {
-  const _VendorImagePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primary,
-      child: Center(
-        child: Icon(
-          Icons.storefront_rounded,
-          size: 55,
-          color: Colors.white.withOpacity(0.35),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -867,7 +671,6 @@ class _VendorImagePlaceholder extends StatelessWidget {
 // ============================================================
 // VENDOR CARD
 // ============================================================
-
 class _VendorCard extends StatefulWidget {
   final VendorModel vendor;
   final VoidCallback onTap;
@@ -875,9 +678,7 @@ class _VendorCard extends StatefulWidget {
   const _VendorCard({required this.vendor, required this.onTap});
 
   @override
-  State<_VendorCard> createState() {
-    return _VendorCardState();
-  }
+  State<_VendorCard> createState() => _VendorCardState();
 }
 
 class _VendorCardState extends State<_VendorCard> {
@@ -886,23 +687,12 @@ class _VendorCardState extends State<_VendorCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _pressed = true;
-        });
-      },
+      onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
-        setState(() {
-          _pressed = false;
-        });
-
+        setState(() => _pressed = false);
         widget.onTap();
       },
-      onTapCancel: () {
-        setState(() {
-          _pressed = false;
-        });
-      },
+      onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
         scale: _pressed ? 0.98 : 1,
         duration: const Duration(milliseconds: 120),
@@ -915,18 +705,14 @@ class _VendorCardState extends State<_VendorCard> {
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(15),
-                ),
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(15)),
                 child: widget.vendor.imageUrl.isNotEmpty
                     ? Image.network(
                         widget.vendor.imageUrl,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) {
-                          return _buildImagePlaceholder();
-                        },
+                        errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
                       )
                     : _buildImagePlaceholder(),
               ),
@@ -937,10 +723,7 @@ class _VendorCardState extends State<_VendorCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(5),
@@ -971,19 +754,12 @@ class _VendorCardState extends State<_VendorCard> {
                       const SizedBox(height: 3),
                       Row(
                         children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            size: 11,
-                            color: AppColors.textHint,
-                          ),
+                          Icon(Icons.location_on_rounded, size: 11, color: AppColors.textHint),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               widget.vendor.location,
-                              style: GoogleFonts.poppins(
-                                fontSize: 11,
-                                color: AppColors.textSecondary,
-                              ),
+                              style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -996,11 +772,7 @@ class _VendorCardState extends State<_VendorCard> {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.star_rounded,
-                                color: AppColors.warning,
-                                size: 13,
-                              ),
+                              Icon(Icons.star_rounded, color: AppColors.warning, size: 13),
                               const SizedBox(width: 3),
                               Text(
                                 widget.vendor.rating.toStringAsFixed(1),
@@ -1012,10 +784,7 @@ class _VendorCardState extends State<_VendorCard> {
                               ),
                               Text(
                                 ' (${widget.vendor.reviewCount})',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10,
-                                  color: AppColors.textHint,
-                                ),
+                                style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint),
                               ),
                             ],
                           ),
@@ -1045,11 +814,7 @@ class _VendorCardState extends State<_VendorCard> {
       width: 100,
       height: 100,
       color: AppColors.primary.withOpacity(0.06),
-      child: Icon(
-        Icons.image_outlined,
-        color: AppColors.primary.withOpacity(0.3),
-        size: 28,
-      ),
+      child: Icon(Icons.image_outlined, color: AppColors.primary.withOpacity(0.3), size: 28),
     );
   }
 }
@@ -1057,7 +822,6 @@ class _VendorCardState extends State<_VendorCard> {
 // ============================================================
 // VIDEO YOUTUBE CARD
 // ============================================================
-
 class _YoutubeVideoCard extends StatelessWidget {
   final String thumbnail;
   final String title;
@@ -1087,9 +851,7 @@ class _YoutubeVideoCard extends StatelessWidget {
           GestureDetector(
             onTap: onTap,
             child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(15),
-              ),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15)),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -1099,9 +861,7 @@ class _YoutubeVideoCard extends StatelessWidget {
                           width: 120,
                           height: 110,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) {
-                            return _buildThumbnailPlaceholder();
-                          },
+                          errorBuilder: (_, __, ___) => _buildThumbnailPlaceholder(),
                         )
                       : _buildThumbnailPlaceholder(),
                   Container(
@@ -1111,11 +871,7 @@ class _YoutubeVideoCard extends StatelessWidget {
                       color: Colors.black.withOpacity(0.55),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24),
                   ),
                 ],
               ),
@@ -1128,21 +884,14 @@ class _YoutubeVideoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
                       kategori.toUpperCase(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
+                      style: GoogleFonts.poppins(fontSize: 8, fontWeight: FontWeight.w700, color: AppColors.primary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1162,19 +911,12 @@ class _YoutubeVideoCard extends StatelessWidget {
                   const Spacer(),
                   Row(
                     children: [
-                      Icon(
-                        Icons.account_circle_outlined,
-                        size: 13,
-                        color: AppColors.textHint,
-                      ),
+                      Icon(Icons.account_circle_outlined, size: 13, color: AppColors.textHint),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           channel,
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            color: AppColors.textSecondary,
-                          ),
+                          style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textSecondary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1207,10 +949,7 @@ class _YoutubeVideoCard extends StatelessWidget {
       width: 120,
       height: 110,
       color: AppColors.primary.withOpacity(0.06),
-      child: Icon(
-        Icons.image_outlined,
-        color: AppColors.primary.withOpacity(0.4),
-      ),
+      child: Icon(Icons.image_outlined, color: AppColors.primary.withOpacity(0.4)),
     );
   }
 }
@@ -1218,7 +957,6 @@ class _YoutubeVideoCard extends StatelessWidget {
 // ============================================================
 // BOTTOM NAVIGATION
 // ============================================================
-
 class _BottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -1246,9 +984,7 @@ class _BottomNav extends StatelessWidget {
 
           return Expanded(
             child: GestureDetector(
-              onTap: () {
-                onTap(index);
-              },
+              onTap: () => onTap(index),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1257,9 +993,7 @@ class _BottomNav extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.transparent,
+                      color: isActive ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(

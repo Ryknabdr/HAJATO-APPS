@@ -217,6 +217,31 @@ class GuestModel {
     };
   }
 }
+class BannerModel {
+  final String id;
+  final String title;
+  final String subtitle;
+  final String imageUrl;
+  final String clickAction;
+
+  BannerModel({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.imageUrl,
+    required this.clickAction,
+  });
+
+  factory BannerModel.fromJson(Map<String, dynamic> json) {
+    return BannerModel(
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      subtitle: json['subtitle'] ?? '',
+      imageUrl: json['image_url'] ?? '',
+      clickAction: json['click_action'] ?? 'none',
+    );
+  }
+}
 class BookingModel {
   final String id;
   final String customerName;

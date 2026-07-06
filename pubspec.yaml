@@ -79,7 +79,6 @@ flutter_launcher_icons:
   image_path: "assets/images/hajatonew.png" # Memakai logo andalanmu yang sudah terdaftar di aset
   adaptive_icon_background: "#00796B"       # Warna dasar background siluet Android
   adaptive_icon_foreground: "assets/images/hajatonew.png"
-
 # ── 🟢 KONFIGURASI UTAMA SPLASH SCREEN (ANTI BLANK HITAM) ──
 flutter_native_splash:
   color: "#FFFFFF" # Background diubah menjadi putih bersih
