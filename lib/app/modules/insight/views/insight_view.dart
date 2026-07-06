@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -90,8 +89,11 @@ class InsightView extends GetView<InsightController> {
               if (controller.categoryStats.isNotEmpty) ...[
                 _buildBarChart(),
                 const SizedBox(height: 16),
-                _buildPieChart(),
-                const SizedBox(height: 24),
+
+                if (controller.trendStats.isNotEmpty) ...[
+                  _buildTrendModelChart(),
+                  const SizedBox(height: 24),
+                ],
               ],
 
               _buildVideoHeader(),
@@ -319,9 +321,8 @@ class InsightView extends GetView<InsightController> {
               final bool selected =
                   controller.selectedCategory.value == kategori;
 
-              final String label = kategori == 'semua'
-                  ? 'Semua'
-                  : _formatCategory(kategori);
+              final String label =
+                  kategori == 'semua' ? 'Semua' : _formatCategory(kategori);
 
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
@@ -395,7 +396,10 @@ class InsightView extends GetView<InsightController> {
           const SizedBox(height: 4),
           Text(
             'Jumlah video yang berhasil dikoleksi berdasarkan kategori',
-            style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint),
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              color: AppColors.textHint,
+            ),
           ),
           const SizedBox(height: 18),
           ...List.generate(stats.length, (index) {
@@ -455,37 +459,21 @@ class InsightView extends GetView<InsightController> {
   }
 
   // ============================================================
-  // DIAGRAM LINGKARAN
+  // GRAFIK TREND MODEL HAJATAN
   // ============================================================
 
-  Widget _buildPieChart() {
-    final stats = controller.categoryStats;
+  Widget _buildTrendModelChart() {
+    final trends = controller.trendStats;
 
-    int total = 0;
+    int maxValue = 1;
 
-    for (final item in stats) {
-      total += (item['jumlah'] as num?)?.toInt() ?? 0;
-    }
-
-    final sections = List.generate(stats.length, (index) {
-      final item = stats[index];
-
+    for (final item in trends) {
       final int jumlah = (item['jumlah'] as num?)?.toInt() ?? 0;
 
-      final double percentage = total == 0 ? 0 : (jumlah / total) * 100;
-
-      return PieChartSectionData(
-        color: _chartColors[index % _chartColors.length],
-        value: jumlah.toDouble(),
-        title: '${percentage.toStringAsFixed(0)}%',
-        radius: 54,
-        titleStyle: GoogleFonts.poppins(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
-      );
-    });
+      if (jumlah > maxValue) {
+        maxValue = jumlah;
+      }
+    }
 
     return Container(
       width: double.infinity,
@@ -499,7 +487,7 @@ class InsightView extends GetView<InsightController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Komposisi Kategori Video',
+            'Trend Model Hajatan',
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -508,54 +496,66 @@ class InsightView extends GetView<InsightController> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Persentase video pada setiap kategori',
-            style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 190,
-            child: PieChart(
-              PieChartData(
-                sections: sections,
-                sectionsSpace: 3,
-                centerSpaceRadius: 42,
-                startDegreeOffset: -90,
-                borderData: FlBorderData(show: false),
-              ),
+            'Model hajatan yang sering muncul pada judul dan deskripsi video',
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              color: AppColors.textHint,
             ),
           ),
           const SizedBox(height: 18),
-          Wrap(
-            spacing: 12,
-            runSpacing: 10,
-            children: List.generate(stats.length, (index) {
-              final item = stats[index];
 
-              final String kategori = (item['kategori'] ?? '-').toString();
+          ...List.generate(trends.length, (index) {
+            final item = trends[index];
 
-              return Row(
-                mainAxisSize: MainAxisSize.min,
+            final String model =
+                (item['model'] ?? item['keyword'] ?? '-').toString();
+
+            final int jumlah = (item['jumlah'] as num?)?.toInt() ?? 0;
+
+            final double progress = maxValue == 0 ? 0 : jumlah / maxValue;
+
+            final Color color = _chartColors[index % _chartColors.length];
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Column(
                 children: [
-                  Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      color: _chartColors[index % _chartColors.length],
-                      shape: BoxShape.circle,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _formatCategory(model),
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '$jumlah video',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    _formatCategory(kategori),
-                    style: GoogleFonts.poppins(
-                      fontSize: 9,
-                      color: AppColors.textSecondary,
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 9,
+                      backgroundColor: color.withOpacity(0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                   ),
                 ],
-              );
-            }),
-          ),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -824,7 +824,10 @@ class InsightView extends GetView<InsightController> {
           const SizedBox(height: 4),
           Text(
             'Belum ada video untuk kategori ini.',
-            style: GoogleFonts.poppins(fontSize: 10, color: AppColors.textHint),
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              color: AppColors.textHint,
+            ),
           ),
         ],
       ),
@@ -835,13 +838,15 @@ class InsightView extends GetView<InsightController> {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: OutlinedButton.icon(
-        onPressed: controller.isLoadingMore.value
-            ? null
-            : controller.loadMoreVideos,
+        onPressed:
+            controller.isLoadingMore.value ? null : controller.loadMoreVideos,
         icon: const Icon(Icons.expand_more_rounded, size: 20),
         label: Text(
           'Muat Video Lainnya',
-          style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700),
+          style: GoogleFonts.poppins(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,

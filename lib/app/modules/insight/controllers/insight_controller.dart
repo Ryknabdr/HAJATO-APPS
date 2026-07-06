@@ -25,6 +25,9 @@ class InsightController extends GetxController {
   final RxList<Map<String, dynamic>> categoryStats =
       <Map<String, dynamic>>[].obs;
 
+  final RxList<Map<String, dynamic>> trendStats =
+      <Map<String, dynamic>>[].obs;
+
   // ============================================================
   // FILTER KATEGORI
   // ============================================================
@@ -140,6 +143,15 @@ class InsightController extends GetxController {
 
     categoryStats.assignAll(
       stats.map((item) {
+        return Map<String, dynamic>.from(item);
+      }).toList(),
+    );
+
+    final List<dynamic> trends =
+        data['trend_stats'] ?? [];
+
+    trendStats.assignAll(
+      trends.map((item) {
         return Map<String, dynamic>.from(item);
       }).toList(),
     );
@@ -385,50 +397,50 @@ class InsightController extends GetxController {
   // FORMAT WAKTU UPDATE
   // ============================================================
 
-String get formattedLastUpdate {
-  if (lastUpdate.value.isEmpty) {
-    return '-';
+  String get formattedLastUpdate {
+    if (lastUpdate.value.isEmpty) {
+      return '-';
+    }
+
+    final DateTime? parsedDate =
+        DateTime.tryParse(lastUpdate.value);
+
+    if (parsedDate == null) {
+      return lastUpdate.value;
+    }
+
+    // Waktu dari MongoDB dianggap sebagai UTC
+    final DateTime utcDate = parsedDate.isUtc
+        ? parsedDate
+        : DateTime.utc(
+            parsedDate.year,
+            parsedDate.month,
+            parsedDate.day,
+            parsedDate.hour,
+            parsedDate.minute,
+            parsedDate.second,
+            parsedDate.millisecond,
+            parsedDate.microsecond,
+          );
+
+    // Konversi UTC menjadi WIB
+    final DateTime wibDate =
+        utcDate.add(const Duration(hours: 7));
+
+    final String day =
+        wibDate.day.toString().padLeft(2, '0');
+
+    final String month =
+        wibDate.month.toString().padLeft(2, '0');
+
+    final String year = wibDate.year.toString();
+
+    final String hour =
+        wibDate.hour.toString().padLeft(2, '0');
+
+    final String minute =
+        wibDate.minute.toString().padLeft(2, '0');
+
+    return '$day/$month/$year $hour:$minute WIB';
   }
-
-  final DateTime? parsedDate =
-      DateTime.tryParse(lastUpdate.value);
-
-  if (parsedDate == null) {
-    return lastUpdate.value;
-  }
-
-  // Waktu dari MongoDB dianggap sebagai UTC
-  final DateTime utcDate = parsedDate.isUtc
-      ? parsedDate
-      : DateTime.utc(
-          parsedDate.year,
-          parsedDate.month,
-          parsedDate.day,
-          parsedDate.hour,
-          parsedDate.minute,
-          parsedDate.second,
-          parsedDate.millisecond,
-          parsedDate.microsecond,
-        );
-
-  // Konversi UTC menjadi WIB
-  final DateTime wibDate =
-      utcDate.add(const Duration(hours: 7));
-
-  final String day =
-      wibDate.day.toString().padLeft(2, '0');
-
-  final String month =
-      wibDate.month.toString().padLeft(2, '0');
-
-  final String year = wibDate.year.toString();
-
-  final String hour =
-      wibDate.hour.toString().padLeft(2, '0');
-
-  final String minute =
-      wibDate.minute.toString().padLeft(2, '0');
-
-  return '$day/$month/$year $hour:$minute WIB';
-}
 }
