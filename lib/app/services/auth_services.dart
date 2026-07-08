@@ -42,6 +42,53 @@ class AuthService {
     }
   }
 
+    // =========================
+  // LOGIN WITH FACE
+  // =========================
+  static Future<Map<String, dynamic>> loginWithFace({
+    required File faceImage,
+  }) async {
+    try {
+      final uri = Uri.parse(
+        '${ApiConfig.baseUrl}/api/auth/login-face-identify',
+      );
+
+      final request = http.MultipartRequest(
+        'POST',
+        uri,
+      );
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'face_image',
+          faceImage.path,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+
+      final response = await http.Response.fromStream(
+        streamedResponse,
+      );
+
+      final data = jsonDecode(response.body);
+
+      return {
+        "statusCode": response.statusCode,
+        "data": data,
+      };
+    } catch (e) {
+      print("LOGIN WITH FACE ERROR: $e");
+
+      return {
+        "statusCode": 500,
+        "data": {
+          "message": "Tidak dapat terhubung ke server",
+        },
+      };
+    }
+  }
+
   // =========================
   // REGISTER USER
   // =========================
@@ -113,6 +160,68 @@ class AuthService {
       };
     } catch (e) {
       print("VERIFY REGISTER OTP ERROR: $e");
+
+      return {
+        "statusCode": 500,
+        "data": {
+          "message": "Tidak dapat terhubung ke server",
+        },
+      };
+    }
+  }
+
+    // =========================
+  // REGISTER USER WITH FACE
+  // =========================
+  static Future<Map<String, dynamic>> registerWithFace({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+    required List<File> faceImages,
+  }) async {
+    try {
+      final uri = Uri.parse(
+        '${ApiConfig.baseUrl}/api/auth/register-with-face',
+      );
+
+      final request = http.MultipartRequest(
+        'POST',
+        uri,
+      );
+
+      request.fields['name'] = name;
+      request.fields['email'] = email;
+      request.fields['phone'] = phone;
+      request.fields['password'] = password;
+
+      for (int i = 0; i < faceImages.length; i++) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'face_image_${i + 1}',
+            faceImages[i].path,
+          ),
+        );
+      }
+
+      request.fields['pose_type_1'] = 'normal';
+      request.fields['pose_type_2'] = 'smile';
+      request.fields['pose_type_3'] = 'side';
+
+      final streamedResponse = await request.send();
+
+      final response = await http.Response.fromStream(
+        streamedResponse,
+      );
+
+      final data = jsonDecode(response.body);
+
+      return {
+        "statusCode": response.statusCode,
+        "data": data,
+      };
+    } catch (e) {
+      print("REGISTER WITH FACE ERROR: $e");
 
       return {
         "statusCode": 500,
@@ -225,6 +334,125 @@ class AuthService {
       };
     } catch (e) {
       print("REGISTER VENDOR ERROR: $e");
+
+      return {
+        "statusCode": 500,
+        "data": {
+          "message": "Tidak dapat terhubung ke server",
+        },
+      };
+    }
+  }
+
+    // =========================
+  // REGISTER VENDOR WITH FACE
+  // =========================
+  static Future<Map<String, dynamic>> registerVendorWithFace({
+    required String businessName,
+    required String category,
+    required String description,
+    required String location,
+    required String phone,
+    required String ownerName,
+    required String ownerNik,
+    required String email,
+    required String password,
+    required List<File> faceImages,
+    String? npwp,
+    File? ktpFile,
+    File? selfieFile,
+    File? businessLicenseFile,
+  }) async {
+    try {
+      final uri = Uri.parse(
+        '${ApiConfig.baseUrl}/api/auth/register-vendor-with-face',
+      );
+
+      final request = http.MultipartRequest(
+        'POST',
+        uri,
+      );
+
+      // =========================
+      // FIELD USER
+      // =========================
+      request.fields['name'] = ownerName;
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+
+      // =========================
+      // FIELD VENDOR
+      // =========================
+      request.fields['business_name'] = businessName;
+      request.fields['category'] = category;
+      request.fields['description'] = description;
+      request.fields['location'] = location;
+      request.fields['phone'] = phone;
+
+      request.fields['owner_name'] = ownerName;
+      request.fields['nik'] = ownerNik;
+      request.fields['npwp'] = npwp ?? '';
+
+      // =========================
+      // FILE DOKUMEN VENDOR
+      // =========================
+      if (ktpFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'ktp_image',
+            ktpFile.path,
+          ),
+        );
+      }
+
+      if (selfieFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'selfie_image',
+            selfieFile.path,
+          ),
+        );
+      }
+
+      if (businessLicenseFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'business_license',
+            businessLicenseFile.path,
+          ),
+        );
+      }
+
+      // =========================
+      // FOTO WAJAH VENDOR
+      // =========================
+      for (int i = 0; i < faceImages.length; i++) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'face_image_${i + 1}',
+            faceImages[i].path,
+          ),
+        );
+      }
+
+      request.fields['pose_type_1'] = 'normal';
+      request.fields['pose_type_2'] = 'smile';
+      request.fields['pose_type_3'] = 'side';
+
+      final streamedResponse = await request.send();
+
+      final response = await http.Response.fromStream(
+        streamedResponse,
+      );
+
+      final data = jsonDecode(response.body);
+
+      return {
+        "statusCode": response.statusCode,
+        "data": data,
+      };
+    } catch (e) {
+      print("REGISTER VENDOR WITH FACE ERROR: $e");
 
       return {
         "statusCode": 500,

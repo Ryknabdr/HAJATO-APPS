@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../controllers/register_controller.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -18,9 +19,9 @@ class RegisterView extends GetView<RegisterController> {
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: Column(
-                children: [
-                  const _Header(),
-                  const _FormPanel(),
+                children: const [
+                  _Header(),
+                  _FormPanel(),
                 ],
               ),
             ),
@@ -50,34 +51,72 @@ class _BgPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final bg = Paint()
-      ..shader = AppColors.primaryGradient
-          .createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
+      ..shader = AppColors.primaryGradient.createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
 
-    _orb(canvas, Offset(size.width + 40, -60), 200,
-        Colors.white.withOpacity(0.15));
-    _orb(canvas, Offset(-30, size.height - 20), 140,
-        Colors.white.withOpacity(0.10));
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      bg,
+    );
+
+    _orb(
+      canvas,
+      Offset(size.width + 40, -60),
+      200,
+      Colors.white.withOpacity(0.15),
+    );
+
+    _orb(
+      canvas,
+      Offset(-30, size.height - 20),
+      140,
+      Colors.white.withOpacity(0.10),
+    );
 
     final grid = Paint()
       ..color = Colors.white.withOpacity(0.07)
       ..strokeWidth = 0.5;
+
     for (double x = 0; x < size.width; x += 36) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        grid,
+      );
     }
+
     for (double y = 0; y < size.height; y += 36) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        grid,
+      );
     }
   }
 
-  void _orb(Canvas canvas, Offset c, double r, Color color) {
+  void _orb(
+    Canvas canvas,
+    Offset c,
+    double r,
+    Color color,
+  ) {
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [color, Colors.transparent],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color,
+            Colors.transparent,
+          ],
+        ).createShader(
+          Rect.fromCircle(
+            center: c,
+            radius: r,
+          ),
+        ),
+    );
   }
 
   @override
@@ -104,10 +143,15 @@ class _Header extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(11),
                 color: Colors.white.withOpacity(0.2),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                ),
               ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white, size: 16),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -119,14 +163,20 @@ class _Header extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(11),
                   color: Colors.white.withOpacity(0.2),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                  ),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(11),
                   child: Image.asset(
                     'assets/images/hajatonew.png',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.star_rounded, color: Colors.white, size: 18),
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -197,7 +247,9 @@ class _FormPanel extends GetView<RegisterController> {
       width: double.infinity,
       decoration: const BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(32),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -212,7 +264,6 @@ class _FormPanel extends GetView<RegisterController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // drag handle
             Center(
               child: Container(
                 width: 36,
@@ -225,7 +276,7 @@ class _FormPanel extends GetView<RegisterController> {
               ),
             ),
 
-            // ── Nama Lengkap ──
+            // Nama Lengkap
             const _FieldLabel('Nama Lengkap'),
             const SizedBox(height: 8),
             _InputField(
@@ -239,7 +290,7 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 16),
 
-            // ── Email ──
+            // Email
             const _FieldLabel('Email'),
             const SizedBox(height: 8),
             _InputField(
@@ -252,7 +303,7 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 16),
 
-            // ── No. HP ──
+            // No HP
             const _FieldLabel('No. HP'),
             const SizedBox(height: 8),
             _InputField(
@@ -265,131 +316,159 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 16),
 
-            // ── Kata Sandi ──
+            // Kata Sandi
             const _FieldLabel('Kata Sandi'),
             const SizedBox(height: 8),
-            Obx(() => _InputField(
-                  controller: controller.passwordController,
-                  hint: 'Minimal 6 karakter',
-                  icon: Icons.lock_outline_rounded,
-                  obscureText: !controller.isPasswordVisible.value,
-                  validator: controller.validatePassword,
-                  suffix: GestureDetector(
-                    onTap: controller.togglePasswordVisibility,
-                    child: Icon(
-                      controller.isPasswordVisible.value
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: AppColors.textHint,
-                      size: 20,
-                    ),
+            Obx(
+              () => _InputField(
+                controller: controller.passwordController,
+                hint: 'Minimal 6 karakter',
+                icon: Icons.lock_outline_rounded,
+                obscureText: !controller.isPasswordVisible.value,
+                validator: controller.validatePassword,
+                suffix: GestureDetector(
+                  onTap: controller.togglePasswordVisibility,
+                  child: Icon(
+                    controller.isPasswordVisible.value
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: AppColors.textHint,
+                    size: 20,
                   ),
-                )),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 16),
 
-            // ── Konfirmasi Kata Sandi ──
+            // Konfirmasi Kata Sandi
             const _FieldLabel('Konfirmasi Kata Sandi'),
             const SizedBox(height: 8),
-            Obx(() => _InputField(
-                  controller: controller.confirmPasswordController,
-                  hint: 'Ulangi kata sandi',
-                  icon: Icons.lock_outline_rounded,
-                  obscureText: !controller.isConfirmPasswordVisible.value,
-                  validator: controller.validateConfirmPassword,
-                  suffix: GestureDetector(
-                    onTap: controller.toggleConfirmPasswordVisibility,
-                    child: Icon(
-                      controller.isConfirmPasswordVisible.value
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: AppColors.textHint,
-                      size: 20,
-                    ),
+            Obx(
+              () => _InputField(
+                controller: controller.confirmPasswordController,
+                hint: 'Ulangi kata sandi',
+                icon: Icons.lock_outline_rounded,
+                obscureText: !controller.isConfirmPasswordVisible.value,
+                validator: controller.validateConfirmPassword,
+                suffix: GestureDetector(
+                  onTap: controller.toggleConfirmPasswordVisibility,
+                  child: Icon(
+                    controller.isConfirmPasswordVisible.value
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: AppColors.textHint,
+                    size: 20,
                   ),
-                )),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 20),
 
-            // ── Checkbox Syarat & Ketentuan ──
-            Obx(() => GestureDetector(
-                  onTap: controller.toggleAgreeToTerms,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
+            // Daftarkan Wajah
+            const _FieldLabel('Daftarkan Wajah'),
+            const SizedBox(height: 8),
+            Obx(
+              () => _FaceRegisterCard(
+                count: controller.faceImages.length,
+                isCompleted: controller.faceImages.length >= 3,
+                onTap: controller.captureFaceImages,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Checkbox Syarat & Ketentuan
+            Obx(
+              () => GestureDetector(
+                onTap: controller.toggleAgreeToTerms,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: controller.isAgreeToTerms.value
+                            ? AppColors.primary
+                            : AppColors.surface,
+                        border: Border.all(
                           color: controller.isAgreeToTerms.value
                               ? AppColors.primary
-                              : AppColors.surface,
-                          border: Border.all(
-                            color: controller.isAgreeToTerms.value
-                                ? AppColors.primary
-                                : AppColors.textHint,
-                            width: 1.5,
-                          ),
+                              : AppColors.textHint,
+                          width: 1.5,
                         ),
-                        child: controller.isAgreeToTerms.value
-                            ? const Icon(Icons.check_rounded,
-                                color: Colors.white, size: 13)
-                            : null,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                              height: 1.5,
+                      child: controller.isAgreeToTerms.value
+                          ? const Icon(
+                              Icons.check_rounded,
+                              color: Colors.white,
+                              size: 13,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            height: 1.5,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Saya menyetujui '),
+                            TextSpan(
+                              text: 'Syarat & Ketentuan',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                            children: [
-                              const TextSpan(text: 'Saya menyetujui '),
-                              TextSpan(
-                                text: 'Syarat & Ketentuan',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            const TextSpan(text: ' serta '),
+                            TextSpan(
+                              text: 'Kebijakan Privasi',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const TextSpan(text: ' serta '),
-                              TextSpan(
-                                text: 'Kebijakan Privasi',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const TextSpan(text: ' Hajato.'),
-                            ],
-                          ),
+                            ),
+                            const TextSpan(text: ' Hajato.'),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
 
-            // ── Tombol Daftar ──
-            Obx(() => _PrimaryButton(
-                  label: 'Daftar Sekarang',
-                  isLoading: controller.isLoading.value,
-                  onTap: controller.register,
-                )),
+            // Tombol Daftar
+            Obx(
+              () => _PrimaryButton(
+                label: 'Daftar Sekarang',
+                isLoading: controller.isLoading.value,
+                onTap: controller.register,
+              ),
+            ),
 
             const SizedBox(height: 20),
 
-            // ── Divider atau ──
+            // Divider
             Row(
               children: [
-                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
+                const Expanded(
+                  child: Divider(
+                    color: Color(0xFFB2DFDB),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
@@ -401,13 +480,17 @@ class _FormPanel extends GetView<RegisterController> {
                     ),
                   ),
                 ),
-                const Expanded(child: Divider(color: Color(0xFFB2DFDB))),
+                const Expanded(
+                  child: Divider(
+                    color: Color(0xFFB2DFDB),
+                  ),
+                ),
               ],
             ),
 
             const SizedBox(height: 16),
 
-           // ── Social Buttons & Vendor ──
+            // Social Buttons & Vendor
             Row(
               children: [
                 Expanded(
@@ -420,13 +503,11 @@ class _FormPanel extends GetView<RegisterController> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _SocialIconButton(
-                    label: 'Daftar Vendor', // 🟢 Teks diubah
-                    icon: Icons.storefront_rounded, // 🟢 Ikon diganti jadi ikon toko/vendor
+                    label: 'Daftar Vendor',
+                    icon: Icons.storefront_rounded,
                     iconColor: AppColors.primary,
                     onTap: () {
-                      // 🟢 Navigasi GetX ke halaman registrasi vendor
-                      // Pastikan string '/register-vendor' ini sesuai dengan nama route di main.dart / app_pages.dart kamu ya!
-                      Get.toNamed('/vendor-registration'); 
+                      Get.toNamed('/vendor-registration');
                     },
                   ),
                 ),
@@ -435,7 +516,7 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 24),
 
-            // ── Sudah punya akun ──
+            // Sudah punya akun
             Center(
               child: GestureDetector(
                 onTap: controller.goToLogin,
@@ -445,7 +526,9 @@ class _FormPanel extends GetView<RegisterController> {
                     children: [
                       TextSpan(
                         text: 'Sudah punya akun? ',
-                        style: TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       TextSpan(
                         text: 'Masuk →',
@@ -462,18 +545,22 @@ class _FormPanel extends GetView<RegisterController> {
 
             const SizedBox(height: 16),
 
-            // ── SSL Badge ──
+            // SSL Badge
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.lock_outline_rounded,
-                    size: 13,
-                    color: AppColors.primary.withOpacity(0.5)),
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 13,
+                  color: AppColors.primary.withOpacity(0.5),
+                ),
                 const SizedBox(width: 5),
                 Text(
                   'Terenkripsi & aman dengan SSL 256-bit',
                   style: GoogleFonts.poppins(
-                      fontSize: 11, color: AppColors.textHint),
+                    fontSize: 11,
+                    color: AppColors.textHint,
+                  ),
                 ),
               ],
             ),
@@ -488,18 +575,21 @@ class _FormPanel extends GetView<RegisterController> {
 
 class _FieldLabel extends StatelessWidget {
   final String text;
+
   const _FieldLabel(this.text);
 
   @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: GoogleFonts.poppins(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.8,
-          color: AppColors.textSecondary,
-        ),
-      );
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: GoogleFonts.poppins(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
 }
 
 class _InputField extends StatelessWidget {
@@ -532,42 +622,146 @@ class _InputField extends StatelessWidget {
       textCapitalization: textCapitalization,
       validator: validator,
       style: GoogleFonts.poppins(
-          fontSize: 14, color: AppColors.textPrimary),
+        fontSize: 14,
+        color: AppColors.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: GoogleFonts.poppins(
-            fontSize: 14, color: AppColors.textHint),
-        prefixIcon: Icon(icon,
-            size: 18, color: AppColors.primary.withOpacity(0.6)),
+          fontSize: 14,
+          color: AppColors.textHint,
+        ),
+        prefixIcon: Icon(
+          icon,
+          size: 18,
+          color: AppColors.primary.withOpacity(0.6),
+        ),
         suffixIcon: suffix,
         filled: true,
         fillColor: AppColors.surfaceVariant,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 15,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
-              color: Color(0xFFB2DFDB), width: 1.5),
+            color: Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
-              color: Color(0xFFB2DFDB), width: 1.5),
+            color: Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide:
-              const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide:
-              const BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.error,
+            width: 1.5,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide:
-              const BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.error,
+            width: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FaceRegisterCard extends StatelessWidget {
+  final int count;
+  final bool isCompleted;
+  final VoidCallback onTap;
+
+  const _FaceRegisterCard({
+    required this.count,
+    required this.isCompleted,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isCompleted
+              ? AppColors.primary.withOpacity(0.08)
+              : AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+            color: isCompleted ? AppColors.primary : const Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isCompleted
+                    ? Icons.check_circle_rounded
+                    : Icons.face_retouching_natural_rounded,
+                color: isCompleted ? Colors.white : AppColors.primary,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isCompleted ? 'Wajah sudah terdaftar' : 'Daftarkan wajah Anda',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isCompleted
+                        ? '$count dari 3 foto wajah tersimpan'
+                        : 'Ambil 3 foto wajah untuk login wajah',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isCompleted ? Icons.refresh_rounded : Icons.camera_alt_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ],
         ),
       ),
     );
@@ -578,10 +772,12 @@ class _PrimaryButton extends StatefulWidget {
   final String label;
   final bool isLoading;
   final VoidCallback onTap;
-  const _PrimaryButton(
-      {required this.label,
-      required this.isLoading,
-      required this.onTap});
+
+  const _PrimaryButton({
+    required this.label,
+    required this.isLoading,
+    required this.onTap,
+  });
 
   @override
   State<_PrimaryButton> createState() => _PrimaryButtonState();
@@ -596,7 +792,9 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
         setState(() => _pressed = false);
-        if (!widget.isLoading) widget.onTap();
+        if (!widget.isLoading) {
+          widget.onTap();
+        }
       },
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
@@ -642,11 +840,11 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
   }
 }
 
-// ───🟢 FIX UTAMA: DEKLARASI WIDGET SOCIAL BARU BERBASIS IMAGE ASSET ───
 class _SocialImageButton extends StatefulWidget {
   final String label;
   final String imagePath;
   final VoidCallback onTap;
+
   const _SocialImageButton({
     required this.label,
     required this.imagePath,
@@ -677,7 +875,10 @@ class _SocialImageButtonState extends State<_SocialImageButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: AppColors.surface,
-            border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
+            border: Border.all(
+              color: const Color(0xFFB2DFDB),
+              width: 1.5,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -687,7 +888,11 @@ class _SocialImageButtonState extends State<_SocialImageButton> {
                 width: 20,
                 height: 20,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata_rounded, color: Colors.red, size: 22),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.g_mobiledata_rounded,
+                  color: Colors.red,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 8),
               Text(
@@ -706,12 +911,12 @@ class _SocialImageButtonState extends State<_SocialImageButton> {
   }
 }
 
-// ───🟢 FIX UTAMA: DEKLARASI WIDGET SOCIAL BARU BERBASIS ICON ───
 class _SocialIconButton extends StatefulWidget {
   final String label;
   final IconData icon;
   final Color iconColor;
   final VoidCallback onTap;
+
   const _SocialIconButton({
     required this.label,
     required this.icon,
@@ -743,12 +948,19 @@ class _SocialIconButtonState extends State<_SocialIconButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: AppColors.surface,
-            border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
+            border: Border.all(
+              color: const Color(0xFFB2DFDB),
+              width: 1.5,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 20, color: widget.iconColor),
+              Icon(
+                widget.icon,
+                size: 20,
+                color: widget.iconColor,
+              ),
               const SizedBox(width: 8),
               Text(
                 widget.label,

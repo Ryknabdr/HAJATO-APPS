@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import '../../../routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -9,9 +8,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hajato/app/core/constants/api_config.dart';
+import 'package:hajato/app/modules/auth/views/face_enrollment_view.dart';
+
+import '../../../routes/app_routes.dart';
 
 class VendorRegistrationController extends GetxController {
-
   // =========================
   // STEP
   // =========================
@@ -41,35 +42,18 @@ class VendorRegistrationController extends GetxController {
   // TEXT CONTROLLERS
   // =========================
 
-  final businessNameController =
-      TextEditingController();
+  final businessNameController = TextEditingController();
+  final businessDescController = TextEditingController();
+  final businessLocationController = TextEditingController();
+  final businessPhoneController = TextEditingController();
 
-  final businessDescController =
-      TextEditingController();
+  final ownerNameController = TextEditingController();
+  final ownerNikController = TextEditingController();
+  final npwpController = TextEditingController();
 
-  final businessLocationController =
-      TextEditingController();
-
-  final businessPhoneController =
-      TextEditingController();
-
-  final ownerNameController =
-      TextEditingController();
-
-  final ownerNikController =
-      TextEditingController();
-
-  final npwpController =
-      TextEditingController();
-
-  final emailController =
-      TextEditingController();
-
-  final passwordController =
-      TextEditingController();
-
-  final confirmPasswordController =
-      TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   // =========================
   // CATEGORY
@@ -104,6 +88,9 @@ class VendorRegistrationController extends GetxController {
   final selfieImageFile = Rx<File?>(null);
   final businessLicenseFile = Rx<File?>(null);
 
+  // FOTO WAJAH VENDOR
+  final faceImages = <File>[].obs;
+
   final isPickingKtp = false.obs;
   final isPickingSelfie = false.obs;
   final isPickingLicense = false.obs;
@@ -123,11 +110,27 @@ class VendorRegistrationController extends GetxController {
 
     final args = Get.arguments;
 
-    if (args != null &&
-        args is Map &&
-        args['mode'] != null) {
+    if (args != null && args is Map && args['mode'] != null) {
       registerMode.value = args['mode'];
     }
+  }
+
+  @override
+  void onClose() {
+    businessNameController.dispose();
+    businessDescController.dispose();
+    businessLocationController.dispose();
+    businessPhoneController.dispose();
+
+    ownerNameController.dispose();
+    ownerNikController.dispose();
+    npwpController.dispose();
+
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+
+    super.onClose();
   }
 
   // =========================
@@ -169,9 +172,17 @@ class VendorRegistrationController extends GetxController {
   // =========================
 
   void nextStep() {
-
     if (currentStep.value == 0) {
       if (!(formKey1.currentState?.validate() ?? false)) {
+        return;
+      }
+
+      if (selectedCategory.value.isEmpty) {
+        Get.snackbar(
+          'Kategori Belum Dipilih',
+          'Silakan pilih kategori bisnis terlebih dahulu',
+          snackPosition: SnackPosition.BOTTOM,
+        );
         return;
       }
     }
@@ -200,13 +211,11 @@ class VendorRegistrationController extends GetxController {
   }
 
   // =========================
-  // IMAGE PICKER
+  // IMAGE PICKER DOKUMEN
   // =========================
 
   Future<void> pickKtpImage() async {
-
     try {
-
       isPickingKtp.value = true;
 
       final picked = await picker.pickImage(
@@ -218,17 +227,13 @@ class VendorRegistrationController extends GetxController {
         ktpImageFile.value = File(picked.path);
         ktpError.value = '';
       }
-
     } finally {
-
       isPickingKtp.value = false;
     }
   }
 
   Future<void> pickSelfieImage() async {
-
     try {
-
       isPickingSelfie.value = true;
 
       final picked = await picker.pickImage(
@@ -240,17 +245,13 @@ class VendorRegistrationController extends GetxController {
         selfieImageFile.value = File(picked.path);
         selfieError.value = '';
       }
-
     } finally {
-
       isPickingSelfie.value = false;
     }
   }
 
   Future<void> pickBusinessLicense() async {
-
     try {
-
       isPickingLicense.value = true;
 
       final picked = await picker.pickImage(
@@ -259,14 +260,46 @@ class VendorRegistrationController extends GetxController {
       );
 
       if (picked != null) {
-        businessLicenseFile.value =
-            File(picked.path);
+        businessLicenseFile.value = File(picked.path);
       }
-
     } finally {
-
       isPickingLicense.value = false;
     }
+  }
+
+  // =========================
+  // FACE ENROLLMENT VENDOR
+  // =========================
+
+  Future<void> captureFaceImages() async {
+    final result = await Get.to<List<File>>(
+      () => const FaceEnrollmentView(),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    if (result.length < 3) {
+      Get.snackbar(
+        'Belum Lengkap',
+        'Silakan ambil 3 foto wajah terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    faceImages.assignAll(result);
+
+    Get.snackbar(
+      'Berhasil',
+      '3 foto wajah vendor berhasil disimpan sementara',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
   }
 
   // =========================
@@ -274,42 +307,42 @@ class VendorRegistrationController extends GetxController {
   // =========================
 
   String? validateBusinessName(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Nama bisnis wajib diisi';
     }
     return null;
   }
 
   String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Deskripsi wajib diisi';
     }
     return null;
   }
 
   String? validateLocation(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Lokasi wajib diisi';
     }
     return null;
   }
 
   String? validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Nomor HP wajib diisi';
     }
     return null;
   }
 
   String? validateOwnerName(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Nama wajib diisi';
     }
     return null;
   }
 
   String? validateNik(String? value) {
-    if (value == null || value.length != 16) {
+    if (value == null || value.trim().length != 16) {
       return 'NIK harus 16 digit';
     }
     return null;
@@ -320,9 +353,14 @@ class VendorRegistrationController extends GetxController {
   }
 
   String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Email wajib diisi';
     }
+
+    if (!GetUtils.isEmail(value.trim())) {
+      return 'Masukkan email valid';
+    }
+
     return null;
   }
 
@@ -345,87 +383,73 @@ class VendorRegistrationController extends GetxController {
   // =========================
 
   Future<void> submit() async {
+    final bool isUpgradeVendor = registerMode.value == 'upgrade';
+
+    if (!isUpgradeVendor && faceImages.length < 3) {
+      Get.snackbar(
+        'Wajah Belum Didaftarkan',
+        'Silakan daftarkan wajah vendor terlebih dahulu',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFFFFEDED),
+        colorText: const Color(0xFF991F1F),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
 
     try {
-
       isLoading.value = true;
 
-      final prefs =
-          await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
 
-      final token =
-          prefs.getString('token');
+      final uri = Uri.parse(
+        isUpgradeVendor
+            ? '${ApiConfig.baseUrl}/api/vendor/register-vendor'
+            : '${ApiConfig.baseUrl}/api/auth/register-vendor-with-face',
+      );
 
-      final bool isUpgradeVendor =
-          registerMode.value == 'upgrade';
-
-final uri = Uri.parse(
-  isUpgradeVendor
-      ? '${ApiConfig.baseUrl}/api/vendor/register-vendor'
-      : '${ApiConfig.baseUrl}/api/auth/register-vendor',
-);
-
-      final request =
-          http.MultipartRequest(
+      final request = http.MultipartRequest(
         'POST',
         uri,
       );
 
       // =========================
-      // AUTH HEADER
+      // AUTH HEADER UNTUK UPGRADE
       // =========================
 
-      if (isUpgradeVendor &&
-          token != null &&
-          token.isNotEmpty) {
-
-        request.headers['Authorization'] =
-            'Bearer $token';
+      if (isUpgradeVendor && token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
       }
 
       // =========================
-      // FIELDS
+      // FIELDS USER
       // =========================
 
-      request.fields['name'] =
-          ownerNameController.text.trim();
-
-      request.fields['email'] =
-          emailController.text.trim();
-
-      request.fields['password'] =
-          passwordController.text.trim();
-
-      request.fields['business_name'] =
-          businessNameController.text.trim();
-
-      request.fields['category'] =
-          selectedCategory.value;
-
-      request.fields['description'] =
-          businessDescController.text.trim();
-
-      request.fields['location'] =
-          businessLocationController.text.trim();
-
-      request.fields['phone'] =
-          businessPhoneController.text.trim();
-
-      request.fields['owner_name'] =
-          ownerNameController.text.trim();
-
-      request.fields['nik'] =
-          ownerNikController.text.trim();
-
-      request.fields['npwp'] =
-          npwpController.text.trim();
+      request.fields['name'] = ownerNameController.text.trim();
+      request.fields['email'] = emailController.text.trim();
+      request.fields['password'] = passwordController.text.trim();
 
       // =========================
-      // FILES
+      // FIELDS VENDOR
+      // =========================
+
+      request.fields['business_name'] = businessNameController.text.trim();
+      request.fields['category'] = selectedCategory.value;
+      request.fields['description'] = businessDescController.text.trim();
+      request.fields['location'] = businessLocationController.text.trim();
+      request.fields['phone'] = businessPhoneController.text.trim();
+
+      request.fields['owner_name'] = ownerNameController.text.trim();
+      request.fields['nik'] = ownerNikController.text.trim();
+      request.fields['npwp'] = npwpController.text.trim();
+
+      // =========================
+      // FILE DOKUMEN
       // =========================
 
       if (ktpImageFile.value != null) {
-
         request.files.add(
           await http.MultipartFile.fromPath(
             'ktp_image',
@@ -435,7 +459,6 @@ final uri = Uri.parse(
       }
 
       if (selfieImageFile.value != null) {
-
         request.files.add(
           await http.MultipartFile.fromPath(
             'selfie_image',
@@ -445,7 +468,6 @@ final uri = Uri.parse(
       }
 
       if (businessLicenseFile.value != null) {
-
         request.files.add(
           await http.MultipartFile.fromPath(
             'business_license',
@@ -455,81 +477,97 @@ final uri = Uri.parse(
       }
 
       // =========================
+      // FILE WAJAH VENDOR
+      // Hanya untuk daftar vendor baru
+      // =========================
+
+      if (!isUpgradeVendor) {
+        for (int i = 0; i < faceImages.length; i++) {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'face_image_${i + 1}',
+              faceImages[i].path,
+            ),
+          );
+        }
+
+        request.fields['pose_type_1'] = 'normal';
+        request.fields['pose_type_2'] = 'smile';
+        request.fields['pose_type_3'] = 'side';
+      }
+
+      // =========================
       // SEND
       // =========================
 
-      final streamedResponse =
-          await request.send();
+      final streamedResponse = await request.send();
 
-      final response =
-          await http.Response.fromStream(
+      final response = await http.Response.fromStream(
         streamedResponse,
       );
 
-      print(
-          'STATUS : ${response.statusCode}');
-      print('BODY : ${response.body}');
+      print('REGISTER VENDOR STATUS : ${response.statusCode}');
+      print('REGISTER VENDOR BODY : ${response.body}');
+      print('REGISTER MODE : ${registerMode.value}');
+      print('IS UPGRADE VENDOR : $isUpgradeVendor');
+      print('EMAIL VENDOR : ${emailController.text.trim()}');
 
-      final data =
-          jsonDecode(response.body);
+      final data = response.body.isNotEmpty
+          ? jsonDecode(response.body)
+          : <String, dynamic>{};
 
       // =========================
       // SUCCESS
       // =========================
 
-      print("REGISTER MODE : ${registerMode.value}");
-      print("IS UPGRADE VENDOR : $isUpgradeVendor");
-      print("EMAIL VENDOR : ${emailController.text.trim()}");
-
-      if (response.statusCode == 200 ||
-          response.statusCode == 201) {
-
+      if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar(
           'Berhasil',
-          data['message'] ?? 'Pendaftaran berhasil',
+          data['message'] ?? 'Pendaftaran vendor berhasil',
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
         );
 
         if (isUpgradeVendor) {
-          Get.offNamed(
-            '/vendor-registration-status',
+          Get.offNamed('/vendor-registration-status');
+        } else {
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          Get.toNamed(
+            AppRoutes.verifyOtp,
+            arguments: {
+              'email': emailController.text.trim(),
+              'purpose': 'register',
+            },
           );
-          } else {
-            await Future.delayed(const Duration(milliseconds: 500));
-
-            Get.toNamed(
-              AppRoutes.verifyOtp,
-              arguments: {
-                'email': emailController.text.trim(),
-                'purpose': 'register',
-              },
-            );
-          }
-
+        }
       } else {
-
         Get.snackbar(
           'Gagal',
-          data['message'] ??
-              'Pendaftaran gagal',
-          snackPosition:
-              SnackPosition.BOTTOM,
+          data['message'] ?? 'Pendaftaran vendor gagal',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFFEDED),
+          colorText: const Color(0xFF991F1F),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
         );
       }
-
     } catch (e) {
-
-      print('ERROR : $e');
+      print('REGISTER VENDOR ERROR : $e');
 
       Get.snackbar(
         'Error',
         'Tidak dapat terhubung ke server',
-        snackPosition:
-            SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFFFEDED),
+        colorText: const Color(0xFF991F1F),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
       );
-
     } finally {
-
       isLoading.value = false;
     }
   }

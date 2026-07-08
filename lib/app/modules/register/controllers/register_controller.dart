@@ -7,6 +7,8 @@ import 'package:hajato/app/core/constants/api_config.dart';
 import '../../../routes/app_routes.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import '../../../modules/auth/views/face_enrollment_view.dart';
 
 class RegisterController extends GetxController {
   final nameController = TextEditingController();
@@ -21,6 +23,7 @@ class RegisterController extends GetxController {
   final isConfirmPasswordVisible = false.obs;
   final isLoading = false.obs;
   final isAgreeToTerms = false.obs;
+  final faceImages = <File>[].obs;
 
   @override
   void onClose() {
@@ -56,17 +59,29 @@ class RegisterController extends GetxController {
       return;
     }
 
+      if (faceImages.length < 3) {
+      Get.snackbar(
+        'Wajah Belum Didaftarkan',
+        'Silakan daftarkan wajah terlebih dahulu',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFFFFEDED),
+        colorText: const Color(0xFF991F1F),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
     isLoading.value = true;
 
     try {
-      final result = await AuthService.register(
-        name: nameController.text.trim(),
-        email: emailController.text.trim(),
-        phone: phoneController.text.trim(),
-        password: passwordController.text.trim(),
-        role: 'user',
-      );
-
+    final result = await AuthService.registerWithFace(
+      name: nameController.text.trim(),
+      email: emailController.text.trim(),
+      phone: phoneController.text.trim(),
+      password: passwordController.text.trim(),
+      faceImages: faceImages.toList(),
+    );
       final statusCode = result['statusCode'];
       final data = result['data'];
 
@@ -124,7 +139,7 @@ class RegisterController extends GetxController {
     Get.back();
   }
 
-  // ─── 🟢 FIX NAMA FUNGSI SINKRON DENGAN REGISTER_VIEW.DART ───
+  // FIX NAMA FUNGSI SINKRON DENGAN REGISTER_VIEW.DART ───
   Future<void> loginWithGoogle() async {
     isLoading.value = true;
     try {
@@ -205,17 +220,9 @@ class RegisterController extends GetxController {
     }
   }
 
-  // ─── 🟢 FIX UTAMA FACE ID BADGE: Menyediakan fungsi pasangannya di UI ───
-  void loginWithFaceId() {
-    Get.snackbar(
-      'Informasi',
-      'Fitur pendaftaran akun menggunakan Face ID sedang dalam tahap pengembangan',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.blue.shade50,
-      colorText: Colors.blue.shade900,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+// regis wajah
+  Future<void> loginWithFaceId() async {
+    await captureFaceImages();
   }
 
   void registerWithFacebook() {
@@ -275,4 +282,35 @@ class RegisterController extends GetxController {
     }
     return null;
   }
+
+Future<void> captureFaceImages() async {
+  final result = await Get.to<List<File>>(
+    () => const FaceEnrollmentView(),
+  );
+
+  if (result == null) {
+    return;
+  }
+
+  if (result.length < 3) {
+    Get.snackbar(
+      'Belum Lengkap',
+      'Silakan ambil 3 foto wajah terlebih dahulu',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    return;
+  }
+
+  faceImages.assignAll(result);
+
+  Get.snackbar(
+    'Berhasil',
+    '3 foto wajah berhasil disimpan sementara',
+    snackPosition: SnackPosition.TOP,
+    backgroundColor: Colors.green,
+    colorText: Colors.white,
+    margin: const EdgeInsets.all(16),
+    borderRadius: 12,
+  );
+}
 }

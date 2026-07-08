@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:hajato/app/core/constants/api_config.dart';
+import 'package:hajato/app/modules/auth/views/face_login_view.dart';
 
 import '../../../routes/app_routes.dart';
 
@@ -296,16 +298,139 @@ class LoginController extends GetxController {
     }
   }
 
-  void loginWithFaceId() {
+Future<void> loginWithFaceId() async {
+  try {
+    final File? faceImage = await Get.to<File>(
+      () => const FaceLoginView(),
+    );
+
+    if (faceImage == null) {
+      return;
+    }
+
+    isLoading.value = true;
+
+    final uri = Uri.parse(
+      '${ApiConfig.baseUrl}/api/auth/login-face-identify',
+    );
+
+    final request = http.MultipartRequest(
+      'POST',
+      uri,
+    );
+
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'face_image',
+        faceImage.path,
+      ),
+    );
+
+    final streamedResponse = await request.send();
+
+    final response = await http.Response.fromStream(
+      streamedResponse,
+    );
+
+    print("FACE LOGIN STATUS : ${response.statusCode}");
+    print("FACE LOGIN BODY : ${response.body}");
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      final token = data['token'] ?? '';
+      final userId = data['user_id'] ?? '';
+      final name = data['name'] ?? '';
+      final email = data['email'] ?? '';
+      final role = data['role'] ?? '';
+      final phone = data['phone'] ?? '';
+      final vendorStatus = data['vendor_status'] ?? '';
+      final businessName = data['business_name'] ?? '';
+      final photoUrl = data['photo_url'] ?? '';
+      final eventId = data['event_id'] ?? '';
+
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.remove('token');
+      await prefs.remove('user_id');
+      await prefs.remove('name');
+      await prefs.remove('email');
+      await prefs.remove('phone');
+      await prefs.remove('role');
+      await prefs.remove('vendor_status');
+      await prefs.remove('business_name');
+      await prefs.remove('photo_url');
+
+      await prefs.setString('token', token);
+      await prefs.setString('user_id', userId);
+      await prefs.setString('name', name);
+      await prefs.setString('email', email);
+      await prefs.setString('phone', phone);
+      await prefs.setString('role', role);
+      await prefs.setString('vendor_status', vendorStatus);
+      await prefs.setString('business_name', businessName);
+      await prefs.setString('photo_url', photoUrl);
+      await prefs.setBool('isLoggedIn', true);
+
+      if (eventId.toString().isNotEmpty) {
+        await prefs.setString(
+          'selected_event_id',
+          eventId.toString(),
+        );
+      }
+
+      await saveFCMToken(token);
+
+      print("FACE LOGIN TOKEN : $token");
+      print("FACE LOGIN ROLE : $role");
+      print("FACE LOGIN SIMILARITY : ${data['similarity']}");
+
+      Get.snackbar(
+        'Berhasil',
+        data['message'] ?? 'Login wajah berhasil',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+
+      if (role == 'admin') {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else if (role == 'vendor' && vendorStatus == 'approved') {
+        Get.offAllNamed(AppRoutes.vendorDashboard);
+      } else if (role == 'vendor_pending' || vendorStatus == 'pending') {
+        Get.offAllNamed(AppRoutes.vendorDashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.home, arguments: data);
+      }
+    } else {
+      Get.snackbar(
+        'Login Wajah Gagal',
+        data['message'] ?? 'Wajah tidak dikenali',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFFFEDED),
+        colorText: const Color(0xFF991F1F),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  } catch (e) {
+    print("FACE LOGIN ERROR : $e");
+
     Get.snackbar(
-      'Segera Hadir',
-      'Fitur Face ID sedang dalam pengembangan.',
+      'Error',
+      'Tidak dapat login dengan wajah',
       snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFFFEDED),
+      colorText: const Color(0xFF991F1F),
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
     );
+  } finally {
+    isLoading.value = false;
   }
-
+}
   String? validateEmail(String? val) {
     if (val == null || val.isEmpty) {
       return 'Email tidak boleh kosong';

@@ -61,6 +61,9 @@ dependencies:
   http_parser: ^4.0.0
   path: ^1.9.0
   webview_flutter: ^4.13.1
+  camera: ^0.12.0+1
+  google_mlkit_face_detection: ^0.14.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -79,7 +82,7 @@ flutter_launcher_icons:
   image_path: "assets/images/hajatonew.png" # Memakai logo andalanmu yang sudah terdaftar di aset
   adaptive_icon_background: "#00796B"       # Warna dasar background siluet Android
   adaptive_icon_foreground: "assets/images/hajatonew.png"
-# ── 🟢 KONFIGURASI UTAMA SPLASH SCREEN (ANTI BLANK HITAM) ──
+# KONFIGURASI UTAMA SPLASH SCREEN (ANTI BLANK HITAM) ──
 flutter_native_splash:
   color: "#FFFFFF" # Background diubah menjadi putih bersih
   image: "assets/images/logo.png" 

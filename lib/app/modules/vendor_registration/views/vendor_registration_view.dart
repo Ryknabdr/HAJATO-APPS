@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../controllers/vendor_registration_controller.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -46,54 +47,89 @@ class VendorRegistrationView extends GetView<VendorRegistrationController> {
               }
             },
             child: Container(
-              width: 38, height: 38,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(11),
                 color: Colors.white.withOpacity(0.2),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                ),
               ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white, size: 16),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Row(children: [
-            Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(11),
-                color: Colors.white.withOpacity(0.2),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
-              ),
-              child: ClipRRect(
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  color: Colors.white.withOpacity(0.2),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                ),
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(11),
                   child: Image.asset(
                     'assets/images/hajatonew.png',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.star_rounded, color: Colors.white, size: 18),
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
-            ),
-            const SizedBox(width: 10),
-            Text('HAJATO',
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'HAJATO',
                 style: GoogleFonts.playfairDisplay(
-                    fontSize: 20, fontWeight: FontWeight.w900,
-                    color: Colors.white, letterSpacing: 1)),
-          ]),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
-          Obx(() => Text(controller.stepTitle,
+          Obx(
+            () => Text(
+              controller.stepTitle,
               style: GoogleFonts.playfairDisplay(
-                  fontSize: 26, fontWeight: FontWeight.w700,
-                  color: Colors.white, height: 1.2))),
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.2,
+              ),
+            ),
+          ),
           const SizedBox(height: 4),
-          Obx(() => Text(controller.stepSubtitle,
+          Obx(
+            () => Text(
+              controller.stepSubtitle,
               style: GoogleFonts.dmSans(
-                  fontSize: 13, color: Colors.white.withOpacity(0.7)))),
+                fontSize: 13,
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
-          Obx(() => _StepIndicator(
-            total: controller.totalSteps,
-            currentStep: controller.currentStep.value,
-          )),
+          Obx(
+            () => _StepIndicator(
+              total: controller.totalSteps,
+              currentStep: controller.currentStep.value,
+            ),
+          ),
         ],
       ),
     );
@@ -104,16 +140,23 @@ class VendorRegistrationView extends GetView<VendorRegistrationController> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(32),
+        ),
         boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 40, offset: Offset(0, -10))
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 40,
+            offset: Offset(0, -10),
+          ),
         ],
       ),
       child: Column(
         children: [
           Center(
             child: Container(
-              width: 36, height: 3,
+              width: 36,
+              height: 3,
               margin: const EdgeInsets.only(top: 12, bottom: 4),
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.3),
@@ -135,35 +178,48 @@ class VendorRegistrationView extends GetView<VendorRegistrationController> {
 
   Widget _currentStepWidget() {
     switch (controller.currentStep.value) {
-      case 0: return _Step1Business();
-      case 1: return _Step2Identity();
-      case 2: return _Step3Documents();
-      case 3: return _Step4Review();
-      default: return const SizedBox();
+      case 0:
+        return _Step1Business();
+      case 1:
+        return _Step2Identity();
+      case 2:
+        return _Step3Documents();
+      case 3:
+        return _Step4Review();
+      default:
+        return const SizedBox();
     }
   }
 
   Widget _buildBottomBar() {
-    return Obx(() {
-      final isLast    = controller.currentStep.value == controller.totalSteps - 1;
-      final isLoading = controller.isLoading.value;
-      return Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, -4))
-          ],
-        ),
-        child: _PrimaryButton(
-          label: isLast ? 'Kirim Pendaftaran' : 'Lanjutkan',
-          isLoading: isLoading,
-          disabled: isLoading,
-          onTap: isLast ? controller.submit : controller.nextStep,
-          icon: isLast ? Icons.send_rounded : Icons.arrow_forward_rounded,
-        ),
-      );
-    });
+    return Obx(
+      () {
+        final isLast =
+            controller.currentStep.value == controller.totalSteps - 1;
+        final isLoading = controller.isLoading.value;
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 16,
+                offset: Offset(0, -4),
+              ),
+            ],
+          ),
+          child: _PrimaryButton(
+            label: isLast ? 'Kirim Pendaftaran' : 'Lanjutkan',
+            isLoading: isLoading,
+            disabled: isLoading,
+            onTap: isLast ? controller.submit : controller.nextStep,
+            icon: isLast ? Icons.send_rounded : Icons.arrow_forward_rounded,
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -189,12 +245,15 @@ class _Step1Business extends GetView<VendorRegistrationController> {
           const SizedBox(height: 16),
           const _FieldLabel('Kategori'),
           const SizedBox(height: 8),
-          Obx(() => _CategoryDropdown(
-            value: controller.selectedCategory.value.isEmpty
-                ? null : controller.selectedCategory.value,
-            items: controller.categories,
-            onChanged: (v) => controller.selectedCategory.value = v ?? '',
-          )),
+          Obx(
+            () => _CategoryDropdown(
+              value: controller.selectedCategory.value.isEmpty
+                  ? null
+                  : controller.selectedCategory.value,
+              items: controller.categories,
+              onChanged: (v) => controller.selectedCategory.value = v ?? '',
+            ),
+          ),
           const SizedBox(height: 16),
           const _FieldLabel('Deskripsi Bisnis'),
           const SizedBox(height: 8),
@@ -225,21 +284,35 @@ class _Step1Business extends GetView<VendorRegistrationController> {
             validator: controller.validatePhone,
           ),
           const SizedBox(height: 24),
-
-          // ── Divider Akun Vendor ──────────────────────────────────────────
-          Row(children: [
-            Expanded(child: Divider(color: const Color(0xFFB2DFDB), thickness: 1)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text('Akun Vendor',
+          Row(
+            children: [
+              const Expanded(
+                child: Divider(
+                  color: Color(0xFFB2DFDB),
+                  thickness: 1,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  'Akun Vendor',
                   style: GoogleFonts.dmSans(
-                      fontSize: 11, fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8, color: AppColors.textSecondary)),
-            ),
-            Expanded(child: Divider(color: const Color(0xFFB2DFDB), thickness: 1)),
-          ]),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Expanded(
+                child: Divider(
+                  color: Color(0xFFB2DFDB),
+                  thickness: 1,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
-
           const _FieldLabel('Email'),
           const SizedBox(height: 8),
           _InputField(
@@ -252,49 +325,53 @@ class _Step1Business extends GetView<VendorRegistrationController> {
           const SizedBox(height: 16),
           const _FieldLabel('Password'),
           const SizedBox(height: 8),
-          Obx(() => _InputField(
-            controller: controller.passwordController,
-            hint: 'Min. 8 karakter, huruf kapital & angka',
-            icon: Icons.lock_outline_rounded,
-            obscureText: !controller.isPasswordVisible.value,
-            validator: controller.validatePassword,
-            suffix: GestureDetector(
-              onTap: () => controller.isPasswordVisible.toggle(),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  controller.isPasswordVisible.value
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 18,
-                  color: AppColors.primary.withOpacity(0.6),
+          Obx(
+            () => _InputField(
+              controller: controller.passwordController,
+              hint: 'Min. 8 karakter, huruf kapital & angka',
+              icon: Icons.lock_outline_rounded,
+              obscureText: !controller.isPasswordVisible.value,
+              validator: controller.validatePassword,
+              suffix: GestureDetector(
+                onTap: () => controller.isPasswordVisible.toggle(),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    controller.isPasswordVisible.value
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 18,
+                    color: AppColors.primary.withOpacity(0.6),
+                  ),
                 ),
               ),
             ),
-          )),
+          ),
           const SizedBox(height: 16),
           const _FieldLabel('Konfirmasi Password'),
           const SizedBox(height: 8),
-          Obx(() => _InputField(
-            controller: controller.confirmPasswordController,
-            hint: 'Ulangi password Anda',
-            icon: Icons.lock_outline_rounded,
-            obscureText: !controller.isConfirmPasswordVisible.value,
-            validator: controller.validateConfirmPassword,
-            suffix: GestureDetector(
-              onTap: () => controller.isConfirmPasswordVisible.toggle(),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  controller.isConfirmPasswordVisible.value
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 18,
-                  color: AppColors.primary.withOpacity(0.6),
+          Obx(
+            () => _InputField(
+              controller: controller.confirmPasswordController,
+              hint: 'Ulangi password Anda',
+              icon: Icons.lock_outline_rounded,
+              obscureText: !controller.isConfirmPasswordVisible.value,
+              validator: controller.validateConfirmPassword,
+              suffix: GestureDetector(
+                onTap: () => controller.isConfirmPasswordVisible.toggle(),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    controller.isConfirmPasswordVisible.value
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 18,
+                    color: AppColors.primary.withOpacity(0.6),
+                  ),
                 ),
               ),
             ),
-          )),
+          ),
           const SizedBox(height: 8),
         ],
       ),
@@ -332,52 +409,63 @@ class _Step2Identity extends GetView<VendorRegistrationController> {
             validator: controller.validateNik,
           ),
           const SizedBox(height: 20),
-
-          // ── KTP Upload + Preview ─────────────────────────────────────────
           const _FieldLabel('Foto KTP'),
           const SizedBox(height: 8),
-          Obx(() => _UploadBox(
-            label: 'Upload Foto KTP',
-            sublabel: 'Pastikan semua tulisan terbaca jelas',
-            icon: Icons.credit_card_rounded,
-            imageFile: controller.ktpImageFile.value,
-            isLoading: controller.isPickingKtp.value,
-            errorText: controller.ktpError.value,
-            onTap: controller.isPickingKtp.value ? null : controller.pickKtpImage,
-          )),
+          Obx(
+            () => _UploadBox(
+              label: 'Upload Foto KTP',
+              sublabel: 'Pastikan semua tulisan terbaca jelas',
+              icon: Icons.credit_card_rounded,
+              imageFile: controller.ktpImageFile.value,
+              isLoading: controller.isPickingKtp.value,
+              errorText: controller.ktpError.value,
+              onTap:
+                  controller.isPickingKtp.value ? null : controller.pickKtpImage,
+            ),
+          ),
           const SizedBox(height: 16),
-
-          // ── Selfie Upload + Preview ──────────────────────────────────────
           const _FieldLabel('Selfie dengan KTP'),
           const SizedBox(height: 8),
-          Obx(() => _UploadBox(
-            label: 'Upload Selfie + KTP',
-            sublabel: 'Foto wajah Anda sambil memegang KTP',
-            icon: Icons.camera_front_rounded,
-            imageFile: controller.selfieImageFile.value,
-            isLoading: controller.isPickingSelfie.value,
-            errorText: controller.selfieError.value,
-            onTap: controller.isPickingSelfie.value ? null : controller.pickSelfieImage,
-          )),
+          Obx(
+            () => _UploadBox(
+              label: 'Upload Selfie + KTP',
+              sublabel: 'Foto wajah Anda sambil memegang KTP',
+              icon: Icons.camera_front_rounded,
+              imageFile: controller.selfieImageFile.value,
+              isLoading: controller.isPickingSelfie.value,
+              errorText: controller.selfieError.value,
+              onTap: controller.isPickingSelfie.value
+                  ? null
+                  : controller.pickSelfieImage,
+            ),
+          ),
           const SizedBox(height: 16),
-
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.primary.withOpacity(0.07),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.2),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 16),
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Data identitas Anda dienkripsi dan hanya digunakan untuk proses verifikasi.',
                     style: GoogleFonts.dmSans(
-                        fontSize: 12, color: AppColors.textSecondary, height: 1.5),
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      height: 1.5,
+                    ),
                   ),
                 ),
               ],
@@ -405,16 +493,26 @@ class _Step3Documents extends GetView<VendorRegistrationController> {
               gradient: AppColors.primaryGradient,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Row(children: [
-              const Icon(Icons.stars_rounded, color: Colors.white, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Dokumen ini bersifat opsional namun meningkatkan kepercayaan pelanggan.',
-                  style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white, height: 1.5),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.stars_rounded,
+                  color: Colors.white,
+                  size: 20,
                 ),
-              ),
-            ]),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Dokumen ini bersifat opsional namun meningkatkan kepercayaan pelanggan.',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      color: Colors.white,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           const _FieldLabel('NPWP (Opsional)'),
@@ -429,14 +527,31 @@ class _Step3Documents extends GetView<VendorRegistrationController> {
           const SizedBox(height: 16),
           const _FieldLabel('Izin Usaha / SIUP (Opsional)'),
           const SizedBox(height: 8),
-          Obx(() => _UploadBox(
-            label: 'Upload Dokumen Izin',
-            sublabel: 'SIUP, TDP, atau surat keterangan usaha',
-            icon: Icons.folder_outlined,
-            imageFile: controller.businessLicenseFile.value,
-            isLoading: controller.isPickingLicense.value,
-            onTap: controller.isPickingLicense.value ? null : controller.pickBusinessLicense,
-          )),
+          Obx(
+            () => _UploadBox(
+              label: 'Upload Dokumen Izin',
+              sublabel: 'SIUP, TDP, atau surat keterangan usaha',
+              icon: Icons.folder_outlined,
+              imageFile: controller.businessLicenseFile.value,
+              isLoading: controller.isPickingLicense.value,
+              onTap: controller.isPickingLicense.value
+                  ? null
+                  : controller.pickBusinessLicense,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          const _FieldLabel('Daftarkan Wajah Vendor'),
+          const SizedBox(height: 8),
+          Obx(
+            () => _FaceRegisterCard(
+              count: controller.faceImages.length,
+              isCompleted: controller.faceImages.length >= 3,
+              onTap: controller.captureFaceImages,
+            ),
+          ),
+
           const SizedBox(height: 8),
         ],
       ),
@@ -449,68 +564,142 @@ class _Step3Documents extends GetView<VendorRegistrationController> {
 class _Step4Review extends GetView<VendorRegistrationController> {
   @override
   Widget build(BuildContext context) {
+    final faceCount = controller.faceImages.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ReviewSection('Informasi Bisnis', [
-          _ReviewRow('Nama Bisnis', controller.businessNameController.text),
-          _ReviewRow('Kategori', controller.selectedCategory.value),
-          _ReviewRow('Lokasi', controller.businessLocationController.text),
-          _ReviewRow('No. HP', controller.businessPhoneController.text),
-          _ReviewRow('Deskripsi', controller.businessDescController.text),
-        ]),
+        _ReviewSection(
+          'Informasi Bisnis',
+          [
+            _ReviewRow('Nama Bisnis', controller.businessNameController.text),
+            _ReviewRow('Kategori', controller.selectedCategory.value),
+            _ReviewRow('Lokasi', controller.businessLocationController.text),
+            _ReviewRow('No. HP', controller.businessPhoneController.text),
+            _ReviewRow('Deskripsi', controller.businessDescController.text),
+          ],
+        ),
         const SizedBox(height: 16),
-        _ReviewSection('Akun Vendor', [
-          _ReviewRow('Email', controller.emailController.text),
-          const _ReviewRow('Password', '••••••••'),
-        ]),
+        _ReviewSection(
+          'Akun Vendor',
+          [
+            _ReviewRow('Email', controller.emailController.text),
+            const _ReviewRow('Password', '••••••••'),
+          ],
+        ),
         const SizedBox(height: 16),
-        _ReviewSection('Identitas Pemilik', [
-          _ReviewRow('Nama', controller.ownerNameController.text),
-          _ReviewRow('NIK', controller.ownerNikController.text),
-          _ReviewRow('Foto KTP',
-              controller.ktpImageFile.value != null ? '✓ Terupload' : '-'),
-          _ReviewRow('Selfie + KTP',
-              controller.selfieImageFile.value != null ? '✓ Terupload' : '-'),
-        ]),
+        _ReviewSection(
+          'Identitas Pemilik',
+          [
+            _ReviewRow('Nama', controller.ownerNameController.text),
+            _ReviewRow('NIK', controller.ownerNikController.text),
+            _ReviewRow(
+              'Foto KTP',
+              controller.ktpImageFile.value != null ? '✓ Terupload' : '-',
+            ),
+            _ReviewRow(
+              'Selfie + KTP',
+              controller.selfieImageFile.value != null ? '✓ Terupload' : '-',
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
-        _ReviewSection('Dokumen Pendukung', [
-          _ReviewRow('NPWP',
+        _ReviewSection(
+          'Dokumen Pendukung',
+          [
+            _ReviewRow(
+              'NPWP',
               controller.npwpController.text.isEmpty
-                  ? 'Tidak dilampirkan' : controller.npwpController.text),
-          _ReviewRow('Izin Usaha',
+                  ? 'Tidak dilampirkan'
+                  : controller.npwpController.text,
+            ),
+            _ReviewRow(
+              'Izin Usaha',
               controller.businessLicenseFile.value == null
-                  ? 'Tidak dilampirkan' : '✓ Terupload'),
-        ]),
+                  ? 'Tidak dilampirkan'
+                  : '✓ Terupload',
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _ReviewSection(
+          'Verifikasi Wajah',
+          [
+            _ReviewRow(
+              'Status',
+              faceCount >= 3 ? '✓ Wajah sudah didaftarkan' : 'Belum didaftarkan',
+            ),
+            _ReviewRow(
+              'Jumlah Foto',
+              '$faceCount dari 3 foto wajah',
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
 
-        // ── Image Previews di Review ─────────────────────────────────────
         if (controller.ktpImageFile.value != null ||
             controller.selfieImageFile.value != null) ...[
-          Text('Pratinjau Dokumen',
-              style: GoogleFonts.dmSans(
-                  fontSize: 13, fontWeight: FontWeight.w700,
-                  color: AppColors.primary)),
+          Text(
+            'Pratinjau Dokumen',
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
+          ),
           const SizedBox(height: 10),
-          Row(children: [
-            if (controller.ktpImageFile.value != null)
-              Expanded(
-                child: _ImagePreviewCard(
-                  label: 'KTP',
-                  file: controller.ktpImageFile.value!,
+          Row(
+            children: [
+              if (controller.ktpImageFile.value != null)
+                Expanded(
+                  child: _ImagePreviewCard(
+                    label: 'KTP',
+                    file: controller.ktpImageFile.value!,
+                  ),
                 ),
-              ),
-            if (controller.ktpImageFile.value != null &&
-                controller.selfieImageFile.value != null)
-              const SizedBox(width: 10),
-            if (controller.selfieImageFile.value != null)
-              Expanded(
-                child: _ImagePreviewCard(
-                  label: 'Selfie + KTP',
-                  file: controller.selfieImageFile.value!,
+              if (controller.ktpImageFile.value != null &&
+                  controller.selfieImageFile.value != null)
+                const SizedBox(width: 10),
+              if (controller.selfieImageFile.value != null)
+                Expanded(
+                  child: _ImagePreviewCard(
+                    label: 'Selfie + KTP',
+                    file: controller.selfieImageFile.value!,
+                  ),
                 ),
-              ),
-          ]),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        if (controller.faceImages.isNotEmpty) ...[
+          Text(
+            'Pratinjau Wajah Vendor',
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: List.generate(
+              controller.faceImages.length > 3 ? 3 : controller.faceImages.length,
+              (index) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      right: index == 2 ? 0 : 10,
+                    ),
+                    child: _ImagePreviewCard(
+                      label: 'Wajah ${index + 1}',
+                      file: controller.faceImages[index],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
           const SizedBox(height: 16),
         ],
 
@@ -519,24 +708,38 @@ class _Step4Review extends GetView<VendorRegistrationController> {
           decoration: BoxDecoration(
             color: AppColors.accent.withOpacity(0.07),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.accent.withOpacity(0.25)),
+            border: Border.all(
+              color: AppColors.accent.withOpacity(0.25),
+            ),
           ),
           child: Row(
             children: [
-              Icon(Icons.schedule_rounded, color: AppColors.accent, size: 20),
+              Icon(
+                Icons.schedule_rounded,
+                color: AppColors.accent,
+                size: 20,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Estimasi Verifikasi',
-                        style: GoogleFonts.dmSans(
-                            fontSize: 13, fontWeight: FontWeight.w600,
-                            color: AppColors.accent)),
+                    Text(
+                      'Estimasi Verifikasi',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.accent,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text('1-3 hari kerja setelah data diterima',
-                        style: GoogleFonts.dmSans(
-                            fontSize: 12, color: AppColors.textSecondary)),
+                    Text(
+                      '1-3 hari kerja setelah data diterima',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -565,47 +768,73 @@ class VendorRegistrationStatusView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 100, height: 100,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppColors.primaryGradient,
                   boxShadow: [
-                    BoxShadow(color: AppColors.primary.withOpacity(0.4),
-                        blurRadius: 24, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.4),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
                   ],
                 ),
-                child: const Icon(Icons.hourglass_top_rounded,
-                    color: Colors.white, size: 48),
+                child: const Icon(
+                  Icons.hourglass_top_rounded,
+                  color: Colors.white,
+                  size: 48,
+                ),
               ),
               const SizedBox(height: 28),
-              Text('Pendaftaran Terkirim!',
-                  style: GoogleFonts.playfairDisplay(
-                      fontSize: 26, fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
+              Text(
+                'Pendaftaran Terkirim!',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
               const SizedBox(height: 10),
               Text(
                 'Tim Hajato sedang meninjau data Anda.\nProses verifikasi membutuhkan 1–3 hari kerja.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.dmSans(
-                    fontSize: 14, color: AppColors.textSecondary, height: 1.6),
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
               ),
               const SizedBox(height: 32),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.accent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: AppColors.accent.withOpacity(0.4)),
+                  border: Border.all(
+                    color: AppColors.accent.withOpacity(0.4),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('🟡', style: TextStyle(fontSize: 14)),
+                    const Text(
+                      '🟡',
+                      style: TextStyle(fontSize: 14),
+                    ),
                     const SizedBox(width: 8),
-                    Text('Menunggu Verifikasi',
-                        style: GoogleFonts.dmSans(
-                            fontSize: 14, fontWeight: FontWeight.w600,
-                            color: AppColors.accentDark)),
+                    Text(
+                      'Menunggu Verifikasi',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.accentDark,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -620,10 +849,14 @@ class VendorRegistrationStatusView extends StatelessWidget {
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => Get.back(),
-                child: Text('Lihat Status Pendaftaran',
-                    style: GoogleFonts.dmSans(
-                        fontSize: 13, color: AppColors.primary,
-                        fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Lihat Status Pendaftaran',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -643,7 +876,9 @@ class _BackgroundArt extends StatelessWidget {
     return SizedBox(
       height: 300,
       width: double.infinity,
-      child: CustomPaint(painter: _BgPainter()),
+      child: CustomPaint(
+        painter: _BgPainter(),
+      ),
     );
   }
 }
@@ -655,31 +890,76 @@ class _BgPainter extends CustomPainter {
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF14B8A6), Color(0xFF0F766E)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bg);
+        colors: [
+          Color(0xFF14B8A6),
+          Color(0xFF0F766E),
+        ],
+      ).createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
 
-    _orb(canvas, Offset(size.width + 40, -60), 200,
-        Colors.white.withOpacity(0.15));
-    _orb(canvas, Offset(-30, size.height - 20), 140,
-        Colors.white.withOpacity(0.10));
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      bg,
+    );
+
+    _orb(
+      canvas,
+      Offset(size.width + 40, -60),
+      200,
+      Colors.white.withOpacity(0.15),
+    );
+
+    _orb(
+      canvas,
+      Offset(-30, size.height - 20),
+      140,
+      Colors.white.withOpacity(0.10),
+    );
 
     final grid = Paint()
       ..color = Colors.white.withOpacity(0.07)
       ..strokeWidth = 0.5;
+
     for (double x = 0; x < size.width; x += 36) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        grid,
+      );
     }
+
     for (double y = 0; y < size.height; y += 36) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        grid,
+      );
     }
   }
 
-  void _orb(Canvas canvas, Offset c, double r, Color color) {
-    canvas.drawCircle(c, r,
-        Paint()
-          ..shader = RadialGradient(colors: [color, Colors.transparent])
-              .createShader(Rect.fromCircle(center: c, radius: r)));
+  void _orb(
+    Canvas canvas,
+    Offset c,
+    double r,
+    Color color,
+  ) {
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color,
+            Colors.transparent,
+          ],
+        ).createShader(
+          Rect.fromCircle(
+            center: c,
+            radius: r,
+          ),
+        ),
+    );
   }
 
   @override
@@ -689,49 +969,63 @@ class _BgPainter extends CustomPainter {
 class _StepIndicator extends StatelessWidget {
   final int total;
   final int currentStep;
-  const _StepIndicator({required this.total, required this.currentStep});
+
+  const _StepIndicator({
+    required this.total,
+    required this.currentStep,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: List.generate(total, (i) {
-        final isDone   = i < currentStep;
-        final isActive = i == currentStep;
-        return Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: isDone || isActive
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(2),
+      children: List.generate(
+        total,
+        (i) {
+          final isDone = i < currentStep;
+          final isActive = i == currentStep;
+
+          return Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDone || isActive
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              if (i < total - 1) const SizedBox(width: 4),
-            ],
-          ),
-        );
-      }),
+                if (i < total - 1) const SizedBox(width: 4),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
 class _FieldLabel extends StatelessWidget {
   final String text;
+
   const _FieldLabel(this.text);
 
   @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: GoogleFonts.dmSans(
-            fontSize: 11, fontWeight: FontWeight.w600,
-            letterSpacing: 0.8, color: AppColors.textSecondary),
-      );
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: GoogleFonts.dmSans(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
 }
 
 class _InputField extends StatelessWidget {
@@ -766,34 +1060,62 @@ class _InputField extends StatelessWidget {
       textCapitalization: textCapitalization,
       validator: validator,
       maxLines: obscureText ? 1 : maxLines,
-      style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textPrimary),
+      style: GoogleFonts.dmSans(
+        fontSize: 14,
+        color: AppColors.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textHint),
-        prefixIcon: Icon(icon, size: 18, color: AppColors.primary.withOpacity(0.6)),
+        hintStyle: GoogleFonts.dmSans(
+          fontSize: 14,
+          color: AppColors.textHint,
+        ),
+        prefixIcon: Icon(
+          icon,
+          size: 18,
+          color: AppColors.primary.withOpacity(0.6),
+        ),
         suffixIcon: suffix,
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 15,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
+          borderSide: const BorderSide(
+            color: Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: Color(0xFFB2DFDB), width: 1.5),
+          borderSide: const BorderSide(
+            color: Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: BorderSide(
+            color: AppColors.error,
+            width: 1.5,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: BorderSide(
+            color: AppColors.error,
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -804,8 +1126,12 @@ class _CategoryDropdown extends StatelessWidget {
   final String? value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
-  const _CategoryDropdown(
-      {required this.value, required this.items, required this.onChanged});
+
+  const _CategoryDropdown({
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -813,33 +1139,140 @@ class _CategoryDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
+        border: Border.all(
+          color: const Color(0xFFB2DFDB),
+          width: 1.5,
+        ),
       ),
       child: DropdownButtonFormField<String>(
         value: value,
         onChanged: onChanged,
-        style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textPrimary),
+        style: GoogleFonts.dmSans(
+          fontSize: 14,
+          color: AppColors.textPrimary,
+        ),
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.category_outlined,
-              size: 18, color: AppColors.primary.withOpacity(0.6)),
+          prefixIcon: Icon(
+            Icons.category_outlined,
+            size: 18,
+            color: AppColors.primary.withOpacity(0.6),
+          ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
           hintText: 'Pilih kategori',
-          hintStyle: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textHint),
+          hintStyle: GoogleFonts.dmSans(
+            fontSize: 14,
+            color: AppColors.textHint,
+          ),
         ),
         items: items
-            .map((c) => DropdownMenuItem(
+            .map(
+              (c) => DropdownMenuItem(
                 value: c,
-                child: Text(c,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 14, color: AppColors.textPrimary))))
+                child: Text(
+                  c,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            )
             .toList(),
       ),
     );
   }
 }
 
-// ─── Upload Box (with preview, loading, error) ────────────────────────────────
+class _FaceRegisterCard extends StatelessWidget {
+  final int count;
+  final bool isCompleted;
+  final VoidCallback onTap;
+
+  const _FaceRegisterCard({
+    required this.count,
+    required this.isCompleted,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isCompleted
+              ? AppColors.primary.withOpacity(0.08)
+              : AppColors.surface,
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+            color: isCompleted ? AppColors.primary : const Color(0xFFB2DFDB),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isCompleted
+                    ? Icons.check_circle_rounded
+                    : Icons.face_retouching_natural_rounded,
+                color: isCompleted ? Colors.white : AppColors.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isCompleted
+                        ? 'Wajah vendor sudah terdaftar'
+                        : 'Daftarkan wajah vendor',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    isCompleted
+                        ? '$count dari 3 foto wajah tersimpan'
+                        : 'Ambil 3 foto wajah untuk login Face ID',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isCompleted ? Icons.refresh_rounded : Icons.camera_alt_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _UploadBox extends StatelessWidget {
   final String label;
@@ -862,9 +1295,9 @@ class _UploadBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage  = imageFile != null;
-    final hasError  = errorText != null && errorText!.isNotEmpty;
-    final disabled  = isLoading || onTap == null;
+    final hasImage = imageFile != null;
+    final hasError = errorText != null && errorText!.isNotEmpty;
+    final disabled = isLoading || onTap == null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -892,87 +1325,94 @@ class _UploadBox extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // ── Header row ─────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.all(14),
-                  child: Row(children: [
-                    Container(
-                      width: 44, height: 44,
-                      decoration: BoxDecoration(
-                        color: hasError
-                            ? AppColors.error.withOpacity(0.1)
-                            : hasImage
-                                ? AppColors.primary.withOpacity(0.1)
-                                : AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: isLoading
-                          ? Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.primary,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: hasError
+                              ? AppColors.error.withOpacity(0.1)
+                              : hasImage
+                                  ? AppColors.primary.withOpacity(0.1)
+                                  : AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: isLoading
+                            ? Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primary,
+                                ),
+                              )
+                            : Icon(
+                                hasError
+                                    ? Icons.error_outline_rounded
+                                    : hasImage
+                                        ? Icons.check_circle_rounded
+                                        : icon,
+                                color: hasError
+                                    ? AppColors.error
+                                    : hasImage
+                                        ? AppColors.primary
+                                        : AppColors.textHint,
+                                size: 22,
                               ),
-                            )
-                          : Icon(
-                              hasError
-                                  ? Icons.error_outline_rounded
-                                  : hasImage
-                                      ? Icons.check_circle_rounded
-                                      : icon,
-                              color: hasError
-                                  ? AppColors.error
-                                  : hasImage
-                                      ? AppColors.primary
-                                      : AppColors.textHint,
-                              size: 22,
-                            ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isLoading
-                                ? 'Memproses...'
-                                : hasImage
-                                    ? 'Berhasil diupload'
-                                    : label,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: hasError
-                                  ? AppColors.error
-                                  : hasImage
-                                      ? AppColors.primary
-                                      : AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            hasImage ? 'Ketuk untuk mengganti' : sublabel,
-                            style: GoogleFonts.dmSans(
-                                fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                        ],
                       ),
-                    ),
-                    if (!isLoading)
-                      Icon(
-                        hasImage ? Icons.edit_outlined : Icons.upload_rounded,
-                        color: hasImage ? AppColors.primary : AppColors.textHint,
-                        size: 18,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isLoading
+                                  ? 'Memproses...'
+                                  : hasImage
+                                      ? 'Berhasil diupload'
+                                      : label,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: hasError
+                                    ? AppColors.error
+                                    : hasImage
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              hasImage ? 'Ketuk untuk mengganti' : sublabel,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                  ]),
+                      if (!isLoading)
+                        Icon(
+                          hasImage ? Icons.edit_outlined : Icons.upload_rounded,
+                          color:
+                              hasImage ? AppColors.primary : AppColors.textHint,
+                          size: 18,
+                        ),
+                    ],
+                  ),
                 ),
-
-                // ── Image Preview ───────────────────────────────────────────
                 if (hasImage && !isLoading) ...[
-                  const Divider(height: 1, color: Color(0xFFB2DFDB)),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFB2DFDB),
+                  ),
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(12)),
+                      bottom: Radius.circular(12),
+                    ),
                     child: Image.file(
                       imageFile!,
                       width: double.infinity,
@@ -985,21 +1425,23 @@ class _UploadBox extends StatelessWidget {
             ),
           ),
         ),
-
-        // ── Error Text ────────────────────────────────────────────────────
         if (hasError) ...[
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.error_outline_rounded,
-                  size: 13, color: AppColors.error),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 13,
+                color: AppColors.error,
+              ),
               const SizedBox(width: 4),
               Text(
                 errorText!,
                 style: GoogleFonts.dmSans(
-                    fontSize: 11,
-                    color: AppColors.error,
-                    fontWeight: FontWeight.w500),
+                  fontSize: 11,
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -1009,27 +1451,32 @@ class _UploadBox extends StatelessWidget {
   }
 }
 
-// ─── Image Preview Card (untuk Step 4 Review) ────────────────────────────────
-
 class _ImagePreviewCard extends StatelessWidget {
   final String label;
   final File file;
 
-  const _ImagePreviewCard({required this.label, required this.file});
+  const _ImagePreviewCard({
+    required this.label,
+    required this.file,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFB2DFDB), width: 1.5),
+        border: Border.all(
+          color: const Color(0xFFB2DFDB),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(11)),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(11),
+            ),
             child: Image.file(
               file,
               width: double.infinity,
@@ -1038,17 +1485,26 @@ class _ImagePreviewCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 8,
+            ),
             child: Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    size: 14, color: AppColors.primary),
+                Icon(
+                  Icons.check_circle_rounded,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 5),
-                Text(label,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary)),
+                Text(
+                  label,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1058,12 +1514,14 @@ class _ImagePreviewCard extends StatelessWidget {
   }
 }
 
-// ─── Review Section / Row ─────────────────────────────────────────────────────
-
 class _ReviewSection extends StatelessWidget {
   final String title;
   final List<_ReviewRow> rows;
-  const _ReviewSection(this.title, this.rows);
+
+  const _ReviewSection(
+    this.title,
+    this.rows,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1071,10 +1529,15 @@ class _ReviewSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB2DFDB)),
+        border: Border.all(
+          color: const Color(0xFFB2DFDB),
+        ),
         boxShadow: [
-          BoxShadow(color: AppColors.primary.withOpacity(0.05),
-              blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: Column(
@@ -1082,34 +1545,52 @@ class _ReviewSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-            child: Text(title,
-                style: GoogleFonts.dmSans(
-                    fontSize: 13, fontWeight: FontWeight.w700,
-                    color: AppColors.primary)),
-          ),
-          const Divider(height: 1, color: Color(0xFFB2DFDB)),
-          ...rows.map((r) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 110,
-                  child: Text(r.label,
-                      style: GoogleFonts.dmSans(
-                          fontSize: 12, color: AppColors.textSecondary)),
-                ),
-                Expanded(
-                  child: Text(
-                    r.value.isEmpty ? '-' : r.value,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 12, fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary),
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: GoogleFonts.dmSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
-          )).toList(),
+          ),
+          const Divider(
+            height: 1,
+            color: Color(0xFFB2DFDB),
+          ),
+          ...rows.map(
+            (r) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 110,
+                    child: Text(
+                      r.label,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      r.value.isEmpty ? '-' : r.value,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1119,10 +1600,12 @@ class _ReviewSection extends StatelessWidget {
 class _ReviewRow {
   final String label;
   final String value;
-  const _ReviewRow(this.label, this.value);
-}
 
-// ─── Primary Button ───────────────────────────────────────────────────────────
+  const _ReviewRow(
+    this.label,
+    this.value,
+  );
+}
 
 class _PrimaryButton extends StatefulWidget {
   final String label;
@@ -1164,7 +1647,8 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
           duration: const Duration(milliseconds: 200),
           opacity: widget.disabled ? 0.6 : 1.0,
           child: Container(
-            width: double.infinity, height: 52,
+            width: double.infinity,
+            height: 52,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               gradient: widget.disabled
@@ -1179,28 +1663,42 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
                   ? []
                   : [
                       BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8)),
+                        color: AppColors.primary.withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
                     ],
             ),
             child: Center(
               child: widget.isLoading
                   ? const SizedBox(
-                      width: 22, height: 22,
+                      width: 22,
+                      height: 22,
                       child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2.5))
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (widget.icon != null) ...[
-                          Icon(widget.icon, color: Colors.white, size: 18),
+                          Icon(
+                            widget.icon,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                         ],
-                        Text(widget.label,
-                            style: GoogleFonts.dmSans(
-                                fontSize: 15, fontWeight: FontWeight.w600,
-                                color: Colors.white, letterSpacing: 0.3)),
+                        Text(
+                          widget.label,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
                       ],
                     ),
             ),
