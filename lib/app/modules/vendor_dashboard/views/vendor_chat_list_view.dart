@@ -117,17 +117,16 @@ class VendorChatListView extends GetView<VendorDashboardController> {
 
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      Get.toNamed(
-                        AppRoutes.chat,
-                        arguments: {
-                          'chat_id': data['chat_id'],
-                          'receiver_name':
-                              data['user_name'] ?? 'Customer',
-                          'receiver_id': data['user_id'],
-                          'sender_id': controller.vendorId.value,
-                          'sender_role': 'vendor',
-                        },
-                      );
+                    Get.toNamed(
+                      AppRoutes.chatViewRoom,
+                      arguments: {
+                        'chat_id': data['chat_id'],
+                        'receiver_name': data['user_name'] ?? 'Customer',
+                        'receiver_id': data['user_id'],
+                        'sender_id': controller.vendorId.value,
+                        'sender_role': 'vendor',
+                      },
+                    );
                     },
                   ),
                 );
