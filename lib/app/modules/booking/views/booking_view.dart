@@ -291,12 +291,13 @@ Widget _buildTimeSection(BuildContext context) {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  '${ApiConfig.baseUrl}/uploads/${controller.package.image}',
+                  controller.package.image,
                   height: 160,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     height: 160,
+                    width: double.infinity,
                     color: AppColors.surfaceVariant,
                     child: const Icon(
                       Icons.image_rounded,
