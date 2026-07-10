@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../views/payment_webview_screen.dart';
 
 import '../../../data/models/models.dart';
 import '../../../core/constants/api_config.dart';
@@ -119,18 +120,33 @@ class PaymentController extends GetxController {
         final data = jsonDecode(response.body);
         final redirectUrl = data['redirect_url'];
         
+        // 🟢 1. IMPORT DAN PANGGIL SCREEN WEBVIEW BARU DI SINI, BOS!
+        // Jangan lupa di bagian paling atas controller lo import filenya:
+        // import '../views/payment_webview_screen.dart';
+        
+        final result = await Get.to(() => PaymentWebViewScreen(
+              paymentUrl: redirectUrl,
+              callbackUrl: "${ApiConfig.baseUrl}/api/payment/callback", // Sesuaikan URL callback Flask lo
+            ));
 
-        await launchUrl(
-          Uri.parse(redirectUrl),
-          mode: LaunchMode.externalApplication,
-        );
-        paymentSuccess.value = true;
-
-        Get.snackbar(
-          'Pembayaran diproses',
-          'Silakan cek status pembayaran di Pesanan Saya',
-        );
-
+        // 🟢 2. CEK JIKA USER SUKSES BAYAR DI WEBVIEW
+        if (result == 'SUCCESS') {
+          paymentSuccess.value = true;
+          
+          Get.snackbar(
+            'Sukses',
+            'Pembayaran berhasil terkonfirmasi!',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Info',
+            'Pembayaran belum diselesaikan atau dibatalkan.',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+          );
+        }
         
       } else {
         Get.snackbar('Gagal', 'Tidak dapat membuat transaksi Midtrans');
