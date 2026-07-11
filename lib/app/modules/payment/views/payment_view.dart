@@ -12,6 +12,23 @@ import '../../../routes/app_routes.dart';
 class PaymentView extends GetView<PaymentController> {
   const PaymentView({super.key});
 
+  String _getPackageImageUrl() {
+    final String image = controller.package.image.trim();
+
+    if (image.isEmpty) {
+      return '';
+    }
+
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return image;
+    }
+
+    final String cleanImage =
+        image.startsWith('/') ? image.substring(1) : image;
+
+    return '${ApiConfig.baseUrl}/uploads/$cleanImage';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,21 +149,22 @@ class PaymentView extends GetView<PaymentController> {
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
 
-            child: Image.network(
-              '${ApiConfig.baseUrl}/uploads/${controller.package.image}',
+          child: Image.network(
+            _getPackageImageUrl(),
+            height: 180,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
               height: 180,
               width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 180,
-                color: AppColors.surfaceVariant,
-                child: const Icon(
-                  Icons.image_rounded,
-                  size: 60,
-                  color: AppColors.textHint,
-                ),
+              color: AppColors.surfaceVariant,
+              child: const Icon(
+                Icons.image_rounded,
+                size: 60,
+                color: AppColors.textHint,
               ),
             ),
+          ),
           ),
 
           const SizedBox(height: 16),
