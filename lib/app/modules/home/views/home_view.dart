@@ -523,9 +523,11 @@ class _Categories extends GetView<HomeController> {
 }
 
 // ============================================================
-// SLIDER BANNER REKOMENDASI DAN TIPS (DINAMIS DARI DATABASE)
+// SLIDER BANNER REKOMENDASI DAN TIPS
+// OTOMATIS + TETAP BISA DIGESER MANUAL
 // ============================================================
-class _VendorSlider extends StatelessWidget {
+
+class _VendorSlider extends GetView<HomeController> {
   const _VendorSlider();
 
   @override
@@ -533,22 +535,40 @@ class _VendorSlider extends StatelessWidget {
     return FutureBuilder<List<dynamic>>(
       future: BannerServices.fetchActiveBanners(),
       builder: (context, snapshot) {
+        // =========================
+        // LOADING
+        // =========================
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(
             height: 215,
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
 
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+        // =========================
+        // ERROR / KOSONG
+        // =========================
+        if (snapshot.hasError ||
+            !snapshot.hasData ||
+            snapshot.data!.isEmpty) {
           return const SizedBox.shrink();
         }
 
         final List<dynamic> banners = snapshot.data!;
 
+        // Jalankan auto slider setelah widget selesai dibuild
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          controller.startBannerSlider(banners.length);
+        });
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // =========================
+            // HEADER
+            // =========================
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -563,7 +583,9 @@ class _VendorSlider extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 4),
+
             Text(
               'Info penting dan panduan menarik untuk acaramu',
               style: GoogleFonts.poppins(
@@ -571,16 +593,28 @@ class _VendorSlider extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
+
             const SizedBox(height: 12),
+
+            // =========================
+            // SLIDER
+            // =========================
             SizedBox(
               height: 215,
               child: PageView.builder(
+                controller: controller.bannerSliderController,
+
                 itemCount: banners.length,
+
+                onPageChanged: controller.onBannerSlideChanged,
+
                 itemBuilder: (context, index) {
-                  final banner = banners[index];
+                  final dynamic banner = banners[index];
 
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 2,
+                    ),
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       color: AppColors.primary,
@@ -596,18 +630,29 @@ class _VendorSlider extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
+                        // =========================
+                        // GAMBAR
+                        // =========================
                         Image.network(
-                          banner['image_url'],
+                          (banner['image_url'] ?? '').toString(),
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) {
                             return Container(
                               color: AppColors.primary,
                               child: const Center(
-                                child: Icon(Icons.image_outlined, size: 40, color: Colors.white),
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 40,
+                                  color: Colors.white,
+                                ),
                               ),
                             );
                           },
                         ),
+
+                        // =========================
+                        // GRADIENT
+                        // =========================
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -618,10 +663,18 @@ class _VendorSlider extends StatelessWidget {
                                 Colors.black.withOpacity(0.25),
                                 Colors.black.withOpacity(0.88),
                               ],
-                              stops: const [0, 0.42, 1],
+                              stops: const [
+                                0,
+                                0.42,
+                                1,
+                              ],
                             ),
                           ),
                         ),
+
+                        // =========================
+                        // TEXT BANNER
+                        // =========================
                         Positioned(
                           left: 18,
                           right: 18,
@@ -630,7 +683,7 @@ class _VendorSlider extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                banner['title'],
+                                (banner['title'] ?? '').toString(),
                                 style: GoogleFonts.poppins(
                                   fontSize: 19,
                                   fontWeight: FontWeight.w700,
@@ -640,9 +693,11 @@ class _VendorSlider extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
+
                               const SizedBox(height: 5),
+
                               Text(
-                                banner['subtitle'],
+                                (banner['subtitle'] ?? '').toString(),
                                 style: GoogleFonts.poppins(
                                   fontSize: 10,
                                   color: Colors.white.withOpacity(0.82),
@@ -651,6 +706,7 @@ class _VendorSlider extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+
                               const SizedBox(height: 10),
                             ],
                           ),
@@ -661,6 +717,41 @@ class _VendorSlider extends StatelessWidget {
                 },
               ),
             ),
+
+            // =========================
+            // INDIKATOR DOT
+            // =========================
+            if (banners.length > 1) ...[
+              const SizedBox(height: 10),
+
+              Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    banners.length,
+                    (index) {
+                      final bool isActive =
+                          controller.currentBannerSlide.value == index;
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 3,
+                        ),
+                        width: isActive ? 20 : 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? AppColors.primary
+                              : AppColors.primary.withOpacity(0.22),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ],
         );
       },

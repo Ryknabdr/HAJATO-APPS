@@ -44,6 +44,54 @@ class HomeController extends GetxController {
 
   Timer? vendorSliderTimer;
 
+
+  // ============================================================
+// SLIDER BANNER REKOMENDASI
+// ============================================================
+
+final PageController bannerSliderController = PageController();
+
+final currentBannerSlide = 0.obs;
+
+Timer? bannerSliderTimer;
+
+int _bannerCount = 0;
+
+void startBannerSlider(int bannerCount) {
+  // Simpan jumlah banner terbaru
+  _bannerCount = bannerCount;
+
+  // Hentikan timer lama supaya tidak dobel
+  bannerSliderTimer?.cancel();
+
+  // Kalau banner cuma 0 atau 1, tidak perlu auto slide
+  if (bannerCount <= 1) {
+    return;
+  }
+
+  bannerSliderTimer = Timer.periodic(
+    const Duration(seconds: 4),
+    (_) {
+      if (!bannerSliderController.hasClients || _bannerCount <= 1) {
+        return;
+      }
+
+      final int nextPage =
+          (currentBannerSlide.value + 1) % _bannerCount;
+
+      bannerSliderController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic,
+      );
+    },
+  );
+}
+
+void onBannerSlideChanged(int index) {
+  currentBannerSlide.value = index;
+}
+
   // ============================================================
   // DATA YOUTUBE
   // ============================================================
@@ -459,8 +507,13 @@ class HomeController extends GetxController {
 
   @override
   void onClose() {
+    // Vendor slider
     vendorSliderTimer?.cancel();
     vendorSliderController.dispose();
+
+    // Banner slider
+    bannerSliderTimer?.cancel();
+    bannerSliderController.dispose();
 
     super.onClose();
   }

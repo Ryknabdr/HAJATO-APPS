@@ -51,6 +51,50 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:657219334090:android:0d65c4c9af1f0bef2e2933",
+        "android_client_info": {
+          "package_name": "com.hn.hajato"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "657219334090-qv1lt93nst1kmd38lpcftn3s6l76rlc0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hn.hajato",
+            "certificate_hash": "817622ab58d92930c030e81b2c2888ca972a7b06"
+          }
+        },
+        {
+          "client_id": "657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLXFP7kEJ9V7pZ3VNOvdT32NX14Cxbtkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "657219334090-jdj45qp4ek46lk5cmuke1qo5qnqf2fn0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "657219334090-ln1857egm6laduugcg003vmqffuuhng3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hajato.hajato"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:657219334090:android:a96d4f7dbedc91bc2e2933",
         "android_client_info": {
           "package_name": "com.uhn.hajato"
